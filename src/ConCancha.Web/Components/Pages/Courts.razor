@@ -1,0 +1,58 @@
+@page "/panel/canchas"
+@inherits PanelPageBase
+
+<PageTitle>Canchas · ConCancha</PageTitle>
+
+<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
+
+<main class="panel">
+    <h1>Canchas</h1>
+
+    @if (_club is null || _courts is null)
+    {
+        <p class="loading">@(ErrorText ?? "Cargando…")</p>
+    }
+    else
+    {
+        <ClubHoursCard OpeningMinuteOfDay="_club.OpeningMinuteOfDay" ClosingMinuteOfDay="_club.ClosingMinuteOfDay" OnSaved="OnHoursSaved" />
+
+        @foreach (var court in _courts)
+        {
+            @if (_editingCourtId == court.Id)
+            {
+                <CourtForm Court="court" ClubOpeningMinuteOfDay="_club.OpeningMinuteOfDay" ClubClosingMinuteOfDay="_club.ClosingMinuteOfDay"
+                           OnSaved="OnCourtSaved" OnCancel="CloseCourtForm" />
+            }
+            else
+            {
+                <div class="card col @(court.IsActive ? "" : "off")">
+                    <div class="row sp">
+                        <span>
+                            <b>@court.Name</b> <span class="chip">@SportLabels.Get(court.Sport)</span>
+                            @if (!court.IsActive) { <span class="chip">Desactivada</span> }
+                            <div class="mut sm">Turnos de @court.SlotMinutes min · @DescribeHours(court)</div>
+                        </span>
+                        <span class="row">
+                            <button class="lnk" @onclick="() => EditCourt(court)">Editar</button>
+                            <button class="lnk" @onclick="() => TogglePrices(court)">@(_pricesCourtId == court.Id ? "Ocultar precios" : "Precios")</button>
+                        </span>
+                    </div>
+                    @if (_pricesCourtId == court.Id)
+                    {
+                        <PriceRulesEditor CourtId="court.Id" />
+                    }
+                </div>
+            }
+        }
+
+        @if (_isCreating)
+        {
+            <CourtForm ClubOpeningMinuteOfDay="_club.OpeningMinuteOfDay" ClubClosingMinuteOfDay="_club.ClosingMinuteOfDay"
+                       OnSaved="OnCourtSaved" OnCancel="CloseCourtForm" />
+        }
+        else
+        {
+            <button class="btn" @onclick="StartCreating">Agregar cancha</button>
+        }
+    }
+</main>

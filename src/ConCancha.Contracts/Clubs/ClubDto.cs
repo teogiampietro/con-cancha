@@ -7,4 +7,5 @@ public record ClubDto(
     string? Phone,
     string CountryCode,
     int OpeningMinuteOfDay,
-    int ClosingMinuteOfDay);
+    int ClosingMinuteOfDay,
+    string TimeZoneId);

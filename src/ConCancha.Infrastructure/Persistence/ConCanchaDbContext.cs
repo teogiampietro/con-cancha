@@ -1,6 +1,11 @@
 using System.Reflection;
 using ConCancha.Application.Abstractions;
+using ConCancha.Domain.Bookings;
 using ConCancha.Domain.Clubs;
+using ConCancha.Domain.Courts;
+using ConCancha.Domain.Customers;
+using ConCancha.Domain.Pricing;
+using ConCancha.Domain.Setup;
 using ConCancha.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +16,18 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
     : IdentityDbContext<AppUser>(options)
 {
     private const int IdentityUserIdMaxLength = 450;
+    private const int ManagementTokenHashLength = 64;
 
     private static readonly MethodInfo ApplyClubFilterMethod = typeof(ConCanchaDbContext)
         .GetMethod(nameof(ApplyClubFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     public DbSet<Club> Clubs => Set<Club>();
     public DbSet<ClubMember> ClubMembers => Set<ClubMember>();
+    public DbSet<Court> Courts => Set<Court>();
+    public DbSet<PriceRule> PriceRules => Set<PriceRule>();
+    public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<ClubSetup> ClubSetups => Set<ClubSetup>();
+    public DbSet<Customer> Customers => Set<Customer>();
 
     /// <summary>
     /// Club that queries filter by. With no club set it is <c>null</c> and the filters return nothing:
@@ -30,6 +41,11 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
 
         ConfigureClub(modelBuilder);
         ConfigureClubMember(modelBuilder);
+        ConfigureCourt(modelBuilder);
+        ConfigurePriceRule(modelBuilder);
+        ConfigureBooking(modelBuilder);
+        ConfigureClubSetup(modelBuilder);
+        ConfigureCustomer(modelBuilder);
         ApplyClubFilters(modelBuilder);
     }
 
@@ -64,6 +80,67 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
             entity.HasOne<AppUser>().WithMany().HasForeignKey(member => member.UserId).OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(member => new { member.ClubId, member.UserId }).IsUnique();
             entity.HasIndex(member => member.UserId);
+        });
+
+    private static void ConfigureCourt(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<Court>(entity =>
+        {
+            entity.Property(court => court.Name).HasMaxLength(CourtLimits.NameMaxLength).IsRequired();
+            entity.Property(court => court.Sport).HasConversion<int>();
+            entity.HasOne(court => court.Club).WithMany().HasForeignKey(court => court.ClubId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(court => new { court.ClubId, court.Name }).IsUnique();
+        });
+
+    private static void ConfigurePriceRule(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<PriceRule>(entity =>
+        {
+            entity.Property(rule => rule.Price).HasPrecision(PriceLimits.MoneyPrecision, PriceLimits.MoneyScale);
+            entity.Property(rule => rule.Days).HasConversion<int?>();
+            entity.HasOne(rule => rule.Court).WithMany().HasForeignKey(rule => rule.CourtId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(rule => rule.CourtId);
+        });
+
+    /// <summary>
+    /// The no-overlap guarantee is a PostgreSQL exclusion constraint created in the migration
+    /// (EF cannot express it with a partial predicate); see <c>AddCourtsPricingAndBookings</c>.
+    /// </summary>
+    private static void ConfigureBooking(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<Booking>(entity =>
+        {
+            entity.Property(booking => booking.Price).HasPrecision(PriceLimits.MoneyPrecision, PriceLimits.MoneyScale);
+            entity.Property(booking => booking.CustomerName).HasMaxLength(BookingLimits.CustomerNameMaxLength);
+            entity.Property(booking => booking.CustomerPhone).HasMaxLength(BookingLimits.PhoneMaxLength);
+            entity.Property(booking => booking.Reason).HasMaxLength(BookingLimits.ReasonMaxLength);
+            entity.Property(booking => booking.Kind).HasConversion<int>();
+            entity.Property(booking => booking.Status).HasConversion<int>();
+            entity.Property(booking => booking.PaymentStatus).HasConversion<int>();
+            entity.Property(booking => booking.PaymentMethod).HasConversion<int?>();
+            entity.Property(booking => booking.Attendance).HasConversion<int>();
+            entity.Property(booking => booking.Origin).HasConversion<int>();
+            entity.Property(booking => booking.ManagementTokenHash).HasMaxLength(ManagementTokenHashLength);
+            entity.HasOne<Customer>().WithMany().HasForeignKey(booking => booking.CustomerId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(booking => booking.ManagementTokenHash);
+            entity.HasIndex(booking => booking.CustomerId);
+            entity.HasOne(booking => booking.Court).WithMany().HasForeignKey(booking => booking.CourtId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(booking => new { booking.ClubId, booking.StartsAt });
+        });
+
+    private static void ConfigureCustomer(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.Property(customer => customer.Name).HasMaxLength(BookingLimits.CustomerNameMaxLength).IsRequired();
+            entity.Property(customer => customer.NormalizedPhone).HasMaxLength(CustomerLimits.NormalizedPhoneMaxLength).IsRequired();
+            entity.Property(customer => customer.Email).HasMaxLength(CustomerLimits.EmailMaxLength);
+            entity.HasOne<Club>().WithMany().HasForeignKey(customer => customer.ClubId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(customer => new { customer.ClubId, customer.NormalizedPhone }).IsUnique();
+        });
+
+    private static void ConfigureClubSetup(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<ClubSetup>(entity =>
+        {
+            entity.Property(setup => setup.DraftJson).HasMaxLength(SetupLimits.DraftMaxLength);
+            entity.HasOne<Club>().WithMany().HasForeignKey(setup => setup.ClubId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(setup => setup.ClubId).IsUnique();
         });
 
     private void ApplyClubFilters(ModelBuilder modelBuilder)

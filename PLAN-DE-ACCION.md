@@ -34,7 +34,7 @@ Señas con comprobante, lista de espera, turnos fijos, cuenta de jugador, puntos
 | 2 | Verificación de mail al registrarse (la maqueta no la simula) | 1 |
 | 3 | Límite de registros por IP/dispositivo contra abuso del autoservicio | 1 |
 | 4 | Encuesta "¿cómo tomás los turnos hoy?" y campo de referido del alta: evaluar si aportan para marketing | 6 |
-| 5 | Cómo se ajustan en la app real los precios por cancha y por día después del alta (no se recorrió) | 2 |
+| 5 | Cómo se ajustan en la app real los precios por cancha y por día después del alta (no se recorrió). Resuelto en Fase 2 con la decisión propia de la sección 1 (franjas por cancha); validar con el club piloto | 2 |
 
 ## 4. Fases
 
@@ -58,6 +58,7 @@ Señas con comprobante, lista de espera, turnos fijos, cuenta de jugador, puntos
 - Turno (reserva | bloqueo, estado, pago, método, no-show, motivo), con constraint de exclusión `tstzrange` por cancha para turnos no cancelados.
 - Endpoints + pantallas: Canchas, Precios, Agenda (cargar, bloquear, detalle, pagar, jugado, no vino, cancelar).
 - **Listo cuando:** dos cargas simultáneas al mismo horario dejan una sola reserva (test de concurrencia) y la agenda replica la maqueta.
+- **Estado:** backend y tests hechos (constraint de exclusión, concurrencia, aislamiento por club, roles). Pantallas Blazor (asistente, Canchas con precios, Agenda) implementadas; falta recorrerlas en navegador y celular contra la maqueta.
 
 ### Fase 3: Reserva pública (1 semana)
 - Sitio `/{slug}`: selector de 7 días, selector de cancha, lista de turnos, hoja de reserva (nombre, WhatsApp, mail opcional).
@@ -65,6 +66,7 @@ Señas con comprobante, lista de espera, turnos fijos, cuenta de jugador, puntos
 - Límite de turnos activos, link de gestión con token, cancelación dentro de la ventana.
 - Limitación de tasa en endpoints públicos.
 - **Listo cuando:** un jugador reserva y cancela desde el celular, y el turno aparece en la agenda del club.
+- **Estado:** backend y tests hechos (reserva anónima, cliente por teléfono normalizado, límite de 2 turnos activos, token de gestión guardado como hash, ventana de cancelación configurable por club, límite de tasa). Sitio `/{slug}` y `/{slug}/turno/{token}` implementados; falta recorrerlos en celular real. La ventana de cancelación aún no se edita desde Configuración.
 
 ### Fase 4: Gestión diaria (1 semana)
 - Reservas (filtros Hoy/7/30/Historial, A cobrar, Online, búsqueda).

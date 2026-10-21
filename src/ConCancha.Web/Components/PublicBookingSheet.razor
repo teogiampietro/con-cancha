@@ -1,0 +1,47 @@
+@inherits CancellableComponentBase
+
+<Sheet Title="@(_created is null ? "Reservá tu turno" : "¡Turno reservado!")" OnClose="OnClose">
+    @if (_created is null)
+    {
+        <div class="card col">
+            <b>@Club.Name · @Court.Name</b>
+            <span class="mut">@DisplayFormat.LongDate(Date) · @DisplayFormat.Time(Slot.StartMinuteOfDay) a @DisplayFormat.Time(Slot.EndMinuteOfDay)</span>
+            <b class="acc">@(Slot.Price is { } price ? DisplayFormat.Money(price) : "Precio a consultar")</b>
+        </div>
+
+        <form class="col" @onsubmit="() => BookAsync(ComponentToken)" @onsubmit:preventDefault>
+            <div>
+                <label class="f" for="player-name">Tu nombre</label>
+                <input id="player-name" type="text" maxlength="@BookingLimits.CustomerNameMaxLength" autocomplete="name" @bind="_name" @bind:event="oninput" />
+                <FieldError Message="@GetFieldError("name")" />
+            </div>
+            <div>
+                <label class="f" for="player-phone">Tu WhatsApp</label>
+                <input id="player-phone" type="tel" inputmode="tel" maxlength="@BookingLimits.PhoneMaxLength" autocomplete="tel" placeholder="11 2345 6789" @bind="_phone" @bind:event="oninput" />
+                <FieldError Message="@GetFieldError("phone")" />
+                <p class="hint">Es con lo que te identificamos y te mandamos el link de tu turno.</p>
+            </div>
+            <div>
+                <label class="f" for="player-email">Tu mail (opcional)</label>
+                <input id="player-email" type="email" autocomplete="email" @bind="_email" @bind:event="oninput" />
+                <FieldError Message="@GetFieldError("email")" />
+            </div>
+            <ErrorMessage Message="@_errorMessage" />
+            <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Reservando…" : "Reservar")</button>
+            <p class="hint center no-margin">Pagás en el club. Podés cancelar hasta @Club.CancellationWindowHours horas antes.</p>
+        </form>
+    }
+    else
+    {
+        <div class="card col">
+            <b>@_created.Booking.ClubName · @_created.Booking.CourtName</b>
+            <span class="mut">@DisplayFormat.LongDate(_created.Booking.Date) · @DisplayFormat.Time(_created.Booking.StartMinuteOfDay)</span>
+        </div>
+        <p class="no-margin"><b>Guardá este link:</b> con él ves o cancelás tu turno. No lo compartas.</p>
+        <input type="text" readonly value="@ManagementLink" onfocus="this.select()" />
+        <div class="row">
+            <button class="btn sec grow" @onclick="() => CopyLinkAsync(ComponentToken)">@(_isCopied ? "¡Copiado!" : "Copiar link")</button>
+            <a class="btn grow" href="@ManagementPath">Ver mi turno</a>
+        </div>
+    }
+</Sheet>

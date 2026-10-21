@@ -1,0 +1,57 @@
+@inherits CancellableComponentBase
+
+<Sheet Title="@($"{Court.Name} · {DisplayFormat.Time(Slot.StartMinuteOfDay)}")" OnClose="OnClose">
+    <p class="mut sm no-margin">@DisplayFormat.LongDate(Date)</p>
+    <div class="tabs">
+        <button class="@(_isBlocking ? "" : "on")" @onclick="() => ChooseBlock(false)">Cargar turno</button>
+        <button class="@(_isBlocking ? "on" : "")" @onclick="() => ChooseBlock(true)">Bloquear horario</button>
+    </div>
+
+    @if (_isBlocking)
+    {
+        <form class="col" @onsubmit="() => BlockAsync(ComponentToken)" @onsubmit:preventDefault>
+            <div>
+                <label class="f" for="block-reason">Motivo</label>
+                <input id="block-reason" type="text" maxlength="@BookingLimits.ReasonMaxLength" placeholder="Lluvia, mantenimiento…" autocomplete="off" @bind="_reason" @bind:event="oninput" />
+            </div>
+            <ErrorMessage Message="@_errorMessage" />
+            <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Bloquear")</button>
+        </form>
+    }
+    else
+    {
+        <form class="col" @onsubmit="() => ReserveAsync(ComponentToken)" @onsubmit:preventDefault>
+            <div>
+                <label class="f" for="booking-name">Nombre</label>
+                <input id="booking-name" type="text" maxlength="@BookingLimits.CustomerNameMaxLength" autocomplete="off" @bind="_name" @bind:event="oninput" />
+            </div>
+            <div>
+                <label class="f" for="booking-phone">WhatsApp (opcional)</label>
+                <input id="booking-phone" type="tel" maxlength="@BookingLimits.PhoneMaxLength" inputmode="tel" @bind="_phone" @bind:event="oninput" />
+            </div>
+            <div>
+                <label class="f" for="booking-price">Precio</label>
+                <input id="booking-price" type="number" min="0" step="100" inputmode="numeric" @bind="_price" />
+                @if (Slot.Price is null) { <p class="hint">Esta cancha no tiene precio para este horario: poné el que corresponda.</p> }
+            </div>
+            <div>
+                <label class="f">¿Ya pagó?</label>
+                <div class="pills">
+                    <button type="button" class="pill @(_isPaid ? "" : "on")" @onclick="() => _isPaid = false">Debe</button>
+                    <button type="button" class="pill @(_isPaid ? "on" : "")" @onclick="() => _isPaid = true">Pagó</button>
+                </div>
+            </div>
+            @if (_isPaid)
+            {
+                <div class="pills">
+                    @foreach (var method in PaymentMethods)
+                    {
+                        <button type="button" class="pill @(_method == method ? "on" : "")" @onclick="() => _method = method">@DisplayFormat.PaymentMethodLabel(method)</button>
+                    }
+                </div>
+            }
+            <ErrorMessage Message="@_errorMessage" />
+            <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Cargar turno")</button>
+        </form>
+    }
+</Sheet>

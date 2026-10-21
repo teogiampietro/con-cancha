@@ -1,0 +1,62 @@
+@inherits CancellableComponentBase
+
+<div class="col">
+    @if (_rules is null)
+    {
+        <p class="mut sm">@(_errorMessage ?? "Cargando precios…")</p>
+    }
+    else
+    {
+        @foreach (var rule in _rules)
+        {
+            <div class="row sp rule">
+                <span>
+                    <b>@DisplayFormat.Money(rule.Price)</b>
+                    <span class="mut sm"> · @DisplayFormat.Days(rule.Days) · de @DisplayFormat.Time(rule.FromMinuteOfDay) a @DisplayFormat.Time(rule.ToMinuteOfDay)</span>
+                </span>
+                <span class="row">
+                    <button class="lnk" @onclick="() => StartEditing(rule)">Editar</button>
+                    <button class="lnk danger-text" @onclick="() => DeleteAsync(rule, ComponentToken)">Quitar</button>
+                </span>
+            </div>
+        }
+
+        @if (_rules.Count == 0) { <p class="mut sm no-margin">Esta cancha todavía no tiene precio: no se pueden cobrar sus turnos automáticamente.</p> }
+
+        @if (_isFormOpen)
+        {
+            <form class="card col inner" @onsubmit="() => SaveAsync(ComponentToken)" @onsubmit:preventDefault>
+                <b>@(_editingId is null ? "Nueva franja de precio" : "Editar franja")</b>
+                <div>
+                    <label class="f">Días</label>
+                    <div class="pills">
+                        <button type="button" class="pill @(_days.Count == 0 ? "on" : "")" @onclick="_days.Clear">Todos</button>
+                        @foreach (var (day, label) in DisplayFormat.WeekdayLabels)
+                        {
+                            <button type="button" class="pill @(_days.Contains(day) ? "on" : "")" @onclick="() => ToggleDay(day)">@label</button>
+                        }
+                    </div>
+                </div>
+                <div class="two">
+                    <div><label class="f">Desde</label><TimeField @bind-Value="_from" /></div>
+                    <div><label class="f">Hasta</label><TimeField @bind-Value="_to" /></div>
+                </div>
+                <div>
+                    <label class="f" for="rule-price">Precio del turno</label>
+                    <input id="rule-price" type="number" min="0" step="100" inputmode="numeric" @bind="_price" />
+                </div>
+                <p class="hint no-margin">Si dos franjas coinciden, gana la que tiene días elegidos; si empatan, la de horario más angosto.</p>
+                <ErrorMessage Message="@_errorMessage" />
+                <div class="row">
+                    <button type="button" class="btn sec" @onclick="CloseForm">Cancelar</button>
+                    <button class="btn grow" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Guardar")</button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <ErrorMessage Message="@_errorMessage" />
+            <button class="btn sec" @onclick="StartCreating">Agregar franja de precio</button>
+        }
+    }
+</div>

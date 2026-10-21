@@ -14,7 +14,7 @@ public static partial class SlugRules
     public static readonly IReadOnlySet<string> Reserved = new HashSet<string>(StringComparer.Ordinal)
     {
         "panel", "api", "jugador", "c", "admin", "login", "registro", "asistente", "broadcast",
-        "www", "app", "concancha", "swagger", "health", "static", "assets", "_framework", "_blazor",
+        "www", "app", "concancha", "swagger", "health", "static", "assets", "_framework", "_blazor", "turno", "not-found", "error",
     };
 
     [GeneratedRegex("^[a-z0-9]+(-[a-z0-9]+)*$")]

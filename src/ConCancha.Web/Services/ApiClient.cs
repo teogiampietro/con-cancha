@@ -7,7 +7,7 @@ using ConCancha.Contracts.Clubs;
 namespace ConCancha.Web.Services;
 
 /// <summary>Talks to the API. Never throws for business errors: returns an <see cref="ApiResult{T}"/> with the message to show.</summary>
-public sealed class ApiClient(HttpClient http, CurrentSession session, ClientIpAccessor clientIp)
+public sealed partial class ApiClient(HttpClient http, CurrentSession session, ClientIpAccessor clientIp)
 {
     private const string BearerScheme = "Bearer";
     private const string ForwardedForHeader = "X-Forwarded-For";

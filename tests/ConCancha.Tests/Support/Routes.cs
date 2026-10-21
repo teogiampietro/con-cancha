@@ -11,6 +11,15 @@ public static class Routes
     public const string CurrentClub = "/api/club";
     public const string CurrentClubTeam = "/api/club/team";
     public const string PublicClubs = "/api/public/clubs";
+    public const string ClubHours = "/api/club/hours";
+    public const string Setup = "/api/club/setup";
+    public const string SetupComplete = "/api/club/setup/complete";
+    public const string Courts = "/api/courts";
+    public const string PriceRules = "/api/price-rules";
+    public const string Agenda = "/api/agenda";
+    public const string Bookings = "/api/bookings";
+    public const string Blocks = "/api/bookings/blocks";
+    public const string PublicClubBase = "/api/public/clubs";
     public const string Health = "/health";
     public const string HealthReady = "/health/ready";
     public const string SwaggerDocument = "/swagger/v1/swagger.json";

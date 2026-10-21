@@ -1,0 +1,69 @@
+@page "/panel/agenda"
+@inherits PanelPageBase
+
+<PageTitle>Agenda · ConCancha</PageTitle>
+
+<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
+
+<main class="panel wide">
+    <div class="row sp wrap">
+        <h1 class="no-margin">Agenda</h1>
+        <div class="row">
+            <button class="btn sec" @onclick="() => ChangeDayAsync(-1)" aria-label="Día anterior">‹</button>
+            <button class="btn sec" @onclick="GoToTodayAsync" disabled="@(_date == Today)">Hoy</button>
+            <button class="btn sec" @onclick="() => ChangeDayAsync(1)" aria-label="Día siguiente">›</button>
+        </div>
+    </div>
+    <p class="mut no-margin">@DisplayFormat.LongDate(_date)@(_date == Today ? " · hoy" : "")</p>
+
+    <ErrorMessage Message="@ErrorText" />
+
+    @if (_agenda is null)
+    {
+        <p class="loading">@(ErrorText is null ? "Cargando…" : "")</p>
+    }
+    else if (_agenda.Courts.Count == 0)
+    {
+        <div class="card col center">
+            <b>Todavía no cargaste canchas</b>
+            <span class="mut">Primero agregá tus canchas y sus precios; después podés cargar turnos.</span>
+            @if (IsOwner) { <a class="btn" href="@PageRoutes.Courts">Cargar mi primera cancha</a> }
+        </div>
+    }
+    else
+    {
+        <div class="cols">
+            @foreach (var courtDay in _agenda.Courts)
+            {
+                <section class="col">
+                    <div class="row sp"><b>@courtDay.Court.Name</b><span class="mut sm">@SportLabels.Get(courtDay.Court.Sport) · @courtDay.Court.SlotMinutes min</span></div>
+                    @foreach (var slot in courtDay.Slots)
+                    {
+                        <button class="slot @SlotClass(slot)" disabled="@IsDisabled(slot)" @onclick="() => OpenSlot(courtDay, slot)">
+                            <span class="t">@DisplayFormat.Time(slot.StartMinuteOfDay)</span>
+                            @if (slot.Booking is { } booking)
+                            {
+                                <span class="grow">@BookingTitle(booking) @if (booking.Origin == BookingOrigin.Online) { <span class="chip">online</span> }</span>
+                                <span class="chip @BookingChipClass(booking)">@BookingChipText(booking)</span>
+                            }
+                            else
+                            {
+                                <span class="grow mut sm">@(slot.IsPast ? "Pasó" : "Libre")</span>
+                                <span class="p">@(slot.Price is { } price ? DisplayFormat.Money(price) : "—")</span>
+                            }
+                        </button>
+                    }
+                </section>
+            }
+        </div>
+    }
+</main>
+
+@if (_selectedFreeSlot is { } free)
+{
+    <BookingSheet Court="free.Court" Slot="free.Slot" Date="_date" OnSaved="OnBookingChangedAsync" OnClose="CloseSheet" />
+}
+else if (_selectedBooking is { } selected)
+{
+    <BookingDetailSheet Court="selected.Court" Booking="selected.Booking" OnChanged="OnBookingChangedAsync" OnClose="CloseSheet" />
+}

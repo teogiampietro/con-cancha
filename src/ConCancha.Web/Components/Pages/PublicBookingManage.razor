@@ -1,0 +1,55 @@
+@page "/{Slug}/turno/{Token}"
+@inherits CancellableComponentBase
+
+<PageTitle>Tu turno · ConCancha</PageTitle>
+
+<main class="public">
+    @if (_booking is null)
+    {
+        <p class="loading">@(_errorMessage ?? "Cargando…")</p>
+    }
+    else
+    {
+        <h1 class="no-margin">Tu turno</h1>
+
+        <div class="card col">
+            <b>@_booking.ClubName</b>
+            <span>@_booking.CourtName</span>
+            <span class="mut">@DisplayFormat.LongDate(_booking.Date) · @DisplayFormat.Time(_booking.StartMinuteOfDay) a @DisplayFormat.Time(_booking.EndMinuteOfDay)</span>
+            <div class="row sp">
+                <b>@DisplayFormat.Money(_booking.Price)</b>
+                @if (_booking.Status == BookingStatus.Cancelled) { <span class="chip warn">Cancelado</span> } else { <span class="chip ok">Reservado</span> }
+            </div>
+            @if (_booking.Status == BookingStatus.Confirmed) { <span class="mut sm">Se paga en el club.</span> }
+        </div>
+
+        <ErrorMessage Message="@_errorMessage" />
+
+        @if (_booking.Status == BookingStatus.Cancelled)
+        {
+            <p class="mut">Cancelaste este turno. El horario quedó libre.</p>
+            <a class="btn block" href="@PageRoutes.PublicClub(Slug)">Reservar otro turno</a>
+        }
+        else if (_isConfirmingCancel)
+        {
+            <p class="no-margin">¿Seguro que querés cancelar este turno?</p>
+            <div class="row">
+                <button class="btn sec grow" @onclick="() => _isConfirmingCancel = false">No, volver</button>
+                <button class="btn danger grow" disabled="@_isBusy" @onclick="() => CancelAsync(ComponentToken)">Sí, cancelar</button>
+            </div>
+        }
+        else if (_booking.CanCancel)
+        {
+            <button class="btn danger block" @onclick="() => _isConfirmingCancel = true">Cancelar turno</button>
+            <p class="hint center">Podés cancelar hasta @_booking.CancellationWindowHours horas antes del turno.</p>
+        }
+        else
+        {
+            <p class="mut">Ya no podés cancelar desde acá: falta menos de @_booking.CancellationWindowHours horas.
+                @if (!string.IsNullOrEmpty(_booking.ClubPhone)) { <text>Llamá al club: <a href="tel:@_booking.ClubPhone">@_booking.ClubPhone</a>.</text> }
+            </p>
+        }
+
+        <a class="lnk" href="@PageRoutes.PublicClub(Slug)">‹ Volver al club</a>
+    }
+</main>

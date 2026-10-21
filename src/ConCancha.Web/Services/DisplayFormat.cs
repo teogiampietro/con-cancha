@@ -1,0 +1,52 @@
+using System.Globalization;
+using ConCancha.Domain.Bookings;
+using ConCancha.Domain.Common;
+using ConCancha.Domain.Pricing;
+
+namespace ConCancha.Web.Services;
+
+/// <summary>Spanish (Argentina) formatting done by hand so it does not depend on the server's ICU data.</summary>
+public static class DisplayFormat
+{
+    private const string TimeInputFormat = "HH:mm";
+    private static readonly NumberFormatInfo MoneyFormat = new() { NumberGroupSeparator = ".", NumberDecimalSeparator = "," };
+    private static readonly string[] DayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    private static readonly string[] MonthNames =
+        ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+
+    public static readonly IReadOnlyList<(Weekdays Day, string Label)> WeekdayLabels =
+    [
+        (Weekdays.Monday, "Lun"), (Weekdays.Tuesday, "Mar"), (Weekdays.Wednesday, "Mié"), (Weekdays.Thursday, "Jue"),
+        (Weekdays.Friday, "Vie"), (Weekdays.Saturday, "Sáb"), (Weekdays.Sunday, "Dom"),
+    ];
+
+    public static string Money(decimal amount) => "$ " + amount.ToString("N0", MoneyFormat);
+
+    public static string Time(int minuteOfDay)
+    {
+        var hour = minuteOfDay / TimeConstants.MinutesPerHour % TimeConstants.HoursPerDay;
+        return $"{hour:00}:{minuteOfDay % TimeConstants.MinutesPerHour:00}";
+    }
+
+    public static bool TryParseTimeInput(string? text, bool isEndOfDay, out int minuteOfDay)
+    {
+        minuteOfDay = 0;
+        if (!TimeOnly.TryParseExact(text, TimeInputFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time)) return false;
+
+        minuteOfDay = time.Hour * TimeConstants.MinutesPerHour + time.Minute;
+        if (isEndOfDay && minuteOfDay == 0) minuteOfDay = TimeConstants.MinutesPerDay;
+        return true;
+    }
+
+    public static string LongDate(DateOnly date) => $"{DayNames[(int)date.DayOfWeek]} {date.Day} de {MonthNames[date.Month - 1]}";
+
+    public static string ShortDate(DateOnly date) => $"{DayNames[(int)date.DayOfWeek][..3]} {date.Day}";
+
+    public static string Days(Weekdays? days)
+    {
+        if (days is null || days == Weekdays.All) return "Todos los días";
+        return string.Join(", ", WeekdayLabels.Where(entry => days.Value.HasFlag(entry.Day)).Select(entry => entry.Label));
+    }
+
+    public static string PaymentMethodLabel(PaymentMethod method) => method == PaymentMethod.Cash ? "Efectivo" : "Transferencia";
+}

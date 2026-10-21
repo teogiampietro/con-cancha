@@ -40,6 +40,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         ["Auth:CheckLeakedPasswords"] = "false",
         ["RateLimit:AuthPerMinute"] = UnlimitedRequests,
         ["RateLimit:QueryPerMinute"] = UnlimitedRequests,
+        ["RateLimit:PublicBookingPerMinute"] = UnlimitedRequests,
         ["Web:BaseUrl"] = WebBaseUrl,
     };
 }

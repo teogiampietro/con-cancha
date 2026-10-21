@@ -1,0 +1,13 @@
+@inherits CancellableComponentBase
+
+<form class="card col" @onsubmit="() => SaveAsync(ComponentToken)" @onsubmit:preventDefault>
+    <b>Horario del club</b>
+    <p class="mut sm no-margin">Es el horario de todas las canchas, salvo las que tengan uno propio.</p>
+    <div class="two">
+        <div><label class="f" for="club-opening">Abre</label><TimeField Id="club-opening" @bind-Value="_opening" /></div>
+        <div><label class="f" for="club-closing">Cierra</label><TimeField Id="club-closing" @bind-Value="_closing" /></div>
+    </div>
+    <ErrorMessage Message="@_errorMessage" />
+    @if (_isSaved) { <p class="sm success no-margin">Guardado.</p> }
+    <button class="btn sec" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Guardar horario")</button>
+</form>

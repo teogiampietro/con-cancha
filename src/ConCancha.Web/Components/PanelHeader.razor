@@ -1,0 +1,14 @@
+<header class="panel-header">
+    <b>ConCancha</b>
+    <nav class="row nav">
+        <NavLink href="@PageRoutes.Agenda" ActiveClass="on">Agenda</NavLink>
+        @if (IsOwner)
+        {
+            <NavLink href="@PageRoutes.Courts" ActiveClass="on">Canchas</NavLink>
+        }
+    </nav>
+    <span class="row">
+        <span class="mut sm hide-narrow">@Session.Current?.User.Email</span>
+        <button class="lnk" @onclick="() => OnSignOut.InvokeAsync()">Salir</button>
+    </span>
+</header>

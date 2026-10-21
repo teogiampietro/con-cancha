@@ -1,0 +1,9 @@
+<div class="overlay" @onclick="() => OnClose.InvokeAsync()">
+    <div class="sheet col" role="dialog" aria-modal="true" @onclick:stopPropagation>
+        <div class="row sp">
+            <h2 class="no-margin">@Title</h2>
+            <button class="lnk" @onclick="() => OnClose.InvokeAsync()">Cerrar</button>
+        </div>
+        @ChildContent
+    </div>
+</div>

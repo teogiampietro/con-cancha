@@ -1,0 +1,75 @@
+@page "/{Slug}"
+@inherits CancellableComponentBase
+
+<PageTitle>@(_club is null ? "Reservá tu turno" : $"{_club.Name} · Reservá tu turno")</PageTitle>
+
+<main class="public">
+    @if (_club is null)
+    {
+        <p class="loading">@(_notFoundMessage ?? "Cargando…")</p>
+    }
+    else
+    {
+        <header class="col">
+            <h1 class="no-margin">@_club.Name</h1>
+            <p class="mut no-margin">Elegí el día, la cancha y el horario.</p>
+        </header>
+
+        <div class="days" role="tablist">
+            @foreach (var day in Days)
+            {
+                <button class="day @(day == _date ? "on" : "")" @onclick="() => SelectDayAsync(day)">
+                    <span class="xs">@DayLabel(day)</span>
+                    <b>@day.Day</b>
+                </button>
+            }
+        </div>
+
+        <ErrorMessage Message="@_errorMessage" />
+
+        @if (_day is null)
+        {
+            <p class="loading">Cargando horarios…</p>
+        }
+        else if (_day.Courts.Count == 0)
+        {
+            <div class="card center mut">Este club todavía no cargó sus canchas.</div>
+        }
+        else
+        {
+            @if (_day.Courts.Count > 1)
+            {
+                <div class="pills">
+                    @foreach (var court in _day.Courts)
+                    {
+                        <button class="pill @(court.Id == SelectedCourt!.Id ? "on" : "")" @onclick="() => _selectedCourtId = court.Id">@court.Name</button>
+                    }
+                </div>
+            }
+
+            <div class="col">
+                @foreach (var slot in SelectedCourt!.Slots)
+                {
+                    <button class="slot @SlotClass(slot)" disabled="@(slot.State != PublicSlotState.Free)" @onclick="() => OpenSheet(slot)">
+                        <span class="t">@DisplayFormat.Time(slot.StartMinuteOfDay)</span>
+                        <span class="grow mut sm">@SlotText(slot)</span>
+                        @if (slot.State == PublicSlotState.Free)
+                        {
+                            <span class="p">@(slot.Price is { } price ? DisplayFormat.Money(price) : "Consultar")</span>
+                        }
+                    </button>
+                }
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(_club.Phone))
+        {
+            <p class="center mut">¿Preferís llamar? <a href="tel:@_club.Phone">@_club.Phone</a></p>
+        }
+    }
+</main>
+
+@if (_club is not null && _selectedSlot is { } chosen)
+{
+    <PublicBookingSheet Slug="@Slug" Club="_club" Court="SelectedCourt!" Slot="chosen" Date="_date" OnClose="CloseSheetAsync" />
+}

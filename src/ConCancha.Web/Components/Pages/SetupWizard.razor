@@ -1,0 +1,107 @@
+@page "/panel/configuracion-inicial"
+@inherits PanelPageBase
+
+<PageTitle>Configurá tu club · ConCancha</PageTitle>
+
+@if (!_isLoaded)
+{
+    <p class="loading">@(ErrorText ?? "Cargando…")</p>
+}
+else
+{
+    <div class="landing">
+        <form class="card col card-narrow" @onsubmit="() => NextAsync(ComponentToken)" @onsubmit:preventDefault>
+            <div>
+                <p class="xs no-margin">Paso @(_stepIndex + 1) de @Steps.Count</p>
+                <div class="bar"><i style="width: @ProgressPercent%"></i></div>
+            </div>
+
+            @switch (CurrentStep.Kind)
+            {
+                case SetupStepKind.Sports:
+                    <h1>¿Qué deportes tenés?</h1>
+                    <p class="mut">Podés elegir más de uno.</p>
+                    <div class="pills">
+                        @foreach (var sport in AllSports)
+                        {
+                            <button type="button" class="pill @(_draft.IsSelected(sport) ? "on" : "")" @onclick="() => ToggleSport(sport)">@SportLabels.Get(sport)</button>
+                        }
+                    </div>
+                    break;
+
+                case SetupStepKind.Courts:
+                    <h1>¿Cuántas canchas de @CurrentStep.Sport!.Label tenés?</h1>
+                    <div class="row counter">
+                        <button type="button" class="btn sec" @onclick="() => CurrentStep.Sport!.ChangeCourtCount(-1)" aria-label="Una menos">−</button>
+                        <b class="count">@CurrentStep.Sport!.CourtCount</b>
+                        <button type="button" class="btn sec" @onclick="() => CurrentStep.Sport!.ChangeCourtCount(1)" aria-label="Una más">+</button>
+                    </div>
+                    <p class="hint center">Las vamos a llamar "@CurrentStep.Sport!.Label 1", "@CurrentStep.Sport!.Label 2"… Después podés cambiarles el nombre.</p>
+                    break;
+
+                case SetupStepKind.Hours:
+                    <h1>¿En qué horario abre tu club?</h1>
+                    <p class="mut">Es el horario de todas las canchas. Si alguna es distinta, la ajustás después.</p>
+                    <div class="two">
+                        <div><label class="f" for="opening">Abre</label><input id="opening" type="time" value="@_draft.OpeningText" @onchange="SetOpening" /></div>
+                        <div><label class="f" for="closing">Cierra</label><input id="closing" type="time" value="@_draft.ClosingText" @onchange="SetClosing" /></div>
+                    </div>
+                    <p class="hint">Cierre 00:00 significa medianoche.</p>
+                    break;
+
+                case SetupStepKind.Pricing:
+                    <h1>Turnos de @CurrentStep.Sport!.Label</h1>
+                    <div>
+                        <label class="f">Duración del turno</label>
+                        <div class="pills">
+                            @foreach (var minutes in CourtLimits.AllowedSlotMinutes)
+                            {
+                                <button type="button" class="pill @(CurrentStep.Sport!.SlotMinutes == minutes ? "on" : "")" @onclick="() => SetSlotMinutes(minutes)">@minutes min</button>
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <label class="f" for="price">¿Cuánto cobrás por turno?</label>
+                        <input id="price" type="number" min="0" step="100" inputmode="numeric" placeholder="Ej: 24000" @bind="CurrentStep.Sport!.Price" />
+                    </div>
+                    <label class="chk"><input type="checkbox" @bind="CurrentStep.Sport!.HasNightPrice" /> A la noche, desde las @DisplayFormat.Time(SetupLimits.NightStartMinuteOfDay) hs, cobro distinto</label>
+                    @if (CurrentStep.Sport!.HasNightPrice)
+                    {
+                        <div>
+                            <label class="f" for="night">Precio desde las @DisplayFormat.Time(SetupLimits.NightStartMinuteOfDay) hs</label>
+                            <input id="night" type="number" min="0" step="100" inputmode="numeric" @bind="CurrentStep.Sport!.NightPrice" />
+                        </div>
+                    }
+                    break;
+
+                case SetupStepKind.Summary:
+                    <h1>Revisá y listo</h1>
+                    <p class="mut">Si algo no está bien, tocá "Cambiar".</p>
+                    <div class="sum">
+                        <div class="row sp"><span><b>Deportes</b><br />@string.Join(", ", _draft.Sports.Select(sport => sport.Label))</span><button type="button" class="lnk" @onclick="() => EditAsync(SetupStepKind.Sports, ComponentToken)">Cambiar</button></div>
+                        <div class="row sp"><span><b>Canchas</b><br />@string.Join(" · ", _draft.Sports.Select(sport => $"{sport.Label}: {sport.CourtCount}"))</span><button type="button" class="lnk" @onclick="() => EditAsync(SetupStepKind.Courts, ComponentToken)">Cambiar</button></div>
+                        <div class="row sp"><span><b>Horario</b><br />De @_draft.OpeningText a @_draft.ClosingText</span><button type="button" class="lnk" @onclick="() => EditAsync(SetupStepKind.Hours, ComponentToken)">Cambiar</button></div>
+                        <div class="row sp">
+                            <span><b>Turnos y precios</b>
+                                @foreach (var sport in _draft.Sports)
+                                {
+                                    <br /><span>@sport.Label: @sport.SlotMinutes min · @DisplayFormat.Money(sport.Price ?? 0)@(sport.HasNightPrice ? $" · desde las {DisplayFormat.Time(SetupLimits.NightStartMinuteOfDay)} {DisplayFormat.Money(sport.NightPrice ?? 0)}" : "")</span>
+                                }
+                            </span>
+                            <button type="button" class="lnk" @onclick="() => EditAsync(SetupStepKind.Pricing, ComponentToken)">Cambiar</button>
+                        </div>
+                    </div>
+                    break;
+            }
+
+            <ErrorMessage Message="@ErrorText" />
+            <div class="row">
+                @if (_stepIndex > 0)
+                {
+                    <button type="button" class="btn sec" @onclick="() => BackAsync(ComponentToken)" disabled="@_isBusy">Atrás</button>
+                }
+                <button class="btn grow" disabled="@_isBusy">@NextLabel</button>
+            </div>
+        </form>
+    </div>
+}

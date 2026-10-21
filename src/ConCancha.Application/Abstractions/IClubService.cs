@@ -15,5 +15,7 @@ public interface IClubService
 
     Task<IReadOnlyList<ClubMemberDto>> GetCurrentClubTeamAsync(CancellationToken cancellationToken);
 
+    Task<Result<ClubDto>> UpdateHoursAsync(UpdateClubHoursRequest request, CancellationToken cancellationToken);
+
     Task<Result<PublicClubDto>> ResolvePublicClubBySlugAsync(string slug, CancellationToken cancellationToken);
 }

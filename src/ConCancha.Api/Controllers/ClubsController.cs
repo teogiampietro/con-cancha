@@ -39,6 +39,12 @@ public class ClubsController(IClubService clubs) : ApiControllerBase
     public async Task<IActionResult> GetCurrentClub(CancellationToken cancellationToken) =>
         ToActionResult(await clubs.GetCurrentClubAsync(cancellationToken), Ok);
 
+    /// <summary>Changes the club-wide opening and closing time. Owner only.</summary>
+    [HttpPut("api/club/hours")]
+    [Authorize(Roles = nameof(ClubRole.Owner))]
+    public async Task<IActionResult> UpdateHours(UpdateClubHoursRequest request, CancellationToken cancellationToken) =>
+        ToActionResult(await clubs.UpdateHoursAsync(request, cancellationToken), Ok);
+
     /// <summary>Club team. Owner only. Queries are already filtered by the token's club.</summary>
     [HttpGet("api/club/team")]
     [Authorize(Roles = nameof(ClubRole.Owner))]

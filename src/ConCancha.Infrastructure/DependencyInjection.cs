@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ConCancha.Infrastructure;
 
@@ -23,6 +24,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
+        services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<ITenantContext, TenantContext>();
         services.AddOptions<WebAppOptions>().BindConfiguration(WebAppOptions.SectionName);
         services.AddOptions<AuthOptions>().BindConfiguration(AuthOptions.SectionName);
@@ -65,6 +67,15 @@ public static class DependencyInjection
         services.AddScoped<SessionFactory>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IClubService, ClubService>();
+        services.AddScoped<CurrentClubProvider>();
+        services.AddScoped<ICourtService, CourtService>();
+        services.AddScoped<IPriceRuleService, PriceRuleService>();
+        services.AddScoped<IAgendaService, AgendaService>();
+        services.AddScoped<IBookingService, BookingService>();
+        services.AddScoped<ISetupService, SetupService>();
+        services.AddScoped<SlotBooker>();
+        services.AddScoped<CustomerResolver>();
+        services.AddScoped<IPublicBookingService, PublicBookingService>();
         services.AddSingleton<IEmailSender, LoggingEmailSender>();
         return services;
     }

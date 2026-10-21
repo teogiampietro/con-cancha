@@ -1,20 +1,14 @@
 @page "/panel"
-@inherits CancellableComponentBase
+@inherits PanelPageBase
 
 <PageTitle>Panel · ConCancha</PageTitle>
 
-<header class="panel-header">
-    <b>ConCancha</b>
-    <span class="row">
-        <span class="mut sm">@Session.Current?.User.Email</span>
-        <button class="lnk" @onclick="() => SignOutAsync(ComponentToken)">Salir</button>
-    </span>
-</header>
+<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
 
 <main class="panel">
     @if (_club is null)
     {
-        <p class="loading">@(_errorMessage ?? "Cargando…")</p>
+        <p class="loading">@(ErrorText ?? "Cargando…")</p>
     }
     else
     {
@@ -24,8 +18,15 @@
         <div class="card col">
             <b>Tu club</b>
             <div class="mut">Link de reservas: <span class="acc">@PublicSite.Domain/@_club.Slug</span> <span class="mut sm">(la página pública llega en la Fase 3)</span></div>
-            <div class="mut">Horario: de @FormatMinuteOfDay(_club.OpeningMinuteOfDay) a @FormatMinuteOfDay(_club.ClosingMinuteOfDay)</div>
+            <div class="mut">Horario: de @DisplayFormat.Time(_club.OpeningMinuteOfDay) a @DisplayFormat.Time(_club.ClosingMinuteOfDay)</div>
             @if (!string.IsNullOrEmpty(_club.Phone)) { <div class="mut">Teléfono: @_club.Phone</div> }
+        </div>
+
+        <div class="card col">
+            <b>Primeros pasos</b>
+            <div class="row"><span class="chip ok">✓</span> Creaste tu club</div>
+            <div class="row"><span class="chip ok">✓</span> Cargaste tus canchas y precios</div>
+            <div class="row"><span class="chip">•</span> <a href="@PageRoutes.Agenda">Cargá tu primer turno en la agenda</a></div>
         </div>
 
         @if (_team is not null)
@@ -38,12 +39,5 @@
                 }
             </div>
         }
-
-        <div class="card col">
-            <b>Primeros pasos</b>
-            <div class="row"><span class="chip ok">✓</span> Creaste tu club</div>
-            <div class="row"><span class="chip">•</span> <span class="mut">Cargá tus canchas y sus precios (Fase 2)</span></div>
-            <div class="row"><span class="chip">•</span> <span class="mut">Cargá tu primer turno (Fase 2)</span></div>
-        </div>
     }
 </main>

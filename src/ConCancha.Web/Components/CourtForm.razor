@@ -1,0 +1,44 @@
+@inherits CancellableComponentBase
+
+<form class="card col" @onsubmit="() => SaveAsync(ComponentToken)" @onsubmit:preventDefault>
+    <b>@(Court is null ? "Nueva cancha" : "Editar cancha")</b>
+    <div>
+        <label class="f" for="court-name">Nombre</label>
+        <input id="court-name" type="text" maxlength="@CourtLimits.NameMaxLength" autocomplete="off" @bind="_name" @bind:event="oninput" />
+    </div>
+    <div>
+        <label class="f">Deporte</label>
+        <div class="pills">
+            @foreach (var sport in AllSports)
+            {
+                <button type="button" class="pill @(_sport == sport ? "on" : "")" @onclick="() => SelectSport(sport)">@SportLabels.Get(sport)</button>
+            }
+        </div>
+    </div>
+    <div>
+        <label class="f">Duración del turno</label>
+        <div class="pills">
+            @foreach (var minutes in CourtLimits.AllowedSlotMinutes)
+            {
+                <button type="button" class="pill @(_slotMinutes == minutes ? "on" : "")" @onclick="() => _slotMinutes = minutes">@minutes min</button>
+            }
+        </div>
+    </div>
+    <label class="chk"><input type="checkbox" @bind="_hasOwnHours" /> Esta cancha tiene un horario distinto al del club</label>
+    @if (_hasOwnHours)
+    {
+        <div class="two">
+            <div><label class="f" for="court-opening">Abre</label><TimeField Id="court-opening" @bind-Value="_opening" /></div>
+            <div><label class="f" for="court-closing">Cierra</label><TimeField Id="court-closing" @bind-Value="_closing" /></div>
+        </div>
+    }
+    @if (Court is not null)
+    {
+        <label class="chk"><input type="checkbox" @bind="_isActive" /> Cancha activa (si la desactivás, deja de aparecer en la agenda)</label>
+    }
+    <ErrorMessage Message="@_errorMessage" />
+    <div class="row">
+        <button type="button" class="btn sec" @onclick="() => OnCancel.InvokeAsync()">Cancelar</button>
+        <button class="btn grow" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Guardar")</button>
+    </div>
+</form>

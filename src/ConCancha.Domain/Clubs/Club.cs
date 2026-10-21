@@ -1,3 +1,5 @@
+using ConCancha.Domain.Bookings;
+
 namespace ConCancha.Domain.Clubs;
 
 public class Club
@@ -12,6 +14,8 @@ public class Club
     /// <summary>Club-wide default hours; each court may override them.</summary>
     public int OpeningMinuteOfDay { get; set; } = ClubDefaults.OpeningMinuteOfDay;
     public int ClosingMinuteOfDay { get; set; } = ClubDefaults.ClosingMinuteOfDay;
+
+    public int CancellationWindowHours { get; set; } = BookingPolicy.DefaultCancellationWindowHours;
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

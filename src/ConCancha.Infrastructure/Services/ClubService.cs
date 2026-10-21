@@ -4,6 +4,7 @@ using ConCancha.Application.Results;
 using ConCancha.Contracts.Accounts;
 using ConCancha.Contracts.Clubs;
 using ConCancha.Domain.Clubs;
+using ConCancha.Domain.Courts;
 using ConCancha.Infrastructure.Identity;
 using ConCancha.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,7 @@ public sealed class ClubService(
     SessionFactory sessionFactory) : IClubService
 {
     private const string SlugField = "slug";
+    private const string HoursField = "openingMinuteOfDay";
 
     public async Task<Result<SessionResponse>> CreateClubForUserAsync(
         string userId, CreateClubRequest request, CancellationToken cancellationToken)
@@ -60,6 +62,22 @@ public sealed class ClubService(
         return club is null
             ? Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound))
             : Result<ClubDto>.Success(ClubMapper.ToDto(club));
+    }
+
+    public async Task<Result<ClubDto>> UpdateHoursAsync(UpdateClubHoursRequest request, CancellationToken cancellationToken)
+    {
+        if (OperatingHours.Validate(request.OpeningMinuteOfDay, request.ClosingMinuteOfDay) is { } reason)
+            return Result<ClubDto>.Failure(ServiceError.Validation(HoursField, reason));
+        if (tenant.ClubId is not { } clubId)
+            return Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
+
+        var club = await db.Clubs.FirstOrDefaultAsync(c => c.Id == clubId, cancellationToken).ConfigureAwait(false);
+        if (club is null) return Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
+
+        club.OpeningMinuteOfDay = request.OpeningMinuteOfDay;
+        club.ClosingMinuteOfDay = request.ClosingMinuteOfDay;
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return Result<ClubDto>.Success(ClubMapper.ToDto(club));
     }
 
     public async Task<IReadOnlyList<ClubMemberDto>> GetCurrentClubTeamAsync(CancellationToken cancellationToken)

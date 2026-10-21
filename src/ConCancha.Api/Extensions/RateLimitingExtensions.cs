@@ -17,6 +17,7 @@ public static class RateLimitingExtensions
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
             options.AddPolicy(RateLimitPolicies.Auth, context => LimitByIp(context, RateLimitPolicies.Auth, o => o.AuthPerMinute));
+            options.AddPolicy(RateLimitPolicies.PublicBooking, context => LimitByIp(context, RateLimitPolicies.PublicBooking, o => o.PublicBookingPerMinute));
             options.AddPolicy(RateLimitPolicies.Query, context => LimitByIp(context, RateLimitPolicies.Query, o => o.QueryPerMinute));
         });
         return services;
