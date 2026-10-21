@@ -1,0 +1,49 @@
+@page "/panel"
+@inherits CancellableComponentBase
+
+<PageTitle>Panel · ConCancha</PageTitle>
+
+<header class="panel-header">
+    <b>ConCancha</b>
+    <span class="row">
+        <span class="mut sm">@Session.Current?.User.Email</span>
+        <button class="lnk" @onclick="() => SignOutAsync(ComponentToken)">Salir</button>
+    </span>
+</header>
+
+<main class="panel">
+    @if (_club is null)
+    {
+        <p class="loading">@(_errorMessage ?? "Cargando…")</p>
+    }
+    else
+    {
+        <h1>Bienvenido a @_club.Name</h1>
+        <p class="mut">Estás entrando como <b>@RoleLabel</b>.</p>
+
+        <div class="card col">
+            <b>Tu club</b>
+            <div class="mut">Link de reservas: <span class="acc">@PublicSite.Domain/@_club.Slug</span> <span class="mut sm">(la página pública llega en la Fase 3)</span></div>
+            <div class="mut">Horario: de @FormatMinuteOfDay(_club.OpeningMinuteOfDay) a @FormatMinuteOfDay(_club.ClosingMinuteOfDay)</div>
+            @if (!string.IsNullOrEmpty(_club.Phone)) { <div class="mut">Teléfono: @_club.Phone</div> }
+        </div>
+
+        @if (_team is not null)
+        {
+            <div class="card col">
+                <b>Equipo</b>
+                @foreach (var member in _team)
+                {
+                    <div class="row sp"><span>@member.Email</span><span class="chip">@member.Role</span></div>
+                }
+            </div>
+        }
+
+        <div class="card col">
+            <b>Primeros pasos</b>
+            <div class="row"><span class="chip ok">✓</span> Creaste tu club</div>
+            <div class="row"><span class="chip">•</span> <span class="mut">Cargá tus canchas y sus precios (Fase 2)</span></div>
+            <div class="row"><span class="chip">•</span> <span class="mut">Cargá tu primer turno (Fase 2)</span></div>
+        </div>
+    }
+</main>

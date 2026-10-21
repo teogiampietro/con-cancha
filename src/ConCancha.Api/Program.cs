@@ -1,26 +1,33 @@
+using ConCancha.Api.Extensions;
+using ConCancha.Api.Tenancy;
 using ConCancha.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services
+    .AddInfrastructure()
+    .AddJwtAuthentication()
+    .AddIpRateLimiting()
+    .AddProxyForwardedHeaders()
+    .AddSwaggerWithBearer()
+    .AddDatabaseHealthCheck();
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-    options.SwaggerDoc("v1", new() { Title = "ConCancha API", Version = "v1" }));
-
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<ConCanchaDbContext>("postgres", tags: ["ready"]);
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+await app.MigrateDatabaseIfEnabledAsync();
+
+app.UseForwardedHeaders();
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseMiddleware<ClubTenancyMiddleware>();
+app.UseAuthorization();
 
 app.MapControllers();
-
-// /health: la app está viva. /health/ready: además responde la base de datos.
-app.MapHealthChecks("/health", new() { Predicate = _ => false });
-app.MapHealthChecks("/health/ready", new() { Predicate = check => check.Tags.Contains("ready") });
+app.MapHealthEndpoints();
 
 app.Run();
 

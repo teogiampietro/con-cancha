@@ -1,0 +1,124 @@
+using ConCancha.Application.Abstractions;
+using ConCancha.Application.Messages;
+using ConCancha.Application.Results;
+using ConCancha.Contracts.Accounts;
+using ConCancha.Contracts.Clubs;
+using ConCancha.Domain.Clubs;
+using ConCancha.Infrastructure.Identity;
+using ConCancha.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+namespace ConCancha.Infrastructure.Services;
+
+public sealed class ClubService(
+    ConCanchaDbContext db,
+    UserManager<AppUser> users,
+    ITenantContext tenant,
+    SessionFactory sessionFactory) : IClubService
+{
+    private const string SlugField = "slug";
+
+    public async Task<Result<SessionResponse>> CreateClubForUserAsync(
+        string userId, CreateClubRequest request, CancellationToken cancellationToken)
+    {
+        var user = await users.FindByIdAsync(userId).ConfigureAwait(false);
+        if (user is null)
+            return Result<SessionResponse>.Failure(ServiceError.Unauthorized(ClubMessages.UserNotFound));
+
+        if (await UserHasClubAsync(userId, cancellationToken).ConfigureAwait(false))
+            return Result<SessionResponse>.Failure(ServiceError.Conflict(ClubMessages.AccountAlreadyHasClub));
+
+        var slug = ResolveSlug(request);
+        if (SlugRules.Validate(slug) is { } reason)
+            return Result<SessionResponse>.Failure(ServiceError.Validation(SlugField, reason));
+
+        if (await IsSlugTakenAsync(slug, cancellationToken).ConfigureAwait(false))
+            return Result<SessionResponse>.Failure(ServiceError.Conflict(ClubMessages.SlugAlreadyTaken));
+
+        return await SaveClubWithOwnerAsync(user, request, slug, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<SlugAvailabilityResponse> GetSlugAvailabilityAsync(string slug, CancellationToken cancellationToken)
+    {
+        var normalized = (slug ?? string.Empty).Trim().ToLowerInvariant();
+        if (SlugRules.Validate(normalized) is { } reason)
+            return new SlugAvailabilityResponse(normalized, false, reason);
+
+        return await IsSlugTakenAsync(normalized, cancellationToken).ConfigureAwait(false)
+            ? new SlugAvailabilityResponse(normalized, false, ClubMessages.SlugAlreadyTaken)
+            : new SlugAvailabilityResponse(normalized, true, null);
+    }
+
+    public async Task<Result<ClubDto>> GetCurrentClubAsync(CancellationToken cancellationToken)
+    {
+        if (tenant.ClubId is not { } clubId)
+            return Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
+
+        var club = await db.Clubs.AsNoTracking().FirstOrDefaultAsync(c => c.Id == clubId, cancellationToken).ConfigureAwait(false);
+
+        return club is null
+            ? Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound))
+            : Result<ClubDto>.Success(ClubMapper.ToDto(club));
+    }
+
+    public async Task<IReadOnlyList<ClubMemberDto>> GetCurrentClubTeamAsync(CancellationToken cancellationToken)
+    {
+        var members = await db.ClubMembers
+            .Join(db.Users, member => member.UserId, user => user.Id,
+                (member, user) => new { member.UserId, user.Email, member.Role, member.CreatedAt })
+            .OrderBy(row => row.CreatedAt)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return members
+            .Select(row => new ClubMemberDto(row.UserId, row.Email ?? string.Empty, row.Role.ToString(), row.CreatedAt))
+            .ToList();
+    }
+
+    /// <summary>Also makes the club the request's current club, so later queries are scoped to it.</summary>
+    public async Task<Result<PublicClubDto>> ResolvePublicClubBySlugAsync(string slug, CancellationToken cancellationToken)
+    {
+        var normalized = slug.ToLowerInvariant();
+        var club = await db.Clubs.AsNoTracking().FirstOrDefaultAsync(c => c.Slug == normalized, cancellationToken).ConfigureAwait(false);
+        if (club is null)
+            return Result<PublicClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
+
+        tenant.SetClub(club.Id);
+        return Result<PublicClubDto>.Success(ClubMapper.ToPublicDto(club));
+    }
+
+    private async Task<Result<SessionResponse>> SaveClubWithOwnerAsync(
+        AppUser user, CreateClubRequest request, string slug, CancellationToken cancellationToken)
+    {
+        var club = new Club { Name = request.Name.Trim(), Slug = slug, Phone = NormalizePhone(request.Phone) };
+        db.Clubs.Add(club);
+        db.ClubMembers.Add(new ClubMember { ClubId = club.Id, UserId = user.Id, Role = ClubRole.Owner });
+
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (DbUpdateException)
+        {
+            // Race: another club took the same slug between the check and the save (unique index).
+            return Result<SessionResponse>.Failure(ServiceError.Conflict(ClubMessages.SlugAlreadyTaken));
+        }
+
+        return Result<SessionResponse>.Success(sessionFactory.Create(user, club, ClubRole.Owner));
+    }
+
+    private Task<bool> UserHasClubAsync(string userId, CancellationToken cancellationToken) =>
+        db.ClubMembers.IgnoreQueryFilters().AnyAsync(member => member.UserId == userId, cancellationToken);
+
+    private Task<bool> IsSlugTakenAsync(string slug, CancellationToken cancellationToken) =>
+        db.Clubs.AnyAsync(club => club.Slug == slug, cancellationToken);
+
+    private static string ResolveSlug(CreateClubRequest request) =>
+        string.IsNullOrWhiteSpace(request.Slug)
+            ? SlugRules.Normalize(request.Name)
+            : request.Slug.Trim().ToLowerInvariant();
+
+    private static string? NormalizePhone(string? phone) =>
+        string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+}

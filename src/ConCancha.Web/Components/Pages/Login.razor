@@ -1,0 +1,23 @@
+@page "/panel/login"
+@inherits CancellableComponentBase
+
+<PageTitle>Entrar · ConCancha</PageTitle>
+
+<div class="landing">
+    <form class="card col card-narrow" @onsubmit="() => SubmitAsync(ComponentToken)" @onsubmit:preventDefault>
+        <h1>Panel del club</h1>
+        <p class="mut">Entrá para ver y cargar los turnos del día.</p>
+        <div>
+            <label class="f" for="email">Mail</label>
+            <input id="email" type="email" autocomplete="email" @bind="_email" @bind:event="oninput" required />
+        </div>
+        <div>
+            <label class="f" for="password">Contraseña</label>
+            <input id="password" type="password" autocomplete="current-password" @bind="_password" @bind:event="oninput" required />
+        </div>
+        <ErrorMessage Message="@_errorMessage" />
+        <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Entrando…" : "Entrar")</button>
+        <a class="lnk" href="/panel/olvide">Olvidé mi contraseña</a>
+        <p class="mut sm center">¿Tu club todavía no está? <a href="/panel/registro">Creá tu cuenta</a>.</p>
+    </form>
+</div>

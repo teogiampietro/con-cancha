@@ -1,0 +1,3 @@
+# ConCancha
+
+Antes de escribir o modificar código, lee [ESTANDARES-DE-CODIGO.md](ESTANDARES-DE-CODIGO.md) y respétalo. Resumen: código y commits en inglés, UI en español; SOLID; `CancellationToken` en todo método async; DTOs como `record`; `IReadOnlyList<T>` en firmas públicas; `DateTimeOffset.UtcNow`; `ConfigureAwait(false)` fuera de Blazor; métodos de menos de 20 líneas con guard clauses; sin valores mágicos; sin comentarios del "qué". Blazor: nunca `@code` en el `.razor`; la lógica va en `Componente.razor.cs` (partial class, namespace = carpeta) y el `.razor` solo tiene markup y directivas.

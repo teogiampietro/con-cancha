@@ -1,0 +1,78 @@
+@page "/panel/registro"
+@inherits CancellableComponentBase
+
+<PageTitle>Creá tu club · ConCancha</PageTitle>
+
+@if (_isLoading)
+{
+    <p class="loading">Cargando…</p>
+}
+else
+{
+    <div class="landing">
+        @if (_step == RegistrationStep.Account)
+        {
+            <form class="card col card-narrow" @onsubmit="() => SubmitAccountAsync(ComponentToken)" @onsubmit:preventDefault>
+                <StepIndicator Current="@((int)RegistrationStep.Account)" />
+                <h1>Creá tu cuenta</h1>
+                <p class="mut">Es gratis para probar y no te pedimos tarjeta. En 3 minutos tenés tu club andando.</p>
+                <div>
+                    <label class="f" for="email">Tu mail</label>
+                    <input id="email" type="email" autocomplete="email" @bind="_email" @bind:event="oninput" required />
+                </div>
+                <div>
+                    <div class="row sp">
+                        <label class="f no-margin" for="password">Inventá una contraseña</label>
+                        <button type="button" class="lnk" @onclick="TogglePasswordVisibility">@(_isPasswordVisible ? "Ocultar" : "Mostrar")</button>
+                    </div>
+                    <input id="password" type="@(_isPasswordVisible ? "text" : "password")" autocomplete="new-password" @bind="_password" @bind:event="oninput" required />
+                    <p class="hint">Mínimo @AccountLimits.PasswordMinLength letras o números. Revisamos que no sea una contraseña que ya se filtró en internet.</p>
+                </div>
+                <ErrorMessage Message="@_errorMessage" />
+                <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Creando…" : "Siguiente")</button>
+                <p class="mut sm center">¿Ya tenés cuenta? <a href="/panel/login">Entrá</a>.</p>
+            </form>
+        }
+        else if (_step == RegistrationStep.ClubName)
+        {
+            <form class="card col card-narrow" @onsubmit="() => SubmitClubNameAsync(ComponentToken)" @onsubmit:preventDefault>
+                <StepIndicator Current="@((int)RegistrationStep.ClubName)" />
+                <h1>¿Cómo se llama tu club?</h1>
+                <p class="mut">Escribilo como lo conocen tus jugadores.</p>
+                <input type="text" placeholder="Ej: Club Las Lomas" maxlength="@ClubLimits.NameMaxLength" autocomplete="off"
+                       value="@_name" @oninput="args => OnNameInputAsync(args, ComponentToken)" required />
+                <div>
+                    <p class="mut sm no-margin">Tu página va a ser:</p>
+                    <b class="acc">@PublicSite.Domain/@(string.IsNullOrEmpty(_slug) ? "tu-club" : _slug)</b>
+                    <p class="sm no-margin @(_isSlugAvailable == false ? "error" : "success")">@_slugMessage</p>
+                    @if (_isSlugEditable)
+                    {
+                        <label class="f" for="slug">Dirección de tu página</label>
+                        <input id="slug" type="text" maxlength="@SlugRules.MaxLength" autocapitalize="off" autocomplete="off"
+                               value="@_slug" @oninput="args => OnSlugInputAsync(args, ComponentToken)" />
+                        <p class="hint">Solo letras, números y guiones. Es lo que va después de @PublicSite.Domain/</p>
+                    }
+                    else
+                    {
+                        <button type="button" class="lnk" @onclick="EnableSlugEditing">Cambiar esta dirección</button>
+                    }
+                </div>
+                <ErrorMessage Message="@_errorMessage" />
+                <button class="btn block">Siguiente</button>
+            </form>
+        }
+        else
+        {
+            <form class="card col card-narrow" @onsubmit="() => SubmitClubAsync(ComponentToken)" @onsubmit:preventDefault>
+                <StepIndicator Current="@((int)RegistrationStep.Phone)" />
+                <h1>¿A qué número te pueden llamar?</h1>
+                <p class="mut">Lo ven tus jugadores en tu página, por si prefieren llamarte o escribirte.</p>
+                <input type="tel" placeholder="Ej: 221 555 1234" autocomplete="tel" maxlength="@ClubLimits.PhoneMaxLength" @bind="_phone" @bind:event="oninput" />
+                <p class="mut sm no-margin">Tu club está en <b>Argentina</b>.</p>
+                <ErrorMessage Message="@_errorMessage" />
+                <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Creando tu club…" : "Siguiente")</button>
+                <button type="button" class="btn sec block" @onclick="GoBackToClubName">Volver</button>
+            </form>
+        }
+    </div>
+}

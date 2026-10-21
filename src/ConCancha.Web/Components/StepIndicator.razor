@@ -1,0 +1,6 @@
+<div class="dots" aria-label="Paso @Current de @TotalSteps">
+    @for (var step = 1; step <= TotalSteps; step++)
+    {
+        <i class="@GetStepClass(step)"></i>
+    }
+</div>
