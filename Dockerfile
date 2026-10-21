@@ -14,7 +14,7 @@ COPY src/ConCancha.Web/*.csproj src/ConCancha.Web/
 COPY tests/ConCancha.Tests/*.csproj tests/ConCancha.Tests/
 RUN dotnet restore
 COPY . .
-RUN dotnet publish src/${PROJECT} -c Release -o /app --no-restore
+RUN dotnet publish src/${PROJECT} -c Release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 ARG PROJECT=ConCancha.Api
