@@ -7,6 +7,10 @@ public static class PageRoutes
     public const string Register = "/panel/registro";
     public const string Dashboard = "/panel";
     public const string Agenda = "/panel/agenda";
+    public const string Reservations = "/panel/reservas";
+    public const string Reminders = "/panel/recordar";
+    public const string Cash = "/panel/caja";
+    public const string Customers = "/panel/clientes";
     public const string Courts = "/panel/canchas";
     public const string Setup = "/panel/configuracion-inicial";
 

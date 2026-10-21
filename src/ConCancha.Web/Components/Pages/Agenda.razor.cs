@@ -2,34 +2,31 @@ using ConCancha.Contracts.Agenda;
 using ConCancha.Contracts.Bookings;
 using ConCancha.Contracts.Courts;
 using ConCancha.Domain.Bookings;
-using ConCancha.Domain.Clubs;
 using ConCancha.Web.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace ConCancha.Web.Components.Pages;
 
 public partial class Agenda : PanelPageBase
 {
+    [Inject] private ClubClock Clock { get; set; } = null!;
+
     private sealed record SelectedFreeSlot(CourtDto Court, AgendaSlotDto Slot);
 
     private sealed record SelectedBooking(CourtDto Court, BookingDto Booking);
 
-    private TimeZoneInfo _clubZone = TimeZoneInfo.FindSystemTimeZoneById(ClubDefaults.TimeZoneId);
+    private DateOnly _today;
     private DateOnly _date;
     private AgendaDayDto? _agenda;
     private SelectedFreeSlot? _selectedFreeSlot;
     private SelectedBooking? _selectedBooking;
 
-    private DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, _clubZone).DateTime);
-
     protected override async Task OnInitializedAsync()
     {
         if (!await EnterPanelAsync(ComponentToken)) return;
 
-        var club = await Api.GetCurrentClubAsync(ComponentToken);
-        if (!await SucceededAsync(club, ComponentToken)) return;
-
-        _clubZone = TimeZoneInfo.FindSystemTimeZoneById(club.Value!.TimeZoneId);
-        _date = Today;
+        _today = await Clock.GetTodayAsync(ComponentToken);
+        _date = _today;
         await LoadDayAsync(ComponentToken);
     }
 
@@ -42,15 +39,9 @@ public partial class Agenda : PanelPageBase
         _agenda = result.Value;
     }
 
-    private Task ChangeDayAsync(int days)
+    private Task ChangeDayAsync(DateOnly date)
     {
-        _date = _date.AddDays(days);
-        return LoadDayAsync(ComponentToken);
-    }
-
-    private Task GoToTodayAsync()
-    {
-        _date = Today;
+        _date = date;
         return LoadDayAsync(ComponentToken);
     }
 
@@ -85,19 +76,4 @@ public partial class Agenda : PanelPageBase
 
     private static string BookingTitle(BookingDto booking) =>
         booking.Kind == BookingKind.Block ? $"Bloqueado: {booking.Reason}" : booking.CustomerName ?? string.Empty;
-
-    private static string BookingChipText(BookingDto booking)
-    {
-        if (booking.Kind == BookingKind.Block) return "Bloqueo";
-        if (booking.Attendance == Attendance.NoShow) return "No vino";
-        if (booking.Attendance == Attendance.Played) return "Jugado";
-        return booking.PaymentStatus == PaymentStatus.Paid ? "Pagó" : "Debe";
-    }
-
-    private static string BookingChipClass(BookingDto booking)
-    {
-        if (booking.Kind == BookingKind.Block) return string.Empty;
-        if (booking.Attendance == Attendance.NoShow) return "warn";
-        return booking.Attendance == Attendance.Played || booking.PaymentStatus == PaymentStatus.Paid ? "ok" : "warn";
-    }
 }

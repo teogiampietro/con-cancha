@@ -73,6 +73,10 @@ public static class DependencyInjection
         services.AddScoped<IAgendaService, AgendaService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<ISetupService, SetupService>();
+        services.AddScoped<IReservationService, ReservationService>();
+        services.AddScoped<ICustomerDirectoryService, CustomerDirectoryService>();
+        services.AddScoped<ICashService, CashService>();
+        services.AddScoped<IReminderService, ReminderService>();
         services.AddScoped<SlotBooker>();
         services.AddScoped<CustomerResolver>();
         services.AddScoped<IPublicBookingService, PublicBookingService>();

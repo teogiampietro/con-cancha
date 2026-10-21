@@ -20,7 +20,12 @@ public static class DisplayFormat
         (Weekdays.Friday, "Vie"), (Weekdays.Saturday, "Sáb"), (Weekdays.Sunday, "Dom"),
     ];
 
-    public static string Money(decimal amount) => "$ " + amount.ToString("N0", MoneyFormat);
+    public static string Money(decimal amount) => "$\u00A0" + amount.ToString("N0", MoneyFormat);
+
+    /// <summary>Drops the trailing zeros the API sends (24000.00) so a number input shows "24000", not "24000,00".</summary>
+    public static decimal Normalize(decimal amount) => amount / 1.000000000000000000000000000000000m;
+
+    public static decimal? Normalize(decimal? amount) => amount is { } value ? Normalize(value) : null;
 
     public static string Time(int minuteOfDay)
     {
@@ -36,6 +41,15 @@ public static class DisplayFormat
         minuteOfDay = time.Hour * TimeConstants.MinutesPerHour + time.Minute;
         if (isEndOfDay && minuteOfDay == 0) minuteOfDay = TimeConstants.MinutesPerDay;
         return true;
+    }
+
+    /// <summary>"Todo el día", "desde las 18:00" or "de 08:00 a 12:00": midnight as an end reads as "no end".</summary>
+    public static string TimeRange(int fromMinuteOfDay, int toMinuteOfDay)
+    {
+        if (fromMinuteOfDay == 0 && toMinuteOfDay == TimeConstants.MinutesPerDay) return "todo el día";
+        return toMinuteOfDay == TimeConstants.MinutesPerDay
+            ? $"desde las {Time(fromMinuteOfDay)}"
+            : $"de {Time(fromMinuteOfDay)} a {Time(toMinuteOfDay)}";
     }
 
     public static string LongDate(DateOnly date) => $"{DayNames[(int)date.DayOfWeek]} {date.Day} de {MonthNames[date.Month - 1]}";

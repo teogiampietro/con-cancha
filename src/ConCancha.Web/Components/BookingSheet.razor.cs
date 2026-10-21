@@ -29,7 +29,7 @@ public partial class BookingSheet
     [Parameter] public EventCallback OnSaved { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
-    protected override void OnInitialized() => _price = Slot.Price;
+    protected override void OnInitialized() => _price = DisplayFormat.Normalize(Slot.Price);
 
     private void ChooseBlock(bool isBlocking)
     {

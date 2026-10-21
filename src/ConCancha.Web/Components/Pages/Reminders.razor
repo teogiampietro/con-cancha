@@ -1,0 +1,47 @@
+@page "/panel/recordar"
+@inherits PanelPageBase
+
+<PageTitle>Recordar turnos · ConCancha</PageTitle>
+
+<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
+
+<main class="panel">
+    <h1 class="no-margin">Recordar turnos</h1>
+    <p class="mut no-margin">Un mensaje el día antes es lo que más baja el ausentismo. Sale de tu WhatsApp con el texto ya escrito: vos solo tocás enviar.</p>
+
+    <div class="seg">
+        <button class="@(_day == ReminderDay.Tomorrow ? "on" : "")" @onclick="() => ChangeDayAsync(ReminderDay.Tomorrow)">Mañana</button>
+        <button class="@(_day == ReminderDay.Today ? "on" : "")" @onclick="() => ChangeDayAsync(ReminderDay.Today)">Hoy</button>
+    </div>
+
+    <ErrorMessage Message="@ErrorText" />
+
+    @if (_list is null)
+    {
+        <p class="loading">Cargando…</p>
+    }
+    else if (_list.Reminders.Count == 0)
+    {
+        <div class="card center col"><b>@(_day == ReminderDay.Today ? "Hoy" : "Mañana") no hay turnos para recordar</b><span class="mut sm">Solo aparecen los turnos con un WhatsApp válido.</span></div>
+    }
+    else
+    {
+        @foreach (var reminder in _list.Reminders)
+        {
+            <div class="card row sp wrap">
+                <div>
+                    <b>@reminder.CustomerName</b>
+                    <div class="sm mut">@DisplayFormat.Time(reminder.StartMinuteOfDay) · @reminder.CourtName</div>
+                </div>
+                @if (reminder.IsSent)
+                {
+                    <span class="chip ok">Enviado</span>
+                }
+                else
+                {
+                    <a class="btn sm" target="_blank" rel="noopener" href="@LinkFor(reminder)" @onclick="() => MarkSentAsync(reminder)">Enviar WhatsApp</a>
+                }
+            </div>
+        }
+    }
+</main>

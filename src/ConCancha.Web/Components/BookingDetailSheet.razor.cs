@@ -1,5 +1,4 @@
 using ConCancha.Contracts.Bookings;
-using ConCancha.Contracts.Courts;
 using ConCancha.Domain.Bookings;
 using ConCancha.Web.Services;
 using Microsoft.AspNetCore.Components;
@@ -19,14 +18,14 @@ public partial class BookingDetailSheet
 
     [Inject] private ApiClient Api { get; set; } = null!;
 
-    [Parameter, EditorRequired] public CourtDto Court { get; set; } = null!;
+    [Parameter, EditorRequired] public string CourtName { get; set; } = string.Empty;
     [Parameter, EditorRequired] public BookingDto Booking { get; set; } = null!;
     [Parameter] public EventCallback OnChanged { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
     private void StartChangingPrice()
     {
-        _newPrice = Booking.Price;
+        _newPrice = DisplayFormat.Normalize(Booking.Price);
         _isChangingPrice = true;
     }
 

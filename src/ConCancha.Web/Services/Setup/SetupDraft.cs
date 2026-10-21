@@ -94,8 +94,8 @@ public sealed class SetupDraft
     {
         CourtCount = saved.CourtCount,
         SlotMinutes = saved.SlotMinutes,
-        Price = saved.Price,
+        Price = DisplayFormat.Normalize(saved.Price),
         HasNightPrice = saved.NightPrice is not null,
-        NightPrice = saved.NightPrice,
+        NightPrice = DisplayFormat.Normalize(saved.NightPrice),
     };
 }

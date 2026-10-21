@@ -1,0 +1,5 @@
+<div class="row no-print">
+    <button class="btn sec" @onclick="() => MoveAsync(-1)" aria-label="Día anterior">‹</button>
+    <button class="btn sec" @onclick="GoToTodayAsync" disabled="@(Date == Today)">Hoy</button>
+    <button class="btn sec" @onclick="() => MoveAsync(1)" aria-label="Día siguiente">›</button>
+</div>

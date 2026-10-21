@@ -1,0 +1,72 @@
+@page "/panel/caja"
+@inherits PanelPageBase
+
+<PageTitle>Caja · ConCancha</PageTitle>
+
+<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
+
+<main class="panel">
+    <div class="row sp wrap">
+        <div>
+            <h1 class="no-margin">Caja</h1>
+            <p class="mut no-margin">Cierre del día · @DisplayFormat.LongDate(_date)</p>
+        </div>
+        <span class="row no-print">
+            <DateNavigator Date="_date" Today="_today" DateChanged="ChangeDayAsync" />
+            <button class="btn sec" @onclick="PrintAsync">Imprimir</button>
+        </span>
+    </div>
+
+    <ErrorMessage Message="@ErrorText" />
+
+    @if (_cash is null)
+    {
+        <p class="loading">Cargando…</p>
+    }
+    else if (_cash.Bookings.Count == 0)
+    {
+        <div class="card center col"><b>No hubo turnos este día</b><span class="mut sm">Cuando cargues turnos, acá aparece el cierre con el desglose por método de pago.</span></div>
+    }
+    else
+    {
+        <div class="stats four">
+            <Stat Label="Efectivo" Value="@DisplayFormat.Money(_cash.Cash)" />
+            <Stat Label="Transferencia" Value="@DisplayFormat.Money(_cash.Transfer)" />
+            <Stat Label="Total entró" Value="@DisplayFormat.Money(_cash.Total)" />
+            <Stat Label="Falta cobrar" Value="@DisplayFormat.Money(_cash.ToCollect)" Tone="bad" />
+        </div>
+
+        <h2 class="no-margin">Turnos del día</h2>
+        <table class="tbl resp">
+            <thead><tr><th>Hora</th><th>Cliente</th><th>Cancha</th><th class="num">Precio</th><th>Estado</th></tr></thead>
+            <tbody>
+                @foreach (var line in _cash.Bookings)
+                {
+                    <tr>
+                        <td data-label="Hora">@DisplayFormat.Time(line.StartMinuteOfDay)</td>
+                        <td data-label="Cliente">@line.CustomerName</td>
+                        <td data-label="Cancha">@line.CourtName</td>
+                        <td class="num" data-label="Precio">@DisplayFormat.Money(line.Price)</td>
+                        <td data-label="Estado">
+                            <span class="chip @BookingPresentation.ChipClass(BookingKind.Reservation, BookingStatus.Confirmed, line.Attendance, line.PaymentStatus)">@BookingPresentation.ChipText(BookingKind.Reservation, BookingStatus.Confirmed, line.Attendance, line.PaymentStatus)</span>
+                            @if (line.PaymentMethod is { } method && line.PaymentStatus == PaymentStatus.Paid) { <span class="sm mut"> @DisplayFormat.PaymentMethodLabel(method)</span> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="row no-print">
+            @if (_cash.Closure is { } closure)
+            {
+                <span class="chip ok">Caja cerrada · @DisplayFormat.Money(closure.Total)</span>
+                <button class="btn sec sm" disabled="@_isBusy" @onclick="ReopenAsync">Reabrir</button>
+            }
+            else
+            {
+                <button class="btn" disabled="@_isBusy" @onclick="CloseAsync">Cerrar caja</button>
+            }
+        </div>
+        @if (_cash.Closure is not null) { <p class="hint no-print">Cerrar la caja solo informa: si después cambia un turno, la caja del día se actualiza igual.</p> }
+    }
+</main>

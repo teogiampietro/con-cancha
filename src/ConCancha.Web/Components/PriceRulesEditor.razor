@@ -12,7 +12,7 @@
             <div class="row sp rule">
                 <span>
                     <b>@DisplayFormat.Money(rule.Price)</b>
-                    <span class="mut sm"> · @DisplayFormat.Days(rule.Days) · de @DisplayFormat.Time(rule.FromMinuteOfDay) a @DisplayFormat.Time(rule.ToMinuteOfDay)</span>
+                    <span class="mut sm"> · @DisplayFormat.Days(rule.Days) · @DisplayFormat.TimeRange(rule.FromMinuteOfDay, rule.ToMinuteOfDay)</span>
                 </span>
                 <span class="row">
                     <button class="lnk" @onclick="() => StartEditing(rule)">Editar</button>
@@ -45,7 +45,7 @@
                     <label class="f" for="rule-price">Precio del turno</label>
                     <input id="rule-price" type="number" min="0" step="100" inputmode="numeric" @bind="_price" />
                 </div>
-                <p class="hint no-margin">Si dos franjas coinciden, gana la que tiene días elegidos; si empatan, la de horario más angosto.</p>
+                <p class="hint no-margin">"Hasta 00:00" es medianoche. Si dos franjas coinciden, gana la que tiene días elegidos; si empatan, la de horario más angosto.</p>
                 <ErrorMessage Message="@_errorMessage" />
                 <div class="row">
                     <button type="button" class="btn sec" @onclick="CloseForm">Cancelar</button>

@@ -1,0 +1,59 @@
+@page "/panel/clientes"
+@inherits PanelPageBase
+
+<PageTitle>Clientes · ConCancha</PageTitle>
+
+<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
+
+<main class="panel wide">
+    <div class="row sp wrap">
+        <h1 class="no-margin">Clientes@(_customers is null ? "" : $" ({_customers.Count})")</h1>
+        <span class="row no-print">
+            <button class="btn sec sm" disabled="@_isExporting" @onclick="ExportAsync">Excel</button>
+            <button class="btn sec sm" @onclick="PrintAsync">PDF</button>
+        </span>
+    </div>
+
+    <div class="no-print col">
+        <input type="search" placeholder="Buscar por nombre o teléfono" autocomplete="off" @bind="_search" @bind:event="oninput" @bind:after="LoadAsync" />
+        <div class="row wrap">
+            <label class="chk"><input type="checkbox" checked="@_onlyDebtors" @onchange="ToggleDebtorsAsync" /> Solo los que deben</label>
+            <label class="chk"><input type="checkbox" checked="@_onlyNoShows" @onchange="ToggleNoShowsAsync" /> Solo los que faltaron</label>
+        </div>
+    </div>
+
+    <ErrorMessage Message="@ErrorText" />
+
+    @if (_customers is null)
+    {
+        <p class="loading">Cargando…</p>
+    }
+    else if (_customers.Count == 0)
+    {
+        <div class="card center col"><b>No hay clientes para mostrar</b><span class="mut sm">Se crean solos cuando cargás o reciben un turno.</span></div>
+    }
+    else
+    {
+        <table class="tbl resp">
+            <thead><tr><th>Cliente</th><th class="num">Turnos</th><th class="num">Gastó</th><th class="num">Debe</th><th class="num">Faltó</th><th class="no-print"></th></tr></thead>
+            <tbody>
+                @foreach (var customer in _customers)
+                {
+                    <tr>
+                        <td data-label=""><b>@customer.Name</b><div class="sm mut">@customer.Phone</div></td>
+                        <td class="num" data-label="Turnos">@customer.Visits</td>
+                        <td class="num" data-label="Gastó">@DisplayFormat.Money(customer.Spent)</td>
+                        <td class="num" data-label="Debe">@if (customer.Debt > 0) { <span class="chip warn">@DisplayFormat.Money(customer.Debt)</span> } else { <text>—</text> }</td>
+                        <td class="num" data-label="Faltó">@(customer.NoShows > 0 ? customer.NoShows.ToString() : "—")</td>
+                        <td class="no-print" data-label="">
+                            @if (customer.WhatsAppPhone is { } phone)
+                            {
+                                <a class="btn sec sm" target="_blank" rel="noopener" href="@ReminderMessage.WhatsAppUrl(phone, GreetingFor(customer))">WhatsApp</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</main>

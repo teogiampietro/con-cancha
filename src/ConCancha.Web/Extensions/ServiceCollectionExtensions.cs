@@ -1,6 +1,7 @@
 using ConCancha.Web.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ConCancha.Web.Extensions;
 
@@ -17,6 +18,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<CurrentSession>();
         services.AddScoped<AuthenticationStateProvider, SessionAuthenticationStateProvider>();
         services.AddScoped<ClientIpAccessor>();
+        services.AddScoped<ClubClock>();
+        services.TryAddSingleton(TimeProvider.System);
         return services;
     }
 

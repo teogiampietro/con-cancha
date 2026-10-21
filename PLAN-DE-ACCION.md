@@ -75,6 +75,7 @@ Señas con comprobante, lista de espera, turnos fijos, cuenta de jugador, puntos
 - Recordatorios (Mañana/Hoy con `wa.me`).
 - Agenda: indicadores Ocupación / Entró / Se escapa con las fórmulas de la maqueta.
 - **Listo cuando:** un día de prueba se carga, se cobra y la Caja cuadra con lo cargado.
+- **Estado:** backend, tests y pantallas hechos (Reservas, Clientes, Caja, Recordar, indicadores de la agenda). El test de la Caja valida que efectivo + transferencia + falta cobrar cuadran con lo cargado. "Excel" exporta un CSV que abre en Excel y "PDF" usa la impresión del navegador (guardar como PDF); un `.xlsx` y un PDF generados en servidor quedan fuera hasta que el piloto los pida. Falta recorrer las pantallas en navegador y celular.
 
 ### Fase 5: Calidad y endurecimiento (3–4 días)
 - Revisión de permisos por rol (encargado no ve configuración).

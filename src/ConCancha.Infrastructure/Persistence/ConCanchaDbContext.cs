@@ -1,6 +1,7 @@
 using System.Reflection;
 using ConCancha.Application.Abstractions;
 using ConCancha.Domain.Bookings;
+using ConCancha.Domain.Cash;
 using ConCancha.Domain.Clubs;
 using ConCancha.Domain.Courts;
 using ConCancha.Domain.Customers;
@@ -28,6 +29,7 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
     public DbSet<Booking> Bookings => Set<Booking>();
     public DbSet<ClubSetup> ClubSetups => Set<ClubSetup>();
     public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<CashClosure> CashClosures => Set<CashClosure>();
 
     /// <summary>
     /// Club that queries filter by. With no club set it is <c>null</c> and the filters return nothing:
@@ -46,6 +48,7 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
         ConfigureBooking(modelBuilder);
         ConfigureClubSetup(modelBuilder);
         ConfigureCustomer(modelBuilder);
+        ConfigureCashClosure(modelBuilder);
         ApplyClubFilters(modelBuilder);
     }
 
@@ -133,6 +136,14 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
             entity.Property(customer => customer.Email).HasMaxLength(CustomerLimits.EmailMaxLength);
             entity.HasOne<Club>().WithMany().HasForeignKey(customer => customer.ClubId).OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(customer => new { customer.ClubId, customer.NormalizedPhone }).IsUnique();
+        });
+
+    private static void ConfigureCashClosure(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<CashClosure>(entity =>
+        {
+            entity.Property(closure => closure.Total).HasPrecision(PriceLimits.MoneyPrecision, PriceLimits.MoneyScale);
+            entity.HasOne<Club>().WithMany().HasForeignKey(closure => closure.ClubId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(closure => new { closure.ClubId, closure.Date }).IsUnique();
         });
 
     private static void ConfigureClubSetup(ModelBuilder modelBuilder) =>

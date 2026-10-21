@@ -6,7 +6,18 @@
 <main class="public">
     @if (_club is null)
     {
-        <p class="loading">@(_notFoundMessage ?? "Cargando…")</p>
+        @if (_notFoundMessage is null)
+        {
+            <p class="loading">Cargando…</p>
+        }
+        else
+        {
+            <div class="card col center">
+                <b>@_notFoundMessage</b>
+                <span class="mut sm">Revisá que el link esté bien escrito.</span>
+                <a class="btn sec" href="/">Ir al inicio</a>
+            </div>
+        }
     }
     else
     {

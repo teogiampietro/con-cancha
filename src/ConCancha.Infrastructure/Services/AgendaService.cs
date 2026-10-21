@@ -14,10 +14,12 @@ namespace ConCancha.Infrastructure.Services;
 
 public sealed class AgendaService(ConCanchaDbContext db, CurrentClubProvider currentClub, TimeProvider clock) : IAgendaService
 {
+    private const int PercentScale = 100;
+
     public async Task<AgendaDayDto> GetDayAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var club = await currentClub.GetAsync(cancellationToken).ConfigureAwait(false);
-        if (club is null) return new AgendaDayDto(date, []);
+        if (club is null) return new AgendaDayDto(date, [], BuildStats([], []));
 
         var zone = ClubTimeZone.For(club);
         var courts = await db.Courts.AsNoTracking().Where(court => court.IsActive)
@@ -29,7 +31,21 @@ public sealed class AgendaService(ConCanchaDbContext db, CurrentClubProvider cur
         var agendaCourts = courts
             .Select(court => BuildCourt(court, club, date, zone, rules[court.Id], bookings[court.Id]))
             .ToList();
-        return new AgendaDayDto(date, agendaCourts);
+        return new AgendaDayDto(date, agendaCourts, BuildStats(agendaCourts, bookings.SelectMany(group => group)));
+    }
+
+    /// <summary>Occupancy, "Entró" and "Se escapa" as the mock-up defines them.</summary>
+    private static AgendaStatsDto BuildStats(IReadOnlyList<AgendaCourtDto> courts, IEnumerable<Booking> bookings)
+    {
+        var slots = courts.SelectMany(court => court.Slots).ToList();
+        var occupied = slots.Count(slot => slot.Booking is not null);
+        var missed = slots.Where(slot => slot.Booking is null && slot.IsPast).Sum(slot => slot.Price ?? 0m);
+        var percent = slots.Count == 0 ? 0 : (int)Math.Round(occupied * PercentScale / (double)slots.Count);
+        var dayBookings = bookings.ToList();
+
+        return new AgendaStatsDto(
+            occupied, slots.Count, percent,
+            dayBookings.Sum(BookingAmounts.Collected), missed, dayBookings.Sum(BookingAmounts.ToCollect));
     }
 
     private async Task<ILookup<Guid, PriceRule>> LoadRulesAsync(CancellationToken cancellationToken) =>

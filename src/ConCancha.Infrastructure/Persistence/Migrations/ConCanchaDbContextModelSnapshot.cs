@@ -81,6 +81,9 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
+                    b.Property<DateTimeOffset?>("ReminderSentAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTimeOffset>("StartsAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -98,6 +101,33 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                     b.HasIndex("ClubId", "StartsAt");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("ConCancha.Domain.Cash.CashClosure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClubId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("CashClosures");
                 });
 
             modelBuilder.Entity("ConCancha.Domain.Clubs.Club", b =>
@@ -532,6 +562,15 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Court");
+                });
+
+            modelBuilder.Entity("ConCancha.Domain.Cash.CashClosure", b =>
+                {
+                    b.HasOne("ConCancha.Domain.Clubs.Club", null)
+                        .WithMany()
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ConCancha.Domain.Clubs.ClubMember", b =>

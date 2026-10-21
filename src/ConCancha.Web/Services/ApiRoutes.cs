@@ -17,6 +17,11 @@ public static class ApiRoutes
     public const string Courts = "api/courts";
     public const string PriceRules = "api/price-rules";
     public const string Agenda = "api/agenda";
+    public const string Reservations = "api/reservations";
+    public const string Customers = "api/customers";
+    public const string CustomersExport = "api/customers/export";
+    public const string Cash = "api/cash";
+    public const string Reminders = "api/reminders";
     public const string Bookings = "api/bookings";
     public const string Blocks = "api/bookings/blocks";
 }

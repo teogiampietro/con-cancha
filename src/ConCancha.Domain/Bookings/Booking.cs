@@ -35,6 +35,9 @@ public class Booking : IBelongsToClub
     /// <summary>Why the time is blocked (rain, maintenance…).</summary>
     public string? Reason { get; set; }
 
+    /// <summary>When the club marked the WhatsApp reminder as sent.</summary>
+    public DateTimeOffset? ReminderSentAt { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? CancelledAt { get; set; }
 }

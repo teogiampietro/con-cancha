@@ -8,13 +8,18 @@
 <main class="panel wide">
     <div class="row sp wrap">
         <h1 class="no-margin">Agenda</h1>
-        <div class="row">
-            <button class="btn sec" @onclick="() => ChangeDayAsync(-1)" aria-label="Día anterior">‹</button>
-            <button class="btn sec" @onclick="GoToTodayAsync" disabled="@(_date == Today)">Hoy</button>
-            <button class="btn sec" @onclick="() => ChangeDayAsync(1)" aria-label="Día siguiente">›</button>
-        </div>
+        <DateNavigator Date="_date" Today="_today" DateChanged="ChangeDayAsync" />
     </div>
-    <p class="mut no-margin">@DisplayFormat.LongDate(_date)@(_date == Today ? " · hoy" : "")</p>
+    <p class="mut no-margin">@DisplayFormat.LongDate(_date)@(_date == _today ? " · hoy" : "")</p>
+
+    @if (_agenda is { Courts.Count: > 0 } withCourts)
+    {
+        <div class="stats">
+            <Stat Label="Ocupación" Value="@($"{withCourts.Stats.OccupancyPercent}%")" />
+            <Stat Label="Entró" Value="@DisplayFormat.Money(withCourts.Stats.Collected)" />
+            <Stat Label="Se escapa" Value="@DisplayFormat.Money(withCourts.Stats.Missed)" Tone="bad" />
+        </div>
+    }
 
     <ErrorMessage Message="@ErrorText" />
 
@@ -44,7 +49,7 @@
                             @if (slot.Booking is { } booking)
                             {
                                 <span class="grow">@BookingTitle(booking) @if (booking.Origin == BookingOrigin.Online) { <span class="chip">online</span> }</span>
-                                <span class="chip @BookingChipClass(booking)">@BookingChipText(booking)</span>
+                                <span class="chip @BookingPresentation.ChipClass(booking)">@BookingPresentation.ChipText(booking)</span>
                             }
                             else
                             {
@@ -65,5 +70,5 @@
 }
 else if (_selectedBooking is { } selected)
 {
-    <BookingDetailSheet Court="selected.Court" Booking="selected.Booking" OnChanged="OnBookingChangedAsync" OnClose="CloseSheet" />
+    <BookingDetailSheet CourtName="@selected.Court.Name" Booking="selected.Booking" OnChanged="OnBookingChangedAsync" OnClose="CloseSheet" />
 }

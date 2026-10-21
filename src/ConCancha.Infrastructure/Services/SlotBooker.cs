@@ -54,7 +54,10 @@ public sealed class SlotBooker(ConCanchaDbContext db, CurrentClubProvider curren
         Origin = origin,
     };
 
-    /// <summary>The exclusion constraint decides who wins when two people take the same slot at once.</summary>
+    /// <summary>
+    /// The exclusion constraint decides who wins when two people take the same slot at once. Under that contention
+    /// PostgreSQL may also abort the loser with a deadlock; for the person it is the same answer: the slot is gone.
+    /// </summary>
     public async Task<Result> TrySaveAsync(Booking booking, CancellationToken cancellationToken)
     {
         db.Bookings.Add(booking);
@@ -63,13 +66,26 @@ public sealed class SlotBooker(ConCanchaDbContext db, CurrentClubProvider curren
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return Result.Success();
         }
-        catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.ExclusionViolation })
+        catch (Exception exception) when (FindPostgresError(exception) is { } sqlState && IsSlotContention(sqlState))
         {
             return Result.Failure(ServiceError.Conflict(BookingMessages.SlotTaken));
         }
-        catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        catch (Exception exception) when (FindPostgresError(exception) == PostgresErrorCodes.UniqueViolation)
         {
             return Result.Failure(ServiceError.Conflict(BookingMessages.TryAgain));
         }
+    }
+
+    private static bool IsSlotContention(string sqlState) =>
+        sqlState is PostgresErrorCodes.ExclusionViolation or PostgresErrorCodes.DeadlockDetected or PostgresErrorCodes.SerializationFailure;
+
+    private static string? FindPostgresError(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException!)
+        {
+            if (current is PostgresException postgres) return postgres.SqlState;
+            if (current.InnerException is null) return null;
+        }
+        return null;
     }
 }

@@ -1,4 +1,5 @@
 using ConCancha.Contracts.Clubs;
+using ConCancha.Domain.Clubs;
 using ConCancha.Web.Services;
 
 namespace ConCancha.Web.Components.Pages;
@@ -9,6 +10,8 @@ public partial class Dashboard : PanelPageBase
     private IReadOnlyList<ClubMemberDto>? _team;
 
     private string RoleLabel => IsOwner ? "dueño" : "encargado";
+
+    private static string RoleLabelOf(string role) => role == nameof(ClubRole.Owner) ? "Dueño" : "Encargado";
 
     protected override async Task OnInitializedAsync()
     {

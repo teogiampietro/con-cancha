@@ -1,0 +1,53 @@
+@page "/panel/reservas"
+@inherits PanelPageBase
+
+<PageTitle>Reservas · ConCancha</PageTitle>
+
+<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
+
+<main class="panel">
+    <h1 class="no-margin">Reservas</h1>
+    <p class="mut no-margin">@(_list is null ? "Cargando…" : $"{_list.Items.Count} turnos")@(_list?.IsTruncated == true ? " (mostramos los primeros; afiná la búsqueda)" : "")</p>
+
+    <div class="seg">
+        @foreach (var (range, label) in Ranges)
+        {
+            <button class="@(_range == range ? "on" : "")" @onclick="() => ChangeRangeAsync(range)">@label</button>
+        }
+    </div>
+    <div class="seg">
+        @foreach (var (filter, label) in Filters)
+        {
+            <button class="@(_filter == filter ? "on" : "")" @onclick="() => ChangeFilterAsync(filter)">@label</button>
+        }
+    </div>
+    <input type="search" placeholder="Buscar por nombre o teléfono" autocomplete="off" @bind="_search" @bind:event="oninput" @bind:after="LoadAsync" />
+
+    <ErrorMessage Message="@ErrorText" />
+
+    @if (_list is { Items.Count: 0 })
+    {
+        <div class="card center col"><b>No hay reservas acá</b><span class="mut sm">Cambiá el filtro o cargá un turno desde la agenda.</span></div>
+    }
+    else if (_list is not null)
+    {
+        <div class="col">
+            @foreach (var item in _list.Items)
+            {
+                <button class="slot" @onclick="() => _selected = item">
+                    <span class="grow">
+                        <b>@item.Booking.CustomerName</b>
+                        @if (item.Booking.Origin == BookingOrigin.Online) { <span class="chip">online</span> }
+                        <span class="sm mut block-text">@DisplayFormat.ShortDate(item.Booking.Date) · @DisplayFormat.Time(item.Booking.StartMinuteOfDay) · @item.CourtName · @DisplayFormat.Money(item.Booking.Price)</span>
+                    </span>
+                    <span class="chip @BookingPresentation.ChipClass(item.Booking)">@BookingPresentation.ChipText(item.Booking)</span>
+                </button>
+            }
+        </div>
+    }
+</main>
+
+@if (_selected is { } selected)
+{
+    <BookingDetailSheet CourtName="@selected.CourtName" Booking="selected.Booking" OnChanged="OnChangedAsync" OnClose="() => _selected = null" />
+}

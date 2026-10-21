@@ -38,7 +38,7 @@ public partial class PriceRulesEditor : CancellableComponentBase
     private void StartCreating() => OpenForm(null, Array.Empty<Weekdays>(), 0, TimeConstants.MinutesPerDay, null);
 
     private void StartEditing(PriceRuleDto rule) =>
-        OpenForm(rule.Id, WeekdayList(rule.Days), rule.FromMinuteOfDay, rule.ToMinuteOfDay, rule.Price);
+        OpenForm(rule.Id, WeekdayList(rule.Days), rule.FromMinuteOfDay, rule.ToMinuteOfDay, DisplayFormat.Normalize(rule.Price));
 
     private void OpenForm(Guid? id, IEnumerable<Weekdays> days, int from, int to, decimal? price)
     {

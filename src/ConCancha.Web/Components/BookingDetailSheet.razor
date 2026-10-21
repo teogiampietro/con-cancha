@@ -1,6 +1,6 @@
 @inherits CancellableComponentBase
 
-<Sheet Title="@($"{Court.Name} · {DisplayFormat.Time(Booking.StartMinuteOfDay)}")" OnClose="OnClose">
+<Sheet Title="@($"{CourtName} · {DisplayFormat.Time(Booking.StartMinuteOfDay)}")" OnClose="OnClose">
     <p class="mut sm no-margin">@DisplayFormat.LongDate(Booking.Date) · @DisplayFormat.Time(Booking.StartMinuteOfDay) a @DisplayFormat.Time(Booking.EndMinuteOfDay)</p>
 
     @if (Booking.Kind == BookingKind.Block)
