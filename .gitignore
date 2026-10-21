@@ -1,0 +1,19 @@
+# .NET
+bin/
+obj/
+.vs/
+*.user
+
+# Secretos y credenciales locales
+.env
+.env.*
+!.env.example
+
+# Material privado de análisis de la app de referencia (no se versiona)
+/referencia-privada/
+
+# Editor y sistema
+.DS_Store
+.idea/
+.vscode/
+.claude/

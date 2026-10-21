@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ConCancha.Api/ConCancha.Api.csproj" />
+    <Project Path="src/ConCancha.Domain/ConCancha.Domain.csproj" />
+    <Project Path="src/ConCancha.Infrastructure/ConCancha.Infrastructure.csproj" />
+    <Project Path="src/ConCancha.Web/ConCancha.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ConCancha.Tests/ConCancha.Tests.csproj" />
+  </Folder>
+</Solution>
