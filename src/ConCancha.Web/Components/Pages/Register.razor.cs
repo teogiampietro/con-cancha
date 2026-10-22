@@ -8,7 +8,7 @@ namespace ConCancha.Web.Components.Pages;
 
 public partial class Register : CancellableComponentBase
 {
-    private const int SlugTypingPauseMilliseconds = 400;
+    private const int SlugTypingPauseMilliseconds = 1500;
     private const string SlugAvailableMessage = "✓ Disponible";
     private const string ClubNameRequiredMessage = "Poné el nombre del club.";
 
