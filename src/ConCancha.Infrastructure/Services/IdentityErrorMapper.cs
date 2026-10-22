@@ -22,6 +22,10 @@ public static class IdentityErrorMapper
         result.Errors.Any(error =>
             error.Code is nameof(IdentityErrorDescriber.DuplicateEmail) or nameof(IdentityErrorDescriber.DuplicateUserName));
 
-    private static string ResolveField(IdentityError error, string defaultField) =>
-        error.Code == nameof(IdentityErrorDescriber.InvalidEmail) ? nameof(RegisterRequest.Email) : defaultField;
+    private static string ResolveField(IdentityError error, string defaultField) => error.Code switch
+    {
+        nameof(IdentityErrorDescriber.InvalidEmail) => nameof(RegisterRequest.Email),
+        nameof(IdentityErrorDescriber.PasswordMismatch) => nameof(ChangePasswordRequest.CurrentPassword),
+        _ => defaultField,
+    };
 }

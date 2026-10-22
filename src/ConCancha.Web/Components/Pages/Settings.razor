@@ -1,0 +1,39 @@
+@page "/panel/configuracion"
+@layout PanelLayout
+@inherits PanelPageBase
+
+<PageTitle>Configuración · ConCancha</PageTitle>
+
+<main class="panel">
+    <h1>Configuración</h1>
+    <p class="mut">Cómo te ven tus clientes y cómo cuidás tu cuenta.</p>
+
+    @if (_club is null)
+    {
+        <p class="loading">@(ErrorText ?? "Cargando…")</p>
+    }
+    else
+    {
+        <div class="seg">
+            @foreach (var (tab, label) in Tabs)
+            {
+                <button class="@(_tab == tab ? "on" : "")" @onclick="() => SelectTab(tab)">@label</button>
+            }
+        </div>
+
+        <div class="settings-body col">
+            @switch (_tab)
+            {
+                case SettingsTab.Brand:
+                    <ClubProfileCard Club="_club" OnSaved="OnClubSavedAsync" />
+                    break;
+                case SettingsTab.Cancellation:
+                    <CancellationCard Club="_club" OnSaved="OnClubSavedAsync" />
+                    break;
+                case SettingsTab.Account:
+                    <ChangePasswordCard />
+                    break;
+            }
+        </div>
+    }
+</main>

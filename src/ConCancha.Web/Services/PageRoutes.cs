@@ -12,6 +12,7 @@ public static class PageRoutes
     public const string Cash = "/panel/caja";
     public const string Customers = "/panel/clientes";
     public const string Courts = "/panel/canchas";
+    public const string Settings = "/panel/configuracion";
     public const string Setup = "/panel/configuracion-inicial";
 
     public static string PublicClub(string slug) => $"/{slug}";

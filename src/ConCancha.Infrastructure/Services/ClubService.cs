@@ -3,6 +3,7 @@ using ConCancha.Application.Messages;
 using ConCancha.Application.Results;
 using ConCancha.Contracts.Accounts;
 using ConCancha.Contracts.Clubs;
+using ConCancha.Domain.Bookings;
 using ConCancha.Domain.Clubs;
 using ConCancha.Domain.Courts;
 using ConCancha.Infrastructure.Identity;
@@ -22,6 +23,7 @@ public sealed class ClubService(
 {
     private const string SlugField = "slug";
     private const string HoursField = "openingMinuteOfDay";
+    private const string CancellationWindowField = "windowHours";
 
     public async Task<Result<SessionResponse>> CreateClubForUserAsync(
         string userId, CreateClubRequest request, CancellationToken cancellationToken)
@@ -70,16 +72,37 @@ public sealed class ClubService(
     {
         if (OperatingHours.Validate(request.OpeningMinuteOfDay, request.ClosingMinuteOfDay) is { } reason)
             return Result<ClubDto>.Failure(ServiceError.Validation(HoursField, reason));
-        if (tenant.ClubId is not { } clubId)
-            return Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
 
-        var club = await db.Clubs.FirstOrDefaultAsync(c => c.Id == clubId, cancellationToken).ConfigureAwait(false);
-        if (club is null) return Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
+        return await UpdateCurrentClubAsync(club =>
+        {
+            club.OpeningMinuteOfDay = request.OpeningMinuteOfDay;
+            club.ClosingMinuteOfDay = request.ClosingMinuteOfDay;
+        }, cancellationToken).ConfigureAwait(false);
+    }
 
-        club.OpeningMinuteOfDay = request.OpeningMinuteOfDay;
-        club.ClosingMinuteOfDay = request.ClosingMinuteOfDay;
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return Result<ClubDto>.Success(ClubMapper.ToDto(club));
+    public async Task<Result<ClubDto>> UpdateProfileAsync(UpdateClubProfileRequest request, CancellationToken cancellationToken)
+    {
+        var result = await UpdateCurrentClubAsync(club =>
+        {
+            club.Name = request.Name.Trim();
+            club.Phone = NormalizePhone(request.Phone);
+        }, cancellationToken).ConfigureAwait(false);
+
+        if (result.IsSuccess) logger.LogInformation("Club {ClubId} profile updated", result.Value!.Id);
+        return result;
+    }
+
+    public async Task<Result<ClubDto>> UpdateCancellationAsync(UpdateCancellationRequest request, CancellationToken cancellationToken)
+    {
+        if (BookingPolicy.ValidateCancellationWindow(request.WindowHours) is { } reason)
+            return Result<ClubDto>.Failure(ServiceError.Validation(CancellationWindowField, reason));
+
+        var result = await UpdateCurrentClubAsync(club => club.CancellationWindowHours = request.WindowHours, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (result.IsSuccess)
+            logger.LogInformation("Club {ClubId} cancellation window set to {Hours} hours", result.Value!.Id, request.WindowHours);
+        return result;
     }
 
     public async Task<IReadOnlyList<ClubMemberDto>> GetCurrentClubTeamAsync(CancellationToken cancellationToken)
@@ -106,6 +129,19 @@ public sealed class ClubService(
 
         tenant.SetClub(club.Id);
         return Result<PublicClubDto>.Success(ClubMapper.ToPublicDto(club));
+    }
+
+    private async Task<Result<ClubDto>> UpdateCurrentClubAsync(Action<Club> apply, CancellationToken cancellationToken)
+    {
+        if (tenant.ClubId is not { } clubId)
+            return Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
+
+        var club = await db.Clubs.FirstOrDefaultAsync(c => c.Id == clubId, cancellationToken).ConfigureAwait(false);
+        if (club is null) return Result<ClubDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
+
+        apply(club);
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return Result<ClubDto>.Success(ClubMapper.ToDto(club));
     }
 
     private async Task<Result<SessionResponse>> SaveClubWithOwnerAsync(

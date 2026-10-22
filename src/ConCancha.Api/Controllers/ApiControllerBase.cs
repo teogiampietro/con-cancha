@@ -1,4 +1,5 @@
 using ConCancha.Application.Results;
+using ConCancha.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConCancha.Api.Controllers;
@@ -6,6 +7,8 @@ namespace ConCancha.Api.Controllers;
 [ApiController]
 public abstract class ApiControllerBase : ControllerBase
 {
+    protected string CurrentUserId => User.FindFirst(SessionClaims.UserId)!.Value;
+
     protected IActionResult ToActionResult<T>(Result<T> result, Func<T, IActionResult> onSuccess) =>
         result.IsSuccess ? onSuccess(result.Value!) : ToProblem(result.Error!);
 

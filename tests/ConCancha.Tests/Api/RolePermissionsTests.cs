@@ -17,6 +17,9 @@ public class RolePermissionsTests(ApiFactory api) : ApiTestBase(api)
     public static TheoryData<string, string> OwnerOnlyEndpoints => new()
     {
         { "PUT", Routes.ClubHours },
+        { "PUT", Routes.ClubProfile },
+        { "PUT", Routes.ClubCancellation },
+        { "POST", Routes.ChangePassword },
         { "GET", Routes.CurrentClubTeam },
         { "GET", Routes.Setup },
         { "PUT", Routes.Setup },

@@ -1,0 +1,24 @@
+@inherits CancellableComponentBase
+
+<form class="card col" @onsubmit="() => SaveAsync(ComponentToken)" @onsubmit:preventDefault>
+    <b>Marca del club</b>
+    <p class="mut sm no-margin">Así te ven tus clientes en el link de reservas.</p>
+    <div>
+        <label class="f" for="club-name">Nombre del club</label>
+        <input id="club-name" @bind="_name" @bind:event="oninput" maxlength="@ClubLimits.NameMaxLength" required />
+        <FieldError Message="@_nameError" />
+    </div>
+    <div>
+        <label class="f" for="club-phone">Teléfono del club (lo ven los jugadores)</label>
+        <input id="club-phone" type="tel" @bind="_phone" @bind:event="oninput" maxlength="@ClubLimits.PhoneMaxLength" />
+        <FieldError Message="@_phoneError" />
+    </div>
+    <div>
+        <label class="f">Link de reservas</label>
+        <div class="mut">@PublicSite.Domain/@Club.Slug</div>
+        <p class="hint">El link no cambia aunque cambies el nombre, así los que ya lo tienen siguen entrando.</p>
+    </div>
+    <ErrorMessage Message="@_errorMessage" />
+    @if (_isSaved) { <p class="sm success no-margin">Guardado.</p> }
+    <button class="btn" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Guardar marca")</button>
+</form>

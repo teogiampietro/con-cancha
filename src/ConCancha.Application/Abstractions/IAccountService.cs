@@ -12,4 +12,6 @@ public interface IAccountService
     Task SendPasswordResetLinkAsync(ForgotPasswordRequest request, CancellationToken cancellationToken);
 
     Task<Result> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken);
+
+    Task<Result> ChangePasswordAsync(string userId, ChangePasswordRequest request, CancellationToken cancellationToken);
 }

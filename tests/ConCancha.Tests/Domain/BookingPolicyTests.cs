@@ -25,4 +25,15 @@ public class BookingPolicyTests
     {
         Assert.Equal(expected, BookingPolicy.CanCancelOnline(Now.AddMinutes(minutesAhead), Now, windowHours));
     }
+
+    [Theory]
+    [InlineData(BookingPolicy.MinCancellationWindowHours, true)]
+    [InlineData(24, true)]
+    [InlineData(BookingPolicy.MaxCancellationWindowHours, true)]
+    [InlineData(BookingPolicy.MinCancellationWindowHours - 1, false)]
+    [InlineData(BookingPolicy.MaxCancellationWindowHours + 1, false)]
+    public void ValidateCancellationWindow_AcceptsOnlyTheAllowedRange(int hours, bool isValid)
+    {
+        Assert.Equal(isValid, BookingPolicy.ValidateCancellationWindow(hours) is null);
+    }
 }

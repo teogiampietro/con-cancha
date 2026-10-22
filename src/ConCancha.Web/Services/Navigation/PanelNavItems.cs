@@ -14,7 +14,8 @@ public static class PanelNavItems
         new("Recordar turnos", PageRoutes.Reminders, PanelIcons.Bell, PanelNavGroup.Today),
         new("Caja", PageRoutes.Cash, PanelIcons.Wallet, PanelNavGroup.Today, InBottomBar: true),
         new("Canchas", PageRoutes.Courts, PanelIcons.Grid, PanelNavGroup.Club, OwnerOnly: true),
-        new("Clientes", PageRoutes.Customers, PanelIcons.Users, PanelNavGroup.Club)
+        new("Clientes", PageRoutes.Customers, PanelIcons.Users, PanelNavGroup.Club),
+        new("Configuración", PageRoutes.Settings, PanelIcons.Gear, PanelNavGroup.Club, OwnerOnly: true)
     ];
 
     public static IReadOnlyList<PanelNavItem> VisibleTo(string? role) =>

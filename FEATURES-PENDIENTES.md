@@ -20,7 +20,8 @@ Comparación entre [maqueta/index.html](maqueta/index.html) y el código actual 
 | Canchas y precios | Sí | Sí | Faltan el alta con precio base y los turnos fijos |
 | Sitio público `/{slug}` y gestión por token | Sí | Sí | Faltan lista de espera, "Tus turnos", marca del club y seña |
 | Inicio / Resumen / Métricas | Sí | Parcial | El panel "Inicio" es mínimo; Resumen y Métricas no existen |
-| Configuración, Equipo, Mi plan | Sí | No | No existen |
+| Configuración | Sí | Parcial | Hecho (M3): Marca básica, Cancelación y Tu cuenta; faltan Cobros, País, Secciones y Notificaciones |
+| Equipo, Mi plan | Sí | No | No existen |
 | Lista de espera, Señas, Buffet, Torneos, Premios | Sí | No | No existen |
 | Cuenta de jugador, "Busco jugadores" | Sí | No | No existen |
 | Asistente (chat) y notificaciones | Simulados | No | No existen |
@@ -162,16 +163,16 @@ Ya está: horario del club, alta y edición de canchas (con horario propio y act
 
 ### 5.1 Configuración (`/panel/config`, 4 pestañas)
 
-El plan menciona que "la ventana de cancelación aún no se edita desde Configuración". En general **no existe ninguna pantalla de Configuración**.
+**Estado (M3 hecho, `/panel/configuracion`, solo dueño):** pestañas Marca (nombre y teléfono; el link no se edita), Cancelación (ventana en horas) y Tu cuenta (cambiar contraseña). Quedan fuera hasta sus módulos: logo y colores, País, Secciones, Cobros, "Pedir el mail la primera vez" y notificaciones. La ruta es `/panel/configuracion`, no `/panel/config`.
 
 | Pestaña | Contenido en la maqueta | Prioridad |
 |---|---|---|
-| **Marca** | Nombre del club, teléfono, **logo** (PNG/JPG, máx. 2 MB), **color principal y secundario** aplicados al sitio público (variable `--club`), vista previa | MVP el nombre y el teléfono; Post-MVP logo y colores |
+| **Marca** | Nombre del club, teléfono, **logo** (PNG/JPG, máx. 2 MB), **color principal y secundario** aplicados al sitio público (variable `--club`), vista previa | MVP el nombre y el teléfono (hecho); Post-MVP logo y colores |
 | **País** | País del club (hora y moneda) | Post-MVP (el plan fija Argentina) |
 | **Secciones del menú** | Mostrar u ocultar Buffet y Torneos | Post-MVP |
 | **Cobros** | Pedir seña, monto, alias o CBU | Post-MVP (con Señas) |
-| **Cancelación** | **Ventana de cancelación en horas** (existe en el dominio y la API, falta la UI) y **"Pedir el mail la primera vez"** con código de verificación | MVP la ventana; Post-MVP el mail |
-| **Tu cuenta** | **Cambiar contraseña** (actual, nueva ≥ 10, repetir) y activar notificaciones | MVP el cambio de contraseña |
+| **Cancelación** | **Ventana de cancelación en horas** (existe en el dominio y la API, falta la UI) y **"Pedir el mail la primera vez"** con código de verificación | MVP la ventana (hecho); Post-MVP el mail |
+| **Tu cuenta** | **Cambiar contraseña** (actual, nueva ≥ 10, repetir) y activar notificaciones | MVP el cambio de contraseña (hecho) |
 
 ### 5.2 Equipo (`/panel/equipo`)
 

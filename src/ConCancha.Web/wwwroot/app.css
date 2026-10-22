@@ -115,6 +115,7 @@ h1:focus { outline: none; }
 .seg { display: flex; gap: 4px; background: var(--card2); border-radius: 12px; padding: 4px; max-width: 460px; }
 .seg button { flex: 1; background: none; border: 0; color: var(--mut); font: inherit; font-weight: 700; padding: 9px 6px; border-radius: 9px; cursor: pointer; }
 .seg button.on { background: var(--acc); color: var(--onacc); }
+.settings-body { margin-top: 14px; max-width: 560px; }
 .tbl { width: 100%; border-collapse: collapse; } .tbl th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mut); padding: 8px 6px; }
 .tbl td { padding: 10px 6px; border-top: 1px solid var(--line); vertical-align: top; }
 .num, .tbl th.num, .tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }

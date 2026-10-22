@@ -12,6 +12,9 @@ public static class ApiRoutes
     public const string CurrentClub = "api/club";
     public const string CurrentClubTeam = "api/club/team";
     public const string ClubHours = "api/club/hours";
+    public const string ClubProfile = "api/club/profile";
+    public const string ClubCancellation = "api/club/cancellation";
+    public const string ChangePassword = "api/auth/change-password";
     public const string Setup = "api/club/setup";
     public const string SetupComplete = "api/club/setup/complete";
     public const string Courts = "api/courts";

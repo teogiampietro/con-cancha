@@ -8,4 +8,5 @@ public record ClubDto(
     string CountryCode,
     int OpeningMinuteOfDay,
     int ClosingMinuteOfDay,
-    string TimeZoneId);
+    string TimeZoneId,
+    int CancellationWindowHours);

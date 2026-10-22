@@ -12,8 +12,6 @@ namespace ConCancha.Api.Controllers;
 
 public class ClubsController(IClubService clubs) : ApiControllerBase
 {
-    private string CurrentUserId => User.FindFirst(SessionClaims.UserId)!.Value;
-
     /// <summary>Steps 2 and 3 of sign-up: creates the club and makes its creator the owner. Returns a new session that already carries the club.</summary>
     [HttpPost("api/clubs")]
     [Authorize]
@@ -45,6 +43,18 @@ public class ClubsController(IClubService clubs) : ApiControllerBase
     [Authorize(Roles = nameof(ClubRole.Owner))]
     public async Task<IActionResult> UpdateHours(UpdateClubHoursRequest request, CancellationToken cancellationToken) =>
         ToActionResult(await clubs.UpdateHoursAsync(request, cancellationToken), Ok);
+
+    /// <summary>Changes the club's name and phone. The slug never changes, so shared links keep working. Owner only.</summary>
+    [HttpPut("api/club/profile")]
+    [Authorize(Roles = nameof(ClubRole.Owner))]
+    public async Task<IActionResult> UpdateProfile(UpdateClubProfileRequest request, CancellationToken cancellationToken) =>
+        ToActionResult(await clubs.UpdateProfileAsync(request, cancellationToken), Ok);
+
+    /// <summary>Changes how many hours before the turn a player can still cancel online. Owner only.</summary>
+    [HttpPut("api/club/cancellation")]
+    [Authorize(Roles = nameof(ClubRole.Owner))]
+    public async Task<IActionResult> UpdateCancellation(UpdateCancellationRequest request, CancellationToken cancellationToken) =>
+        ToActionResult(await clubs.UpdateCancellationAsync(request, cancellationToken), Ok);
 
     /// <summary>Club team. Owner only. Queries are already filtered by the token's club.</summary>
     [HttpGet("api/club/team")]

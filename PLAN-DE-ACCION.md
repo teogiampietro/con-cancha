@@ -66,7 +66,7 @@ Señas con comprobante, lista de espera, turnos fijos, cuenta de jugador, puntos
 - Límite de turnos activos, link de gestión con token, cancelación dentro de la ventana.
 - Limitación de tasa en endpoints públicos.
 - **Listo cuando:** un jugador reserva y cancela desde el celular, y el turno aparece en la agenda del club.
-- **Estado:** backend y tests hechos (reserva anónima, cliente por teléfono normalizado, límite de 2 turnos activos, token de gestión guardado como hash, ventana de cancelación configurable por club, límite de tasa). Sitio `/{slug}` y `/{slug}/turno/{token}` implementados; falta recorrerlos en celular real. La ventana de cancelación aún no se edita desde Configuración.
+- **Estado:** backend y tests hechos (reserva anónima, cliente por teléfono normalizado, límite de 2 turnos activos, token de gestión guardado como hash, ventana de cancelación configurable por club, límite de tasa). Sitio `/{slug}` y `/{slug}/turno/{token}` implementados; falta recorrerlos en celular real. La ventana de cancelación se edita desde Configuración (módulo M3).
 
 ### Fase 4: Gestión diaria (1 semana)
 - Reservas (filtros Hoy/7/30/Historial, A cobrar, Online, búsqueda).
@@ -86,6 +86,9 @@ Señas con comprobante, lista de espera, turnos fijos, cuenta de jugador, puntos
 
 ### Módulo M1: Navegación y estructura del panel (ver [PLAN-DE-MODULOS.md](PLAN-DE-MODULOS.md))
 - **Estado:** hecho en código: `PanelLayout` con menú lateral agrupado (Hoy / El club), barra inferior móvil con hoja "Todo el panel", marca del club, "Ver mi página", Cerrar sesión y `ShareLinkButton` (menú, hoja y Agenda); catálogo `PanelNavItems` por rol (el encargado no ve Canchas) con tests; `PanelHeader` eliminado. Recorrido en navegador a 1280 y 390 px como dueño. Sin recorrer: copiar el link (portapapeles), cerrar sesión, vista de encargado en navegador, celular real. Los ítems de módulos futuros (Espera, Asistente, Crecer) no aparecen hasta que existan.
+
+### Módulo M3: Configuración del club (ver [PLAN-DE-MODULOS.md](PLAN-DE-MODULOS.md))
+- **Estado:** hecho en código: `/panel/configuracion` (solo dueño) con pestañas Marca (nombre y teléfono; el slug no se edita, decisión confirmada), Cancelación (ventana de 0 a 168 horas) y Tu cuenta (cambiar contraseña con el rechazo de contraseñas filtradas); `PUT api/club/profile`, `PUT api/club/cancellation` y `POST api/auth/change-password` en la matriz de permisos; `ClubDto` suma `CancellationWindowHours`; ítem "Configuración" en el menú del dueño. Sin migración (no hay entidades nuevas). Tests de API, dominio y navegación en verde. Recorrido en navegador a 1280 y 390 px como dueño, y como encargado (no ve el ítem y la URL directa lo manda a la Agenda). Sin recorrer: celular real, el rechazo de rango en pantalla (lo frena el navegador antes de enviar) y la contraseña filtrada contra el servicio real (el test usa uno simulado).
 
 ### Fase 6: Piloto (continuo)
 - Un club real, feedback semanal, ajustar reglas abiertas (sección 3).

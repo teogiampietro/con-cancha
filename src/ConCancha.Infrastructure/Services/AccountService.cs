@@ -77,6 +77,20 @@ public sealed class AccountService(
         return Result.Success();
     }
 
+    public async Task<Result> ChangePasswordAsync(string userId, ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        var user = await users.FindByIdAsync(userId).ConfigureAwait(false);
+        if (user is null)
+            return Result.Failure(ServiceError.Unauthorized(ClubMessages.UserNotFound));
+
+        var change = await users.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword).ConfigureAwait(false);
+        if (!change.Succeeded)
+            return Result.Failure(IdentityErrorMapper.ToValidationError(change, nameof(ChangePasswordRequest.NewPassword)));
+
+        logger.LogInformation("Password changed for user {UserId}", user.Id);
+        return Result.Success();
+    }
+
     private async Task<ServiceError?> RejectCredentialsAsync(AppUser user, string password)
     {
         if (await users.IsLockedOutAsync(user).ConfigureAwait(false))

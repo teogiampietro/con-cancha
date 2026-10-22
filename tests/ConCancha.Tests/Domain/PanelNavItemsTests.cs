@@ -19,6 +19,21 @@ public class PanelNavItemsTests
         Assert.Contains(PageRoutes.Courts, RoutesFor(Owner));
     }
 
+    [Fact]
+    public void Owner_sees_settings_in_the_menu()
+    {
+        Assert.Contains(PageRoutes.Settings, RoutesFor(Owner));
+    }
+
+    [Theory]
+    [InlineData("Staff")]
+    [InlineData(null)]
+    [InlineData("Unknown")]
+    public void Anyone_who_is_not_the_owner_does_not_see_settings(string? role)
+    {
+        Assert.DoesNotContain(PageRoutes.Settings, RoutesFor(role));
+    }
+
     [Theory]
     [InlineData("Staff")]
     [InlineData(null)]

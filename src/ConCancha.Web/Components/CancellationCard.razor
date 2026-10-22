@@ -1,0 +1,15 @@
+@inherits CancellableComponentBase
+
+<form class="card col" @onsubmit="() => SaveAsync(ComponentToken)" @onsubmit:preventDefault>
+    <b>Reglas de reserva</b>
+    <p class="mut sm no-margin">Hasta cuándo puede cancelar un jugador desde su link.</p>
+    <div>
+        <label class="f" for="cancellation-hours">Ventana de cancelación (horas antes del turno)</label>
+        <input id="cancellation-hours" type="number" inputmode="numeric" min="@BookingPolicy.MinCancellationWindowHours"
+               max="@BookingPolicy.MaxCancellationWindowHours" @bind="_windowHours" @bind:event="oninput" required />
+        <p class="hint">Con @_windowHours h, el jugador ya no puede cancelar desde el link cuando falta menos que eso. Después tiene que llamar al club.</p>
+    </div>
+    <ErrorMessage Message="@_errorMessage" />
+    @if (_isSaved) { <p class="sm success no-margin">Guardado.</p> }
+    <button class="btn" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Guardar regla")</button>
+</form>

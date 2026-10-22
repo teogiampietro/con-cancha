@@ -9,6 +9,9 @@ public sealed class SpanishIdentityErrorDescriber : IdentityErrorDescriber
     public override IdentityError PasswordTooShort(int length) =>
         new() { Code = nameof(PasswordTooShort), Description = $"La contraseña tiene que tener al menos {length} caracteres." };
 
+    public override IdentityError PasswordMismatch() =>
+        new() { Code = nameof(PasswordMismatch), Description = AccountMessages.CurrentPasswordIncorrect };
+
     public override IdentityError DuplicateEmail(string email) =>
         new() { Code = nameof(DuplicateEmail), Description = AccountMessages.EmailAlreadyRegistered };
 
