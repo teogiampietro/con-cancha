@@ -81,25 +81,48 @@ public partial class Register : CancellableComponentBase
         _step = RegistrationStep.ClubName;
     }
 
-    private async Task OnNameInputAsync(ChangeEventArgs args, CancellationToken cancellationToken)
+    private void OnNameInput(ChangeEventArgs args)
     {
         _name = args.Value?.ToString() ?? string.Empty;
         if (!_isSlugEditable) _slug = SlugRules.Normalize(_name);
-        await CheckSlugAvailabilityAsync(cancellationToken);
+        ScheduleSlugCheck();
     }
 
-    private async Task OnSlugInputAsync(ChangeEventArgs args, CancellationToken cancellationToken)
+    private void OnSlugInput(ChangeEventArgs args)
     {
         _slug = (args.Value?.ToString() ?? string.Empty).ToLowerInvariant();
-        await CheckSlugAvailabilityAsync(cancellationToken);
+        ScheduleSlugCheck();
     }
 
-    /// <summary>Live availability: waits for a typing pause before asking the API.</summary>
-    private async Task CheckSlugAvailabilityAsync(CancellationToken cancellationToken)
+    /// <remarks>
+    /// Not awaited on purpose: an input handler that waits makes Blazor re-render with the value of an old keystroke,
+    /// which overwrites the characters typed meanwhile.
+    /// </remarks>
+    private void ScheduleSlugCheck()
     {
-        var checkToken = RestartSlugCheck(cancellationToken);
         _isSlugAvailable = null;
         _slugMessage = null;
+        _ = CheckSlugAvailabilityAfterPauseAsync(RestartSlugCheck());
+    }
+
+    /// <summary>Live availability: runs once the person stops typing for <see cref="SlugTypingPauseMilliseconds"/>.</summary>
+    private async Task CheckSlugAvailabilityAfterPauseAsync(CancellationToken checkToken)
+    {
+        try
+        {
+            await Task.Delay(SlugTypingPauseMilliseconds, checkToken);
+            await CheckCurrentSlugAsync(checkToken);
+        }
+        catch (OperationCanceledException) when (checkToken.IsCancellationRequested)
+        {
+            return;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CheckCurrentSlugAsync(CancellationToken checkToken)
+    {
         if (_slug.Length == 0) return;
 
         if (SlugRules.Validate(_slug) is { } reason)
@@ -108,30 +131,14 @@ public partial class Register : CancellableComponentBase
             return;
         }
 
-        var result = await QuerySlugAfterPauseAsync(checkToken);
-        if (result is null || checkToken.IsCancellationRequested) return;
-
+        var result = await Api.GetSlugAvailabilityAsync(_slug, checkToken);
         SetSlugStatus(result.IsSuccess && result.Value!.IsAvailable, result.Value?.Reason ?? result.GeneralMessage);
-        StateHasChanged();
     }
 
-    private async Task<ApiResult<SlugAvailabilityResponse>?> QuerySlugAfterPauseAsync(CancellationToken checkToken)
-    {
-        try
-        {
-            await Task.Delay(SlugTypingPauseMilliseconds, checkToken);
-            return await Api.GetSlugAvailabilityAsync(_slug, checkToken);
-        }
-        catch (OperationCanceledException)
-        {
-            return null;
-        }
-    }
-
-    private CancellationToken RestartSlugCheck(CancellationToken cancellationToken)
+    private CancellationToken RestartSlugCheck()
     {
         _slugCheck?.Cancel();
-        _slugCheck = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _slugCheck = CancellationTokenSource.CreateLinkedTokenSource(ComponentToken);
         return _slugCheck.Token;
     }
 
