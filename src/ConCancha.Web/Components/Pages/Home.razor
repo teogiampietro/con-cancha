@@ -1,12 +1,233 @@
 @page "/"
 
-<PageTitle>ConCancha</PageTitle>
+<PageTitle>ConCancha · Los turnos de tu club, ordenados</PageTitle>
 
-<div class="landing">
-    <div class="card col card-narrow">
-        <h1>ConCancha</h1>
-        <p class="mut">Los turnos de tu club, ordenados. Probalo gratis, sin tarjeta.</p>
-        <a class="btn block" href="/panel/registro">Creá tu club</a>
-        <a class="btn sec block" href="/panel/login">Ya tengo cuenta</a>
-    </div>
+<div class="lp">
+    <header class="lp-nav">
+        <div class="lp-wrap lp-nav-in">
+            <a href="@PageRoutes.Home" aria-label="ConCancha"><BrandLogo /></a>
+            <nav class="lp-nav-links">
+                <a class="lp-link" href="@PageRoutes.Login">Entrar</a>
+                <a class="lp-btn sm" href="@PageRoutes.Register">Probalo gratis</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="lp-hero">
+        <div class="lp-wrap lp-hero-in">
+            <div class="lp-hero-copy">
+                <p class="lp-eyebrow">Para clubes y complejos deportivos de Argentina</p>
+                <h1>Los turnos de tu club, ordenados.</h1>
+                <p class="lp-lead">Dejá el cuaderno, la planilla y los mensajes de WhatsApp. Tus jugadores ven los horarios libres y reservan solos. Vos ves la agenda y la caja en un solo lugar.</p>
+                <a class="lp-btn lg" href="@PageRoutes.Register">@LandingContent.TrialButton</a>
+                <p class="lp-note">Sin tarjeta. Sin instalar nada. Funciona en el celular.</p>
+            </div>
+
+            <div class="lp-phones" aria-hidden="true">
+                <div class="lp-phone back">
+                    <div class="lp-phone-bar"><span class="lp-dot"></span> Club La Quinta <em>Agenda · Hoy</em></div>
+                    <div class="lp-phone-body">
+                        <div class="lp-kpis">
+                            <div><small>Ocupación</small><b>78%</b></div>
+                            <div><small>Entró</small><b>$ 00.000</b></div>
+                        </div>
+                        <div class="lp-row"><span>18:00</span><b>Pádel 1</b><i class="paid">Pagó</i></div>
+                        <div class="lp-row"><span>19:30</span><b>Pádel 2</b><i class="due">Debe</i></div>
+                        <div class="lp-row"><span>20:00</span><b>Fútbol 5</b><i class="paid">Pagó</i></div>
+                        <div class="lp-row"><span>21:30</span><b>Pádel 1</b><i class="free">Libre</i></div>
+                    </div>
+                </div>
+                <div class="lp-phone front">
+                    <div class="lp-phone-bar light"><span class="lp-dot"></span> Reservá tu turno</div>
+                    <div class="lp-phone-body light">
+                        <div class="lp-days"><i>Lun</i><i class="on">Mar</i><i>Mié</i><i>Jue</i></div>
+                        <p class="lp-court">Pádel 2 · 90 min</p>
+                        <div class="lp-slot free"><span>20:30</span><b>$ 00.000</b></div>
+                        <div class="lp-slot busy"><span>22:00</span><b>Ocupado</b></div>
+                        <div class="lp-slot free"><span>23:30</span><b>$ 00.000</b></div>
+                        <div class="lp-slot cta">Reservar</div>
+                    </div>
+                </div>
+                <p class="lp-caption">Pantallas ilustrativas</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section light">
+        <div class="lp-wrap">
+            <h2>Del cuaderno y el WhatsApp a una sola agenda</h2>
+            <div class="lp-versus">
+                <div class="lp-vs before">
+                    <h3>Hoy</h3>
+                    <ul>
+                        @foreach (var pain in LandingContent.NotebookPains)
+                        {
+                            <li><LandingIcon Name="close" /> @pain</li>
+                        }
+                    </ul>
+                </div>
+                <div class="lp-vs after">
+                    <h3>Con ConCancha</h3>
+                    <ul>
+                        @foreach (var gain in LandingContent.ConCanchaGains)
+                        {
+                            <li><LandingIcon Name="check" /> @gain</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section" id="que-podes-hacer">
+        <div class="lp-wrap">
+            <p class="lp-kicker">Qué podés hacer</p>
+            <h2>Todo lo del club, en el celular</h2>
+            <div class="lp-tabs" role="tablist">
+                <button role="tab" class="@AudienceTabClass(LandingAudience.Club)" aria-selected="@(_audience == LandingAudience.Club)" @onclick="() => SelectAudience(LandingAudience.Club)">Para el club</button>
+                <button role="tab" class="@AudienceTabClass(LandingAudience.Player)" aria-selected="@(_audience == LandingAudience.Player)" @onclick="() => SelectAudience(LandingAudience.Player)">Para el jugador</button>
+            </div>
+            @if (_audience == LandingAudience.Player)
+            {
+                <p class="lp-sub">En el sitio público del club, sin descargar nada: <b>@LandingContent.ExampleClubLink</b></p>
+            }
+            else
+            {
+                <p class="lp-sub">Tu panel de gestión, pensado para usarlo parado en la cancha.</p>
+            }
+            <div class="lp-cards">
+                @foreach (var feature in VisibleFeatures)
+                {
+                    <article class="lp-card">
+                        <span class="lp-ico"><LandingIcon Name="@feature.Icon" /></span>
+                        <h3>@feature.Title</h3>
+                        <p>@feature.Text</p>
+                    </article>
+                }
+            </div>
+            <h3 class="lp-h3">Cómo se evita el caos</h3>
+            <div class="lp-cards two">
+                @foreach (var rule in LandingContent.OrderRules)
+                {
+                    <article class="lp-card accent">
+                        <span class="lp-ico"><LandingIcon Name="@rule.Icon" /></span>
+                        <h3>@rule.Title</h3>
+                        <p>@rule.Text</p>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section light" id="por-que">
+        <div class="lp-wrap">
+            <p class="lp-kicker">Por qué ConCancha</p>
+            <h2>Beneficios, no features</h2>
+            <div class="lp-cards benefits">
+                @foreach (var benefit in LandingContent.Benefits)
+                {
+                    <article class="lp-card">
+                        <span class="lp-ico"><LandingIcon Name="@benefit.Icon" /></span>
+                        <h3>@benefit.Title</h3>
+                        <p>@benefit.Text</p>
+                    </article>
+                }
+            </div>
+            <div class="lp-proof">
+                <div class="lp-placeholder">[ESPACIO PARA TESTIMONIOS DE CLUBES: completar con casos reales]</div>
+                <div class="lp-placeholder">[ESPACIO PARA LOGOS DE CLUBES: completar con autorización de cada club]</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section dark" id="chatbot">
+        <div class="lp-wrap lp-chatbot">
+            <div>
+                <span class="lp-badge">Próximamente</span>
+                <h2>Que el jugador pregunte y el chat conteste</h2>
+                <p class="lp-lead-dark">Una pestaña “Preguntar” en la página de tu club. Todavía no está disponible: lo estamos preparando.</p>
+                <ul class="lp-list">
+                    @foreach (var feature in LandingContent.ChatbotFeatures)
+                    {
+                        <li><LandingIcon Name="@feature.Icon" /><span><b>@feature.Title.</b> @feature.Text</span></li>
+                    }
+                </ul>
+                <form class="lp-notify" @onsubmit="NotifyWhenReady" @onsubmit:preventDefault>
+                    <label for="notify" class="lp-sr">Tu mail o WhatsApp</label>
+                    <input id="notify" type="text" placeholder="Tu mail o WhatsApp" autocomplete="email" @bind="_notifyContact" @bind:event="oninput" />
+                    <button class="lp-btn">Avisame cuando esté listo</button>
+                </form>
+            </div>
+            <div class="lp-chat" aria-label="Ejemplo de conversación, función próximamente">
+                <div class="lp-chat-top"><span class="lp-dot"></span> Preguntar · Club La Quinta</div>
+                <div class="lp-chat-body">
+                    <p class="msg me">¿Tienen cancha de pádel mañana después de las 20?</p>
+                    <p class="msg bot">Sí, mañana hay Pádel 2 a las 20:30 y 22:00. Salen $X. ¿Querés reservar?</p>
+                    <div class="lp-chips"><span>20:30</span><span>22:00</span></div>
+                </div>
+                <div class="lp-chat-input"><span>Escribí tu pregunta…</span><LandingIcon Name="send" /></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section" id="planes">
+        <div class="lp-wrap">
+            <p class="lp-kicker">Planes</p>
+            <h2>Probalo 30 días, sin compromiso</h2>
+            <div class="lp-plans">
+                <article class="lp-plan featured">
+                    <span class="lp-badge sm">Para empezar</span>
+                    <h3>Prueba gratis por 30 días</h3>
+                    <p class="lp-price">Gratis</p>
+                    <ul class="lp-checks">
+                        @foreach (var included in LandingContent.TrialIncludes)
+                        {
+                            <li><LandingIcon Name="check" /> @included</li>
+                        }
+                    </ul>
+                    <a class="lp-btn block" href="@PageRoutes.Register">@LandingContent.TrialPlanButton</a>
+                </article>
+                <article class="lp-plan">
+                    <h3>Plan pago</h3>
+                    <p class="lp-price @(IsPlanPending ? "pending" : string.Empty)">@PlanPriceLabel <small>/ @PlanPeriodLabel</small></p>
+                    <ul class="lp-checks">
+                        @foreach (var included in LandingContent.Plan.Includes)
+                        {
+                            <li><LandingIcon Name="check" /> @included</li>
+                        }
+                    </ul>
+                    <a class="lp-btn ghost block" href="@PageRoutes.Register">@LandingContent.TrialPlanButton</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section light" id="preguntas">
+        <div class="lp-wrap narrow">
+            <p class="lp-kicker">Preguntas frecuentes</p>
+            <h2>Lo que nos suelen preguntar</h2>
+            @foreach (var faq in LandingContent.Faqs)
+            {
+                <details class="lp-faq">
+                    <summary>@faq.Question</summary>
+                    <p>@faq.Answer</p>
+                </details>
+            }
+        </div>
+    </section>
+
+    <section class="lp-closing">
+        <div class="lp-wrap center">
+            <h2>@LandingContent.Slogan</h2>
+            <a class="lp-btn lg" href="@PageRoutes.Register">@LandingContent.TrialButton</a>
+            <p class="lp-note">Sin tarjeta y sin compromiso.</p>
+        </div>
+    </section>
+
+    <footer class="lp-footer">
+        <div class="lp-wrap lp-footer-in">
+            <BrandLogo ShowTagline="true" />
+            <a class="lp-link" href="@PageRoutes.Login">Ya tengo cuenta</a>
+        </div>
+    </footer>
 </div>
