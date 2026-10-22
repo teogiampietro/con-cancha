@@ -3,15 +3,25 @@ namespace ConCancha.Web.Services.Landing;
 public static class LandingContent
 {
     public const string Slogan = "Más deportes. Más momentos. ConCancha.";
-    public const string TrialButton = "Probalo gratis 30 días";
-    public const string TrialPlanButton = "Empezar mis 30 días gratis";
+    public const string TrialButton = "Probalo gratis 14 días";
+    public const string TrialPlanButton = "Empezar mis 14 días gratis";
     public const string ExampleClubLink = "concancha.com/nombre-del-club";
     public const string NotifyContactAddress = "hola@concancha.com";
+    public const string PaidPlanName = "Plan Completo";
+    public const string PaidPlanBadge = "Recomendado";
+    public const string PaidPlanTagline = "Se paga solo con un par de turnos que antes quedaban vacíos.";
+    public const string PaidPlanIntro = "Todo lo del plan de prueba, más:";
 
     public static readonly PaidPlan Plan = new(
-        Price: null,
-        Period: null,
-        Includes: ["[A COMPLETAR POR EL DUEÑO: qué incluye el plan pago]"]);
+        Price: "$50.000",
+        Period: "mes",
+        Includes:
+        [
+            "Gestión de torneos y ligas para llenar tus canchas",
+            "Gestión de bar/buffet, junto a la caja del club",
+            "Atención personalizada por WhatsApp, con una persona real",
+            "Asistente que responde las consultas de tus jugadores las 24 hs"
+        ]);
 
     public static readonly IReadOnlyList<LandingItem> ClubFeatures =
     [
@@ -21,11 +31,8 @@ public static class LandingContent
         new("users", "Clientes", "Visitas, gasto, deuda y faltas de cada cliente. Filtrás por quienes deben o faltaron y exportás a Excel o PDF."),
         new("list", "Reservas", "Filtrás por hoy, 7 días, 30 días o historial, por “a cobrar” o por “online”. Buscás por nombre o teléfono."),
         new("bell", "Recordatorios por WhatsApp", "La app arma el mensaje de “mañana” y “hoy”. Lo abrís con un toque."),
-        new("chart", "Indicadores en la Agenda", "Ocupación, cuánto entró y cuánto se está escapando por horarios libres que ya pasaron."),
         new("shield", "Roles", "Dueño y encargado. El encargado carga turnos y cobra, pero no toca la configuración."),
-        new("palette", "Marca del club", "Logo, colores, nombre y teléfono en tu página pública. Mostrás u ocultás las secciones que quieras."),
-        new("clock", "Reglas de cancelación", "Vos definís cuántas horas antes puede cancelar el jugador. Por defecto, 12 hs."),
-        new("rocket", "Alta en minutos", "Creás la cuenta con mail y contraseña, elegís el nombre y el link del club, y un asistente configura deportes, canchas, horarios y precios. Tu avance queda guardado.")
+        new("clock", "Reglas de cancelación", "Vos definís cuántas horas antes puede cancelar el jugador. Por defecto, 12 hs.")
     ];
 
     public static readonly IReadOnlyList<LandingItem> PlayerFeatures =
@@ -64,10 +71,7 @@ public static class LandingContent
         new("chat", "Se acabó el ida y vuelta por WhatsApp", "El jugador ve lo libre y reserva solo, también de noche y los fines de semana."),
         new("bell", "Menos turnos que se caen", "Hay recordatorios, ventana de cancelación y límite de turnos por persona. Los “no vino” quedan registrados."),
         new("chart", "Ves cuánta plata se te escapa", "Los horarios libres que pasaron se convierten en un número, y la Caja cuadra con lo que cargaste."),
-        new("flag", "Hecho para clubes argentinos", "Pesos, WhatsApp, efectivo y transferencia, horarios y precios por franja."),
-        new("rocket", "Se arranca en minutos", "Sin tarjeta, sin instalar nada, y funciona en el celular de todos."),
-        new("palette", "Tu club, tu marca", "Tenés tu link, tu logo y tus colores."),
-        new("shield", "Datos separados y seguros", "Cada club ve solo lo suyo y hay roles de acceso.")
+        new("rocket", "Se arranca en minutos", "Sin tarjeta, sin instalar nada, y funciona en el celular de todos.")
     ];
 
     public static readonly IReadOnlyList<string> TrialIncludes =
@@ -89,7 +93,7 @@ public static class LandingContent
 
     public static readonly IReadOnlyList<LandingFaq> Faqs =
     [
-        new("¿Necesito tarjeta de crédito para probarlo?", "No. Los 30 días de prueba son sin tarjeta y sin compromiso. Al terminar, elegís un plan pago."),
+        new("¿Necesito tarjeta de crédito para probarlo?", "No. Los 14 días de prueba son sin tarjeta y sin compromiso. Al terminar, elegís un plan pago."),
         new("¿Qué pasa con los datos de mi club?", "Cada club ve solo lo suyo. Además hay roles: el dueño configura y el encargado carga turnos y cobra."),
         new("¿Cuántas canchas puedo cargar?", "Cargás las canchas de tu club, cada una con su deporte, la duración del turno y sus precios. [A COMPLETAR POR EL DUEÑO: límite de canchas por plan, si lo hay]"),
         new("¿El jugador necesita crear una cuenta?", "No. Reserva con nombre y WhatsApp (el mail es opcional) y no descarga nada. Después ve y cancela sus turnos desde la página del club o con el link personal que recibe."),

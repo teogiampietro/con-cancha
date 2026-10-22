@@ -6,6 +6,12 @@
     <header class="lp-nav">
         <div class="lp-wrap lp-nav-in">
             <a href="@PageRoutes.Home" aria-label="ConCancha"><BrandLogo /></a>
+            <nav class="lp-nav-sections" aria-label="Secciones">
+                <a class="lp-link" href="#que-podes-hacer">Funciones</a>
+                <a class="lp-link" href="#por-que">Beneficios</a>
+                <a class="lp-link" href="#planes">Planes</a>
+                <a class="lp-link" href="#preguntas">Preguntas</a>
+            </nav>
             <nav class="lp-nav-links">
                 <a class="lp-link" href="@PageRoutes.Login">Entrar</a>
                 <a class="lp-btn sm" href="@PageRoutes.Register">Probalo gratis</a>
@@ -29,7 +35,7 @@
                     <div class="lp-phone-body">
                         <div class="lp-kpis">
                             <div><small>Ocupación</small><b>78%</b></div>
-                            <div><small>Entró</small><b>$ 00.000</b></div>
+                            <div><small>Entró</small><b>$500.000</b></div>
                         </div>
                         <div class="lp-row"><span>18:00</span><b>Pádel 1</b><i class="paid">Pagó</i></div>
                         <div class="lp-row"><span>19:30</span><b>Pádel 2</b><i class="due">Debe</i></div>
@@ -42,13 +48,12 @@
                     <div class="lp-phone-body light">
                         <div class="lp-days"><i>Lun</i><i class="on">Mar</i><i>Mié</i><i>Jue</i></div>
                         <p class="lp-court">Pádel 2 · 90 min</p>
-                        <div class="lp-slot free"><span>20:30</span><b>$ 00.000</b></div>
+                        <div class="lp-slot free"><span>20:30</span><b>$30.000</b></div>
                         <div class="lp-slot busy"><span>22:00</span><b>Ocupado</b></div>
-                        <div class="lp-slot free"><span>23:30</span><b>$ 00.000</b></div>
+                        <div class="lp-slot free"><span>23:30</span><b>$30.000</b></div>
                         <div class="lp-slot cta">Reservar</div>
                     </div>
                 </div>
-                <p class="lp-caption">Pantallas ilustrativas</p>
             </div>
         </div>
     </section>
@@ -134,7 +139,6 @@
                 }
             </div>
             <div class="lp-proof">
-                <div class="lp-placeholder">[ESPACIO PARA TESTIMONIOS DE CLUBES: completar con casos reales]</div>
                 <div class="lp-placeholder">[ESPACIO PARA LOGOS DE CLUBES: completar con autorización de cada club]</div>
             </div>
         </div>
@@ -173,11 +177,11 @@
     <section class="lp-section" id="planes">
         <div class="lp-wrap">
             <p class="lp-kicker">Planes</p>
-            <h2>Probalo 30 días, sin compromiso</h2>
+            <h2>Probalo 14 días, sin compromiso</h2>
             <div class="lp-plans">
-                <article class="lp-plan featured">
+                <article class="lp-plan">
                     <span class="lp-badge sm">Para empezar</span>
-                    <h3>Prueba gratis por 30 días</h3>
+                    <h3>Prueba gratis por 14 días</h3>
                     <p class="lp-price">Gratis</p>
                     <ul class="lp-checks">
                         @foreach (var included in LandingContent.TrialIncludes)
@@ -185,18 +189,21 @@
                             <li><LandingIcon Name="check" /> @included</li>
                         }
                     </ul>
-                    <a class="lp-btn block" href="@PageRoutes.Register">@LandingContent.TrialPlanButton</a>
+                    <a class="lp-btn ghost block" href="@PageRoutes.Register">@LandingContent.TrialPlanButton</a>
                 </article>
-                <article class="lp-plan">
-                    <h3>Plan pago</h3>
+                <article class="lp-plan featured">
+                    <span class="lp-badge">@LandingContent.PaidPlanBadge</span>
+                    <h3>@LandingContent.PaidPlanName</h3>
                     <p class="lp-price @(IsPlanPending ? "pending" : string.Empty)">@PlanPriceLabel <small>/ @PlanPeriodLabel</small></p>
+                    <p class="lp-plan-tagline">@LandingContent.PaidPlanTagline</p>
+                    <p class="lp-plan-intro">@LandingContent.PaidPlanIntro</p>
                     <ul class="lp-checks">
                         @foreach (var included in LandingContent.Plan.Includes)
                         {
                             <li><LandingIcon Name="check" /> @included</li>
                         }
                     </ul>
-                    <a class="lp-btn ghost block" href="@PageRoutes.Register">@LandingContent.TrialPlanButton</a>
+                    <a class="lp-btn block" href="@PageRoutes.Register">@LandingContent.TrialPlanButton</a>
                 </article>
             </div>
         </div>
