@@ -18,7 +18,7 @@ Comparación entre [maqueta/index.html](maqueta/index.html) y el código actual 
 | Agenda (grilla, cargar, bloquear, pagar, jugado, no vino, cancelar, precio) | Sí | Sí | **Hecho en M2:** mover, deshacer, atajos |
 | Reservas, Recordar, Caja, Clientes | Sí | Sí | Faltan detalles (ver §3) |
 | Canchas y precios | Sí | Sí | Faltan el alta con precio base y los turnos fijos |
-| Sitio público `/{slug}` y gestión por token | Sí | Sí | Faltan lista de espera, "Tus turnos", marca del club y seña |
+| Sitio público `/{slug}` y gestión por token | Sí | Sí | Faltan lista de espera, marca del club y seña |
 | Inicio / Resumen / Métricas | Sí | Parcial | El panel "Inicio" es mínimo; Resumen y Métricas no existen |
 | Configuración | Sí | Parcial | Hecho (M3): Marca básica, Cancelación y Tu cuenta; faltan Cobros, País, Secciones y Notificaciones |
 | Equipo, Mi plan | Sí | No | No existen |
@@ -194,16 +194,16 @@ Ya está: selector de cancha, lista de turnos, hoja de reserva con nombre, Whats
 | # | Falta | Prioridad |
 |---|---|---|
 | 6.1.1 | **Marca del club**: color propio aplicado al sitio y logo (ver §5.1) | Post-MVP |
-| 6.1.2 | **Selector de 7 días** con tira de días y flechas (verificar si ya está) | MVP |
-| 6.1.3 | Horarios **"Pasó"** atenuados, **"No disponible"** para bloqueos, **"Tu turno"** para los turnos del propio visitante | MVP (verificar) |
-| 6.1.4 | Sección **"Tus turnos en {club}"** con Cancelar, para el visitante anónimo (la app solo ofrece el link con token) | MVP |
+| 6.1.2 | **Selector de 7 días** con tira de días y flechas | MVP (hecho: usa `DayStrip`; los 7 días entran en pantalla o se desplazan, sin flechas) |
+| 6.1.3 | Horarios **"Pasó"** atenuados, **"No disponible"** para bloqueos, **"Tu turno"** para los turnos del propio visitante | MVP (hecho) |
+| 6.1.4 | Sección **"Tus turnos en {club}"** con Cancelar, para el visitante anónimo (identificado por un token del navegador, nunca por teléfono) | MVP (hecho, solo en el dispositivo donde se reservó) |
 | 6.1.5 | **Anotarse en la lista de espera** desde un horario ocupado | Post-MVP |
 | 6.1.6 | Pestaña **Preguntar** (asistente) | Post-MVP |
 | 6.1.7 | Sección **"Buscan jugadores"** con "Pedir sumarme" | Post-MVP |
 | 6.1.8 | Banner **"Creá tu cuenta"** y CTA tras reservar | Post-MVP |
-| 6.1.9 | Texto de privacidad en la hoja de reserva ("{club} guarda tu nombre y WhatsApp…") | MVP |
+| 6.1.9 | Texto de privacidad en la hoja de reserva ("{club} guarda tu nombre y WhatsApp…") | MVP (hecho) |
 | 6.1.10 | Pie "Con tecnología de…" | Decidir |
-| 6.1.11 | Mensaje de aviso de que ya no se puede cancelar online ("llamá al club") con la ventana en horas | MVP (verificar en la pantalla de gestión) |
+| 6.1.11 | Mensaje de aviso de que ya no se puede cancelar online ("llamá al club") con la ventana en horas | MVP (hecho: ya estaba en la gestión por token; se repite en "Tus turnos") |
 
 ### 6.2 Cuenta de jugador (`/jugador/*`)
 

@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<AuthenticationStateProvider, SessionAuthenticationStateProvider>();
         services.AddScoped<ClientIpAccessor>();
         services.AddScoped<ClubClock>();
+        services.AddScoped<VisitorTokenStore>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

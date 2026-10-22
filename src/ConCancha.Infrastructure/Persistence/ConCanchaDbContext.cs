@@ -121,6 +121,8 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
             entity.Property(booking => booking.Attendance).HasConversion<int>();
             entity.Property(booking => booking.Origin).HasConversion<int>();
             entity.Property(booking => booking.ManagementTokenHash).HasMaxLength(ManagementTokenHashLength);
+            entity.Property(booking => booking.VisitorTokenHash).HasMaxLength(ManagementTokenHashLength);
+            entity.HasIndex(booking => booking.VisitorTokenHash);
             entity.HasOne<Customer>().WithMany().HasForeignKey(booking => booking.CustomerId).OnDelete(DeleteBehavior.SetNull);
             entity.HasIndex(booking => booking.ManagementTokenHash);
             entity.HasIndex(booking => booking.CustomerId);

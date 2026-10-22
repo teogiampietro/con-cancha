@@ -14,13 +14,14 @@ public static class PublicApiExtensions
 
     public static string PublicUrl(string slug, string path) => $"{Routes.PublicClubBase}/{slug}/{path}";
 
+    public static string NewVisitorToken() => Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+
     public static Task<HttpResponseMessage> PublicBookAsync(
         this HttpClient http, string slug, Guid courtId, DateOnly date, int startMinute, CancellationToken cancellationToken,
-        string? phone = null, string name = "Lucía", string? email = null) =>
-        http.WithBearer(null).PostAsJsonAsync(
-            PublicUrl(slug, "bookings"),
-            new PublicBookingRequest(courtId, date, startMinute, name, phone ?? NewPhone(), email),
-            cancellationToken);
+        string? phone = null, string name = "Lucía", string? email = null, string? visitorToken = null) =>
+        http.SendPublicAsync(
+            HttpMethod.Post, PublicUrl(slug, "bookings"), visitorToken, cancellationToken,
+            JsonContent.Create(new PublicBookingRequest(courtId, date, startMinute, name, phone ?? NewPhone(), email)));
 
     public static async Task<PublicBookingCreatedDto> ReadCreatedAsync(this HttpResponseMessage response, CancellationToken cancellationToken)
     {
@@ -29,6 +30,34 @@ public static class PublicApiExtensions
     }
 
     public static async Task<PublicDayDto> GetPublicDayAsync(
-        this HttpClient http, string slug, DateOnly date, CancellationToken cancellationToken) =>
-        (await http.WithBearer(null).GetFromJsonAsync<PublicDayDto>(PublicUrl(slug, $"availability?date={date:yyyy-MM-dd}"), cancellationToken))!;
+        this HttpClient http, string slug, DateOnly date, CancellationToken cancellationToken, string? visitorToken = null)
+    {
+        var response = await http.SendPublicAsync(
+            HttpMethod.Get, PublicUrl(slug, $"availability?date={date:yyyy-MM-dd}"), visitorToken, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<PublicDayDto>(cancellationToken))!;
+    }
+
+    public static Task<HttpResponseMessage> GetMyBookingsAsync(
+        this HttpClient http, string slug, string? visitorToken, CancellationToken cancellationToken) =>
+        http.SendPublicAsync(HttpMethod.Get, PublicUrl(slug, "my-bookings"), visitorToken, cancellationToken);
+
+    public static Task<HttpResponseMessage> CancelMineAsync(
+        this HttpClient http, string slug, Guid bookingId, string? visitorToken, CancellationToken cancellationToken) =>
+        http.SendPublicAsync(HttpMethod.Post, PublicUrl(slug, $"my-bookings/{bookingId}/cancel"), visitorToken, cancellationToken);
+
+    public static async Task<PublicMyBookingsDto> ReadMyBookingsAsync(this HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<PublicMyBookingsDto>(cancellationToken))!;
+    }
+
+    private static Task<HttpResponseMessage> SendPublicAsync(
+        this HttpClient http, HttpMethod method, string url, string? visitorToken, CancellationToken cancellationToken,
+        HttpContent? content = null)
+    {
+        var request = new HttpRequestMessage(method, url) { Content = content };
+        if (visitorToken is not null) request.Headers.Add(VisitorToken.HeaderName, visitorToken);
+        return http.WithBearer(null).SendAsync(request, cancellationToken);
+    }
 }

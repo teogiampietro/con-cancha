@@ -15,15 +15,17 @@ public partial class PublicClub : CancellableComponentBase
     private Guid? _selectedCourtId;
     private PublicSlotDto? _selectedSlot;
     private string? _notFoundMessage;
+    private PublicMyBookingsDto? _myBookings;
+    private string? _visitorToken;
     private string? _errorMessage;
+    private bool _isCancelling;
 
     [Inject] private ApiClient Api { get; set; } = null!;
+    [Inject] private VisitorTokenStore Visitor { get; set; } = null!;
 
     [Parameter] public string Slug { get; set; } = string.Empty;
 
     private DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, _clubZone).DateTime);
-
-    private IEnumerable<DateOnly> Days => Enumerable.Range(0, BookingPolicy.PublicBookingDays).Select(offset => Today.AddDays(offset));
 
     private PublicCourtDto? SelectedCourt =>
         _day?.Courts.FirstOrDefault(court => court.Id == _selectedCourtId) ?? _day?.Courts.FirstOrDefault();
@@ -40,14 +42,34 @@ public partial class PublicClub : CancellableComponentBase
         _club = result.Value;
         _clubZone = TimeZoneInfo.FindSystemTimeZoneById(_club!.TimeZoneId);
         _date = Today;
-        await LoadDayAsync(ComponentToken);
+        _visitorToken = await Visitor.GetAsync(ComponentToken);
+        await Task.WhenAll(LoadDayAsync(ComponentToken), LoadMyBookingsAsync(ComponentToken));
     }
 
     private async Task LoadDayAsync(CancellationToken cancellationToken)
     {
-        var result = await Api.GetPublicDayAsync(Slug, _date, cancellationToken);
+        var result = await Api.GetPublicDayAsync(Slug, _date, _visitorToken, cancellationToken);
         _errorMessage = result.IsSuccess ? null : result.GeneralMessage;
         if (result.IsSuccess) _day = result.Value;
+    }
+
+    private async Task LoadMyBookingsAsync(CancellationToken cancellationToken)
+    {
+        if (_visitorToken is null) return;
+
+        var result = await Api.GetMyPublicBookingsAsync(Slug, _visitorToken, cancellationToken);
+        if (result.IsSuccess) _myBookings = result.Value;
+    }
+
+    private async Task CancelMineAsync(Guid bookingId)
+    {
+        _isCancelling = true;
+        var result = await Api.CancelMyPublicBookingAsync(Slug, bookingId, _visitorToken, ComponentToken);
+        _isCancelling = false;
+
+        _errorMessage = result.IsSuccess ? null : result.GeneralMessage;
+        if (result.IsSuccess) _myBookings = result.Value;
+        await LoadDayAsync(ComponentToken);
     }
 
     private Task SelectDayAsync(DateOnly day)
@@ -61,19 +83,16 @@ public partial class PublicClub : CancellableComponentBase
     private async Task CloseSheetAsync()
     {
         _selectedSlot = null;
-        await LoadDayAsync(ComponentToken);
-    }
-
-    private string DayLabel(DateOnly day)
-    {
-        if (day == Today) return "Hoy";
-        return day == Today.AddDays(1) ? "Mañana" : DisplayFormat.ShortDate(day)[..3];
+        _visitorToken = await Visitor.GetAsync(ComponentToken);
+        await Task.WhenAll(LoadDayAsync(ComponentToken), LoadMyBookingsAsync(ComponentToken));
     }
 
     private static string SlotClass(PublicSlotDto slot) => slot.State switch
     {
         PublicSlotState.Free => "libre",
         PublicSlotState.Past => "past",
+        PublicSlotState.Mine => "mine",
+        PublicSlotState.Blocked => "block",
         _ => "busy",
     };
 
@@ -81,6 +100,8 @@ public partial class PublicClub : CancellableComponentBase
     {
         PublicSlotState.Free => "Libre",
         PublicSlotState.Past => "Pasó",
+        PublicSlotState.Mine => "Tu turno",
+        PublicSlotState.Blocked => "No disponible",
         _ => "Ocupado",
     };
 }

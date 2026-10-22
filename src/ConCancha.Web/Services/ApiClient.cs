@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using ConCancha.Contracts.Accounts;
 using ConCancha.Contracts.Clubs;
+using ConCancha.Contracts.Public;
 
 namespace ConCancha.Web.Services;
 
@@ -45,9 +46,10 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
     public Task<ApiResult<IReadOnlyList<ClubMemberDto>>> GetCurrentClubTeamAsync(CancellationToken cancellationToken) =>
         SendAsync<IReadOnlyList<ClubMemberDto>>(HttpMethod.Get, ApiRoutes.CurrentClubTeam, body: null, cancellationToken);
 
-    private async Task<ApiResult<T>> SendAsync<T>(HttpMethod method, string route, object? body, CancellationToken cancellationToken)
+    private async Task<ApiResult<T>> SendAsync<T>(
+        HttpMethod method, string route, object? body, CancellationToken cancellationToken, string? visitorToken = null)
     {
-        using var request = BuildRequest(method, route, body);
+        using var request = BuildRequest(method, route, body, visitorToken);
         try
         {
             using var response = await http.SendAsync(request, cancellationToken);
@@ -65,7 +67,7 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
         }
     }
 
-    private HttpRequestMessage BuildRequest(HttpMethod method, string route, object? body)
+    private HttpRequestMessage BuildRequest(HttpMethod method, string route, object? body, string? visitorToken = null)
     {
         var request = new HttpRequestMessage(method, route);
         if (body is not null) request.Content = JsonContent.Create(body);
@@ -73,6 +75,8 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
             request.Headers.Authorization = new AuthenticationHeaderValue(BearerScheme, token);
         if (!string.IsNullOrEmpty(clientIp.Address))
             request.Headers.TryAddWithoutValidation(ForwardedForHeader, clientIp.Address);
+        if (!string.IsNullOrEmpty(visitorToken))
+            request.Headers.TryAddWithoutValidation(VisitorToken.HeaderName, visitorToken);
         return request;
     }
 

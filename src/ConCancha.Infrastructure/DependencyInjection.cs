@@ -79,6 +79,7 @@ public static class DependencyInjection
         services.AddScoped<IReminderService, ReminderService>();
         services.AddScoped<SlotBooker>();
         services.AddScoped<CustomerResolver>();
+        services.AddScoped<VisitorBookings>();
         services.AddScoped<IPublicBookingService, PublicBookingService>();
         services.AddSingleton<IEmailSender, LoggingEmailSender>();
         return services;

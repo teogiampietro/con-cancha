@@ -28,6 +28,7 @@
             </div>
             <ErrorMessage Message="@_errorMessage" />
             <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Reservando…" : "Reservar")</button>
+            <p class="hint center no-margin">@Club.Name guarda tu nombre y WhatsApp solo para gestionar tu turno y avisarte. No los compartimos.</p>
             <p class="hint center no-margin">Pagás en el club. Podés cancelar hasta @Club.CancellationWindowHours horas antes.</p>
         </form>
     }

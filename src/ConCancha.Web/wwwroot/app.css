@@ -70,6 +70,7 @@ input[type="checkbox"] { width: auto; }
 .slot .t { font-weight: 700; min-width: 48px; font-variant-numeric: tabular-nums; } .slot .p { margin-left: auto; font-weight: 800; font-size: 17px; }
 .slot.libre { border-color: color-mix(in srgb, var(--acc) 55%, transparent); background: color-mix(in srgb, var(--acc) 8%, var(--card)); } .slot.libre .p { color: var(--acc); }
 .slot.past { opacity: .38; cursor: default; } .slot.busy { background: #0e0e10; } .slot.pend { border-color: #5a4216; background: #1d1608; }
+.slot.mine { border-color: var(--acc); background: color-mix(in srgb, var(--acc) 16%, var(--card)); cursor: default; } .slot.mine .t, .slot.mine .grow { color: var(--acc); font-weight: 700; }
 .slot.block { background: repeating-linear-gradient(45deg, #101012, #101012 8px, #151518 8px, #151518 16px); color: var(--mut); }
 
 .tg { border: 1px solid var(--line); border-radius: var(--r); overflow: auto; max-height: calc(100vh - 340px); min-height: 420px; background: #050506; }

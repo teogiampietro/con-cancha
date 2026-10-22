@@ -19,24 +19,27 @@ public sealed class PublicBookingService(
     IAgendaService agenda,
     SlotBooker slotBooker,
     CustomerResolver customers,
+    VisitorBookings visitors,
     TimeProvider clock,
     ILogger<PublicBookingService> logger) : IPublicBookingService
 {
     private const string PhoneField = "phone";
     private const string DateField = "date";
 
-    public async Task<Result<PublicDayDto>> GetDayAsync(string slug, DateOnly date, CancellationToken cancellationToken)
+    public async Task<Result<PublicDayDto>> GetDayAsync(
+        string slug, DateOnly date, string? visitorToken, CancellationToken cancellationToken)
     {
         var club = await EnterClubAsync(slug, cancellationToken).ConfigureAwait(false);
         if (club is null) return Result<PublicDayDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
         if (!IsWithinBookableDays(club, date)) return Result<PublicDayDto>.Failure(ServiceError.Validation(DateField, PublicBookingMessages.DateOutOfRange));
 
         var day = await agenda.GetDayAsync(date, cancellationToken).ConfigureAwait(false);
-        return Result<PublicDayDto>.Success(ToPublicDay(day));
+        var mine = await visitors.GetIdsOnDayAsync(club, date, visitorToken, cancellationToken).ConfigureAwait(false);
+        return Result<PublicDayDto>.Success(ToPublicDay(day, mine));
     }
 
     public async Task<Result<PublicBookingCreatedDto>> BookAsync(
-        string slug, PublicBookingRequest request, CancellationToken cancellationToken)
+        string slug, PublicBookingRequest request, string? visitorToken, CancellationToken cancellationToken)
     {
         var club = await EnterClubAsync(slug, cancellationToken).ConfigureAwait(false);
         if (club is null) return Result<PublicBookingCreatedDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
@@ -46,10 +49,11 @@ public sealed class PublicBookingService(
         if (prepared.Error is not null) return Result<PublicBookingCreatedDto>.Failure(prepared.Error);
 
         var (booking, token) = prepared.Value;
-        var saved = await slotBooker.TrySaveAsync(booking!, cancellationToken).ConfigureAwait(false);
+        booking!.VisitorTokenHash = VisitorBookings.HashOrNull(visitorToken);
+        var saved = await slotBooker.TrySaveAsync(booking, cancellationToken).ConfigureAwait(false);
         if (!saved.IsSuccess) return Result<PublicBookingCreatedDto>.Failure(saved.Error!);
 
-        return Result<PublicBookingCreatedDto>.Success(new PublicBookingCreatedDto(token!, ToDto(club, booking!, request.CourtId)));
+        return Result<PublicBookingCreatedDto>.Success(new PublicBookingCreatedDto(token!, ToDto(club, booking, request.CourtId)));
     }
 
     public async Task<Result<PublicBookingDto>> GetBookingAsync(string slug, string token, CancellationToken cancellationToken)
@@ -67,13 +71,56 @@ public sealed class PublicBookingService(
         var club = await EnterClubAsync(slug, cancellationToken).ConfigureAwait(false);
         var booking = club is null ? null : await FindByTokenAsync(token, cancellationToken).ConfigureAwait(false);
         if (booking is null) return Result<PublicBookingDto>.Failure(ServiceError.NotFound(PublicBookingMessages.BookingNotFound));
-        if (RejectCancellation(club!, booking) is { } error) return Result<PublicBookingDto>.Failure(error);
+        return await CancelOnlineAsync(club!, booking, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<Result<PublicMyBookingsDto>> GetMyBookingsAsync(
+        string slug, string? visitorToken, CancellationToken cancellationToken)
+    {
+        var club = await EnterClubAsync(slug, cancellationToken).ConfigureAwait(false);
+        if (club is null) return Result<PublicMyBookingsDto>.Failure(ServiceError.NotFound(ClubMessages.ClubNotFound));
+
+        return Result<PublicMyBookingsDto>.Success(await BuildMyBookingsAsync(club, visitorToken, cancellationToken).ConfigureAwait(false));
+    }
+
+    public async Task<Result<PublicMyBookingsDto>> CancelMineAsync(
+        string slug, Guid bookingId, string? visitorToken, CancellationToken cancellationToken)
+    {
+        var club = await EnterClubAsync(slug, cancellationToken).ConfigureAwait(false);
+        var booking = club is null ? null : await visitors.FindAsync(bookingId, visitorToken, cancellationToken).ConfigureAwait(false);
+        if (booking is null) return Result<PublicMyBookingsDto>.Failure(ServiceError.NotFound(PublicBookingMessages.BookingNotFound));
+
+        var cancelled = await CancelOnlineAsync(club!, booking, cancellationToken).ConfigureAwait(false);
+        if (!cancelled.IsSuccess) return Result<PublicMyBookingsDto>.Failure(cancelled.Error!);
+
+        return Result<PublicMyBookingsDto>.Success(await BuildMyBookingsAsync(club!, visitorToken, cancellationToken).ConfigureAwait(false));
+    }
+
+    private async Task<Result<PublicBookingDto>> CancelOnlineAsync(Club club, Booking booking, CancellationToken cancellationToken)
+    {
+        if (RejectCancellation(club, booking) is { } error) return Result<PublicBookingDto>.Failure(error);
 
         booking.Status = BookingStatus.Cancelled;
         booking.CancelledAt = clock.GetUtcNow();
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        logger.LogInformation("Booking {BookingId} cancelled online for club {ClubId}", booking.Id, club!.Id);
+        logger.LogInformation("Booking {BookingId} cancelled online for club {ClubId}", booking.Id, club.Id);
         return Result<PublicBookingDto>.Success(ToDto(club, booking, booking.CourtId));
+    }
+
+    private async Task<PublicMyBookingsDto> BuildMyBookingsAsync(Club club, string? visitorToken, CancellationToken cancellationToken)
+    {
+        var bookings = await visitors.ListUpcomingAsync(visitorToken, cancellationToken).ConfigureAwait(false);
+        return new PublicMyBookingsDto(
+            club.Name, club.Phone, club.CancellationWindowHours, bookings.Select(booking => ToMyBookingDto(club, booking)).ToList());
+    }
+
+    private PublicMyBookingDto ToMyBookingDto(Club club, Booking booking)
+    {
+        var (date, startMinute) = ClubTimeZone.For(club).ToLocal(booking.StartsAt);
+        var cancelableUntil = booking.StartsAt - TimeSpan.FromHours(club.CancellationWindowHours);
+        return new PublicMyBookingDto(
+            booking.Id, booking.Court!.Name, date, startMinute, startMinute + (int)(booking.EndsAt - booking.StartsAt).TotalMinutes,
+            booking.Price, clock.GetUtcNow() <= cancelableUntil, cancelableUntil);
     }
 
     /// <summary>Resolves the club from the link and scopes every later query to it.</summary>
@@ -171,13 +218,19 @@ public sealed class PublicBookingService(
     private static string? NormalizeEmail(string? email) =>
         string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
 
-    private static PublicDayDto ToPublicDay(AgendaDayDto day) => new(
+    private static PublicDayDto ToPublicDay(AgendaDayDto day, IReadOnlySet<Guid> mine) => new(
         day.Date,
         day.Courts.Select(courtDay => new PublicCourtDto(
             courtDay.Court.Id, courtDay.Court.Name, courtDay.Court.Sport, courtDay.Court.SlotMinutes,
-            courtDay.Slots.Select(ToPublicSlot).ToList())).ToList());
+            courtDay.Slots.Select(slot => ToPublicSlot(slot, mine)).ToList())).ToList());
 
-    private static PublicSlotDto ToPublicSlot(AgendaSlotDto slot) => new(
-        slot.StartMinuteOfDay, slot.EndMinuteOfDay, slot.Price,
-        slot.Booking is not null ? PublicSlotState.Taken : slot.IsPast ? PublicSlotState.Past : PublicSlotState.Free);
+    private static PublicSlotDto ToPublicSlot(AgendaSlotDto slot, IReadOnlySet<Guid> mine) => new(
+        slot.StartMinuteOfDay, slot.EndMinuteOfDay, slot.Price, ToSlotState(slot, mine));
+
+    private static PublicSlotState ToSlotState(AgendaSlotDto slot, IReadOnlySet<Guid> mine)
+    {
+        if (slot.Booking is null) return slot.IsPast ? PublicSlotState.Past : PublicSlotState.Free;
+        if (slot.Booking.Kind == BookingKind.Block) return PublicSlotState.Blocked;
+        return mine.Contains(slot.Booking.Id) ? PublicSlotState.Mine : PublicSlotState.Taken;
+    }
 }

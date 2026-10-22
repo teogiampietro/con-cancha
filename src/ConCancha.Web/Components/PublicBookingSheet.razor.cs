@@ -21,6 +21,7 @@ public partial class PublicBookingSheet
 
     [Inject] private ApiClient Api { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private VisitorTokenStore Visitor { get; set; } = null!;
     [Inject] private IJSRuntime Js { get; set; } = null!;
 
     [Parameter, EditorRequired] public string Slug { get; set; } = string.Empty;
@@ -42,7 +43,8 @@ public partial class PublicBookingSheet
         _isBusy = true;
         var request = new PublicBookingRequest(
             Court.Id, Date, Slot.StartMinuteOfDay, _name.Trim(), _phone.Trim(), string.IsNullOrWhiteSpace(_email) ? null : _email.Trim());
-        var result = await Api.BookPublicAsync(Slug, request, cancellationToken);
+        var visitorToken = await Visitor.GetOrCreateAsync(cancellationToken);
+        var result = await Api.BookPublicAsync(Slug, request, visitorToken, cancellationToken);
         _isBusy = false;
 
         _fieldErrors = result.FieldErrors?.ToDictionary(error => error.Key.ToLowerInvariant(), error => error.Value);

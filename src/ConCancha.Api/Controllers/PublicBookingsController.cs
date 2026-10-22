@@ -14,17 +14,21 @@ public class PublicBookingsController(IPublicBookingService publicBookings) : Ap
     /// <summary>Slots of every active court for a day (today and the next six). Shows no customer data.</summary>
     [HttpGet("availability")]
     [EnableRateLimiting(RateLimitPolicies.Query)]
-    public async Task<IActionResult> GetDay(string slug, [FromQuery] DateOnly date, CancellationToken cancellationToken) =>
-        ToActionResult(await publicBookings.GetDayAsync(slug, date, cancellationToken), Ok);
+    public async Task<IActionResult> GetDay(
+        string slug, [FromQuery] DateOnly date, [FromHeader(Name = VisitorToken.HeaderName)] string? visitorToken,
+        CancellationToken cancellationToken) =>
+        ToActionResult(await publicBookings.GetDayAsync(slug, date, visitorToken, cancellationToken), Ok);
 
     /// <summary>Books a slot. The response carries the secret of the player's management link, shown only now.</summary>
     [HttpPost("bookings")]
     [EnableRateLimiting(RateLimitPolicies.PublicBooking)]
     [ProducesResponseType<PublicBookingCreatedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Book(string slug, PublicBookingRequest request, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Book(
+        string slug, PublicBookingRequest request, [FromHeader(Name = VisitorToken.HeaderName)] string? visitorToken,
+        CancellationToken cancellationToken) =>
         ToActionResult(
-            await publicBookings.BookAsync(slug, request, cancellationToken),
+            await publicBookings.BookAsync(slug, request, visitorToken, cancellationToken),
             created => StatusCode(StatusCodes.Status201Created, created));
 
     [HttpGet("bookings/{token}")]
@@ -37,4 +41,18 @@ public class PublicBookingsController(IPublicBookingService publicBookings) : Ap
     [EnableRateLimiting(RateLimitPolicies.PublicBooking)]
     public async Task<IActionResult> Cancel(string slug, string token, CancellationToken cancellationToken) =>
         ToActionResult(await publicBookings.CancelAsync(slug, token, cancellationToken), Ok);
+
+    /// <summary>Upcoming bookings made from the browser that sends the visitor token. Never looked up by phone.</summary>
+    [HttpGet("my-bookings")]
+    [EnableRateLimiting(RateLimitPolicies.Query)]
+    public async Task<IActionResult> GetMyBookings(
+        string slug, [FromHeader(Name = VisitorToken.HeaderName)] string? visitorToken, CancellationToken cancellationToken) =>
+        ToActionResult(await publicBookings.GetMyBookingsAsync(slug, visitorToken, cancellationToken), Ok);
+
+    [HttpPost("my-bookings/{bookingId:guid}/cancel")]
+    [EnableRateLimiting(RateLimitPolicies.PublicBooking)]
+    public async Task<IActionResult> CancelMine(
+        string slug, Guid bookingId, [FromHeader(Name = VisitorToken.HeaderName)] string? visitorToken,
+        CancellationToken cancellationToken) =>
+        ToActionResult(await publicBookings.CancelMineAsync(slug, bookingId, visitorToken, cancellationToken), Ok);
 }

@@ -24,6 +24,9 @@ public class Booking : IBelongsToClub
     /// <summary>SHA-256 of the secret in the player's management link. Never the secret itself.</summary>
     public string? ManagementTokenHash { get; set; }
 
+    /// <summary>SHA-256 of the secret a browser keeps to list its own bookings. Never the secret itself.</summary>
+    public string? VisitorTokenHash { get; set; }
+
     public string? CustomerName { get; set; }
     public string? CustomerPhone { get; set; }
 

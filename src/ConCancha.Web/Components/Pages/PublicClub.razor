@@ -26,15 +26,12 @@
             <p class="mut no-margin">Elegí el día, la cancha y el horario.</p>
         </header>
 
-        <div class="days" role="tablist">
-            @foreach (var day in Days)
-            {
-                <button class="day @(day == _date ? "on" : "")" @onclick="() => SelectDayAsync(day)">
-                    <span class="xs">@DayLabel(day)</span>
-                    <b>@day.Day</b>
-                </button>
-            }
-        </div>
+        @if (_myBookings is not null)
+        {
+            <MyBookingsCard Bookings="_myBookings" IsBusy="_isCancelling" OnCancel="CancelMineAsync" />
+        }
+
+        <DayStrip Date="_date" Today="Today" DayCount="BookingPolicy.PublicBookingDays" DateChanged="SelectDayAsync" />
 
         <ErrorMessage Message="@_errorMessage" />
 

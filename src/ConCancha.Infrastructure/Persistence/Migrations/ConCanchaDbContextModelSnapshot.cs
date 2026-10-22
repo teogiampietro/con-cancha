@@ -90,6 +90,10 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<string>("VisitorTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CourtId");
@@ -97,6 +101,8 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("ManagementTokenHash");
+
+                    b.HasIndex("VisitorTokenHash");
 
                     b.HasIndex("ClubId", "StartsAt");
 

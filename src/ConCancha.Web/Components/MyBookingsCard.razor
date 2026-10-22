@@ -1,0 +1,38 @@
+@inherits CancellableComponentBase
+
+@if (Bookings.Bookings.Count > 0)
+{
+    <section class="col">
+        <h2 class="no-margin">Tus turnos en @Bookings.ClubName</h2>
+
+        @foreach (var booking in Bookings.Bookings)
+        {
+            <div class="card col">
+                <b>@booking.CourtName</b>
+                <span class="mut">@DisplayFormat.LongDate(booking.Date) · @DisplayFormat.Time(booking.StartMinuteOfDay) a @DisplayFormat.Time(booking.EndMinuteOfDay)</span>
+                <b>@DisplayFormat.Money(booking.Price)</b>
+
+                @if (_confirmingId == booking.Id)
+                {
+                    <p class="no-margin">¿Seguro que querés cancelar este turno?</p>
+                    <div class="row">
+                        <button class="btn sec grow" @onclick="StopConfirming">No, volver</button>
+                        <button class="btn danger grow" disabled="@IsBusy" @onclick="() => ConfirmCancelAsync(booking.Id)">Sí, cancelar</button>
+                    </div>
+                }
+                else if (booking.CanCancel)
+                {
+                    <button class="btn danger block" @onclick="() => _confirmingId = booking.Id">Cancelar turno</button>
+                }
+                else
+                {
+                    <p class="mut sm no-margin">Ya no se puede cancelar online: falta menos de @Bookings.CancellationWindowHours horas.
+                        @if (!string.IsNullOrEmpty(Bookings.ClubPhone)) { <text>Llamá al club: <a href="tel:@Bookings.ClubPhone">@Bookings.ClubPhone</a>.</text> }
+                    </p>
+                }
+            </div>
+        }
+
+        <p class="hint no-margin">Solo ves los turnos reservados desde este dispositivo. Si reservaste desde otro, usá el link que te enviamos.</p>
+    </section>
+}
