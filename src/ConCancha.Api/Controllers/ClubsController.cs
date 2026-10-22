@@ -28,6 +28,7 @@ public class ClubsController(IClubService clubs) : ApiControllerBase
 
     /// <summary>Live slug availability, as the mock-up does while typing.</summary>
     [HttpGet("api/clubs/slug-availability")]
+    [AllowAnonymous]
     [EnableRateLimiting(RateLimitPolicies.Query)]
     public async Task<ActionResult<SlugAvailabilityResponse>> GetSlugAvailability(
         [FromQuery] string slug, CancellationToken cancellationToken) =>

@@ -82,6 +82,7 @@ Señas con comprobante, lista de espera, turnos fijos, cuenta de jugador, puntos
 - Tests de reglas (precio, slots, ventana de cancelación, aislamiento por club).
 - Logs, manejo de errores, backups de BD en Railway.
 - Pruebas en celular.
+- **Estado:** hecho en código: matriz de permisos por rol probada endpoint por endpoint (dueño / encargado / sin club / anónimo) y un test que exige declarar el acceso de cada acción (encontró cinco endpoints públicos anónimos solo por omisión; ahora son `[AllowAnonymous]` explícitos); manejador global de errores (500 genérico en español, detalle solo en logs); logs de eventos de negocio sin datos personales; tests extra de reglas (turnos sin cruzar medianoche, ventana de cancelación por club); script de backup y guía en [docs/OPERACION.md](docs/OPERACION.md). Pendiente de hacer a mano: activar backups programados en Railway, probar una restauración y recorrer el checklist en un celular real.
 
 ### Fase 6: Piloto (continuo)
 - Un club real, feedback semanal, ajustar reglas abiertas (sección 3).

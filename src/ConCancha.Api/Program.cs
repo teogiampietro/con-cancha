@@ -1,3 +1,4 @@
+using ConCancha.Api.ErrorHandling;
 using ConCancha.Api.Extensions;
 using ConCancha.Api.Tenancy;
 using ConCancha.Infrastructure;
@@ -13,12 +14,14 @@ builder.Services
     .AddDatabaseHealthCheck();
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<UnhandledExceptionHandler>();
 
 var app = builder.Build();
 
 await app.MigrateDatabaseIfEnabledAsync();
 
 app.UseForwardedHeaders();
+app.UseExceptionHandler();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseRateLimiter();

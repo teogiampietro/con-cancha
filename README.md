@@ -26,3 +26,5 @@ dotnet run --project src/ConCancha.Api
 - Tests: `dotnet test ConCancha.slnx`
 
 La cadena de conexión está en `ConnectionStrings:Default`. En Railway se define con la variable `ConnectionStrings__Default`.
+
+Operación (logs, backups, checklist de celular): [docs/OPERACION.md](docs/OPERACION.md).

@@ -14,6 +14,7 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
     private const string ConnectionErrorMessage = "No pudimos conectarnos. Probá de nuevo en un momento.";
     private const string TimeoutMessage = "La conexión tardó demasiado. Probá de nuevo.";
     private const string TooManyRequestsMessage = "Demasiados intentos. Esperá un minuto y probá de nuevo.";
+    private const string ForbiddenMessage = "Tu usuario no tiene permiso para hacer esto.";
     private const string UnknownErrorMessage = "Algo salió mal. Probá de nuevo.";
     private const int NoStatusCode = 0;
 
@@ -87,6 +88,8 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
         var statusCode = (int)response.StatusCode;
         if (statusCode == StatusCodes.Status429TooManyRequests)
             return ApiResult<T>.Failure(TooManyRequestsMessage, statusCode);
+        if (statusCode == StatusCodes.Status403Forbidden)
+            return ApiResult<T>.Failure(ForbiddenMessage, statusCode);
 
         try
         {

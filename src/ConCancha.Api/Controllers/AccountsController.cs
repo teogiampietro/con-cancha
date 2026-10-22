@@ -1,12 +1,14 @@
 using ConCancha.Api.RateLimiting;
 using ConCancha.Application.Abstractions;
 using ConCancha.Contracts.Accounts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ConCancha.Api.Controllers;
 
 [Route("api/auth")]
+[AllowAnonymous]
 [EnableRateLimiting(RateLimitPolicies.Auth)]
 public class AccountsController(IAccountService accounts) : ApiControllerBase
 {

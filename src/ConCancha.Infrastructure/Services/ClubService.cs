@@ -9,6 +9,7 @@ using ConCancha.Infrastructure.Identity;
 using ConCancha.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ConCancha.Infrastructure.Services;
 
@@ -16,7 +17,8 @@ public sealed class ClubService(
     ConCanchaDbContext db,
     UserManager<AppUser> users,
     ITenantContext tenant,
-    SessionFactory sessionFactory) : IClubService
+    SessionFactory sessionFactory,
+    ILogger<ClubService> logger) : IClubService
 {
     private const string SlugField = "slug";
     private const string HoursField = "openingMinuteOfDay";
@@ -117,12 +119,14 @@ public sealed class ClubService(
         {
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException exception)
         {
             // Race: another club took the same slug between the check and the save (unique index).
+            logger.LogWarning(exception, "Club {Slug} could not be saved; assuming the slug was taken in between", slug);
             return Result<SessionResponse>.Failure(ServiceError.Conflict(ClubMessages.SlugAlreadyTaken));
         }
 
+        logger.LogInformation("Club {ClubId} ({Slug}) created by user {UserId}", club.Id, slug, user.Id);
         return Result<SessionResponse>.Success(sessionFactory.Create(user, club, ClubRole.Owner));
     }
 

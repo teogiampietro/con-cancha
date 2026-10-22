@@ -9,6 +9,7 @@ using ConCancha.Domain.Customers;
 using ConCancha.Infrastructure.Persistence;
 using ConCancha.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ConCancha.Infrastructure.Services;
 
@@ -18,7 +19,8 @@ public sealed class PublicBookingService(
     IAgendaService agenda,
     SlotBooker slotBooker,
     CustomerResolver customers,
-    TimeProvider clock) : IPublicBookingService
+    TimeProvider clock,
+    ILogger<PublicBookingService> logger) : IPublicBookingService
 {
     private const string PhoneField = "phone";
     private const string DateField = "date";
@@ -70,7 +72,8 @@ public sealed class PublicBookingService(
         booking.Status = BookingStatus.Cancelled;
         booking.CancelledAt = clock.GetUtcNow();
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return Result<PublicBookingDto>.Success(ToDto(club!, booking, booking.CourtId));
+        logger.LogInformation("Booking {BookingId} cancelled online for club {ClubId}", booking.Id, club!.Id);
+        return Result<PublicBookingDto>.Success(ToDto(club, booking, booking.CourtId));
     }
 
     /// <summary>Resolves the club from the link and scopes every later query to it.</summary>

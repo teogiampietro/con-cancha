@@ -10,6 +10,7 @@ using ConCancha.Infrastructure.Persistence;
 using ConCancha.Infrastructure.Services.Mapping;
 using ConCancha.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ConCancha.Infrastructure.Services;
 
@@ -17,7 +18,8 @@ public sealed class BookingService(
     ConCanchaDbContext db,
     CurrentClubProvider currentClub,
     SlotBooker slotBooker,
-    CustomerResolver customers) : IBookingService
+    CustomerResolver customers,
+    ILogger<BookingService> logger) : IBookingService
 {
     private const string PriceField = "price";
     private const string StartField = "startMinuteOfDay";
@@ -64,7 +66,7 @@ public sealed class BookingService(
         ChangeAsync(bookingId, booking => ChangePrice(booking, request.Price), saveChanges: true, cancellationToken);
 
     public Task<Result<BookingDto>> CancelAsync(Guid bookingId, CancellationToken cancellationToken) =>
-        ChangeAsync(bookingId, Cancel, saveChanges: true, cancellationToken);
+        ChangeAsync(bookingId, CancelAndLog, saveChanges: true, cancellationToken);
 
     private async Task<Result<BookingDto>> ChangeAsync(
         Guid bookingId, Func<Booking, ServiceError?> apply, bool saveChanges, CancellationToken cancellationToken)
@@ -163,12 +165,13 @@ public sealed class BookingService(
         return null;
     }
 
-    private static ServiceError? Cancel(Booking booking)
+    private ServiceError? CancelAndLog(Booking booking)
     {
         if (booking.Status == BookingStatus.Cancelled) return ServiceError.Conflict(BookingMessages.AlreadyCancelled);
 
         booking.Status = BookingStatus.Cancelled;
         booking.CancelledAt = DateTimeOffset.UtcNow;
+        logger.LogInformation("Booking {BookingId} cancelled from the panel for club {ClubId}", booking.Id, booking.ClubId);
         return null;
     }
 

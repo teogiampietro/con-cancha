@@ -9,6 +9,7 @@ using ConCancha.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ConCancha.Infrastructure.Services;
@@ -18,7 +19,8 @@ public sealed class AccountService(
     ConCanchaDbContext db,
     SessionFactory sessionFactory,
     IEmailSender emailSender,
-    IOptions<WebAppOptions> webOptions) : IAccountService
+    IOptions<WebAppOptions> webOptions,
+    ILogger<AccountService> logger) : IAccountService
 {
     private const string ResetPasswordPath = "/panel/restablecer";
 
@@ -78,12 +80,16 @@ public sealed class AccountService(
     private async Task<ServiceError?> RejectCredentialsAsync(AppUser user, string password)
     {
         if (await users.IsLockedOutAsync(user).ConfigureAwait(false))
+        {
+            logger.LogWarning("Login refused for locked-out user {UserId}", user.Id);
             return ServiceError.Locked(AccountMessages.TooManyAttempts);
+        }
 
         if (await users.CheckPasswordAsync(user, password).ConfigureAwait(false))
             return null;
 
         await users.AccessFailedAsync(user).ConfigureAwait(false);
+        logger.LogWarning("Wrong password for user {UserId}", user.Id);
         return ServiceError.Unauthorized(AccountMessages.InvalidCredentials);
     }
 

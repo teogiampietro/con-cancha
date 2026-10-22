@@ -15,4 +15,14 @@ public class BookingPolicyTests
     {
         Assert.Equal(expected, BookingPolicy.CanCancelOnline(Now.AddMinutes(minutesAhead), Now, windowHours: 12));
     }
+
+    [Theory]
+    [InlineData(0, 0, true)]
+    [InlineData(0, -1, false)]
+    [InlineData(24, 24 * 60, true)]
+    [InlineData(24, 24 * 60 - 1, false)]
+    public void CanCancelOnline_UsesTheWindowOfTheClub(int windowHours, int minutesAhead, bool expected)
+    {
+        Assert.Equal(expected, BookingPolicy.CanCancelOnline(Now.AddMinutes(minutesAhead), Now, windowHours));
+    }
 }

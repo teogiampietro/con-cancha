@@ -17,3 +17,5 @@ obj/
 .idea/
 .vscode/
 .claude/
+
+backups/

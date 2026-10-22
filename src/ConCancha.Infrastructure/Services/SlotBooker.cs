@@ -6,6 +6,7 @@ using ConCancha.Domain.Pricing;
 using ConCancha.Infrastructure.Persistence;
 using ConCancha.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace ConCancha.Infrastructure.Services;
@@ -13,7 +14,7 @@ namespace ConCancha.Infrastructure.Services;
 public sealed record SlotTarget(Court Court, DateTimeOffset StartsAt, DateTimeOffset EndsAt, DateOnly Date, int StartMinute);
 
 /// <summary>The part of creating a booking that the panel and the public site share: valid slot, court price, and the save that cannot overlap.</summary>
-public sealed class SlotBooker(ConCanchaDbContext db, CurrentClubProvider currentClub)
+public sealed class SlotBooker(ConCanchaDbContext db, CurrentClubProvider currentClub, ILogger<SlotBooker> logger)
 {
     private const string StartField = "startMinuteOfDay";
     private const string CourtField = "courtId";
@@ -64,10 +65,14 @@ public sealed class SlotBooker(ConCanchaDbContext db, CurrentClubProvider curren
         try
         {
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            logger.LogInformation(
+                "Booking {BookingId} created ({Kind}, {Origin}) on court {CourtId} for club {ClubId}",
+                booking.Id, booking.Kind, booking.Origin, booking.CourtId, booking.ClubId);
             return Result.Success();
         }
         catch (Exception exception) when (FindPostgresError(exception) is { } sqlState && IsSlotContention(sqlState))
         {
+            logger.LogInformation("Slot on court {CourtId} at {StartsAt:o} was already taken", booking.CourtId, booking.StartsAt);
             return Result.Failure(ServiceError.Conflict(BookingMessages.SlotTaken));
         }
         catch (Exception exception) when (FindPostgresError(exception) == PostgresErrorCodes.UniqueViolation)

@@ -33,6 +33,18 @@ public class SlotGeneratorTests
         Assert.Equal([8 * Hour], starts);
     }
 
+    [Theory]
+    [InlineData(60)]
+    [InlineData(90)]
+    [InlineData(120)]
+    public void GetStartMinutes_NoSlotCrossesMidnight_AndNoSlotsOverlap(int slotMinutes)
+    {
+        var starts = SlotGenerator.GetStartMinutes(new OperatingHours(8 * Hour, 24 * Hour), slotMinutes);
+
+        Assert.All(starts, start => Assert.True(start + slotMinutes <= 24 * Hour));
+        Assert.All(starts.Zip(starts.Skip(1)), pair => Assert.Equal(slotMinutes, pair.Second - pair.First));
+    }
+
     [Fact]
     public void OperatingHours_CourtOverrideWinsOverClubHours()
     {
