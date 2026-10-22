@@ -19,4 +19,4 @@ obj/
 .claude/
 
 backups/
-storage/
+/storage/
