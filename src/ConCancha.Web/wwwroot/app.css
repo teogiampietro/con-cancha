@@ -67,13 +67,31 @@ input[type="checkbox"] { width: auto; }
 .btn.danger { background: #3a1511; color: var(--bad); border: 1px solid #5a2019; } .danger-text { color: var(--bad); }
 .chip.warn { color: #ffb74d; border-color: #5a4216; background: #1d1608; }
 
-.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; align-items: start; }
 .slot { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 12px 14px;
         width: 100%; color: var(--txt); font: inherit; text-align: left; cursor: pointer; min-height: 56px; }
 .slot .t { font-weight: 700; min-width: 48px; font-variant-numeric: tabular-nums; } .slot .p { margin-left: auto; font-weight: 800; font-size: 17px; }
 .slot.libre { border-color: color-mix(in srgb, var(--acc) 55%, transparent); background: color-mix(in srgb, var(--acc) 8%, var(--card)); } .slot.libre .p { color: var(--acc); }
 .slot.past { opacity: .38; cursor: default; } .slot.busy { background: #0e0e10; } .slot.pend { border-color: #5a4216; background: #1d1608; }
 .slot.block { background: repeating-linear-gradient(45deg, #101012, #101012 8px, #151518 8px, #151518 16px); color: var(--mut); }
+
+.tg { border: 1px solid var(--line); border-radius: var(--r); overflow: auto; max-height: calc(100vh - 340px); min-height: 420px; background: #050506; }
+.tg-in { display: grid; grid-template-columns: 56px repeat(var(--n), minmax(190px, 1fr)); min-width: max-content; }
+.tg-h { position: sticky; top: 0; z-index: 3; background: #090909; padding: 10px 14px; border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); }
+.tg-h b { display: block; }
+.tg-corner { left: 0; z-index: 4; border-left: 0; }
+.tg-axis { position: sticky; left: 0; z-index: 2; background: #070708; }
+.tg-axis span { position: absolute; right: 8px; transform: translateY(-50%); font-size: 12px; color: var(--mut); font-variant-numeric: tabular-nums; }
+.tg-col { position: relative; border-left: 1px solid var(--line); background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 72px; background-position: 0 10px; }
+.tc { position: absolute; left: 6px; right: 6px; border-radius: 12px; padding: 8px 10px; overflow: hidden; text-align: left; font: inherit; color: var(--txt); cursor: pointer;
+      border: 1px solid #34343b; background: #111113; display: flex; flex-direction: column; justify-content: space-between; }
+.tc .tcp { font-weight: 800; font-size: 19px; }
+.tc.free { border-color: #a8372c; background: #140908; } .tc.free .row b, .tc.free .tcp { color: #ff6a5c; }
+.tc.past { border: 1px dashed #2b2b30; background: transparent; color: #6f6f78; justify-content: flex-end; text-decoration: line-through; font-size: 13px; cursor: default; }
+.tc.bkc { border-left: 3px solid #4a4a52; }
+.tc.pend { border-color: #5a4216; background: #1d1608; }
+.tc.blk { background: repeating-linear-gradient(45deg, #101012, #101012 8px, #151518 8px, #151518 16px); color: var(--mut); }
+.scroll-x { flex-wrap: nowrap; overflow-x: auto; } .scroll-x .pill { flex: none; white-space: nowrap; }
+.btn .ic { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; margin-right: 6px; }
 
 .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .65); display: flex; align-items: flex-end; justify-content: center; z-index: 500; }
 .sheet { background: var(--card); border: 1px solid var(--line); border-radius: 20px 20px 0 0; padding: 20px 16px 28px; width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; }
@@ -120,6 +138,7 @@ h1:focus { outline: none; }
     .panel-header > span.row { order: 2; }
     .panel-header .nav { order: 3; width: 100%; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; scrollbar-width: none; }
     .panel-header .nav::-webkit-scrollbar { display: none; }
+    .tg { max-height: none; }
     .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .stat { padding: 10px; } .stat b { font-size: 16px; }
     .tbl.resp thead { display: none; }

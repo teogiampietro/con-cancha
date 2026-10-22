@@ -8,7 +8,6 @@ namespace ConCancha.Web.Services;
 /// <summary>Spanish (Argentina) formatting done by hand so it does not depend on the server's ICU data.</summary>
 public static class DisplayFormat
 {
-    private const string TimeInputFormat = "HH:mm";
     private static readonly NumberFormatInfo MoneyFormat = new() { NumberGroupSeparator = ".", NumberDecimalSeparator = "," };
     private static readonly string[] DayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
     private static readonly string[] MonthNames =
@@ -36,7 +35,7 @@ public static class DisplayFormat
     public static bool TryParseTimeInput(string? text, bool isEndOfDay, out int minuteOfDay)
     {
         minuteOfDay = 0;
-        if (!TimeOnly.TryParseExact(text, TimeInputFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time)) return false;
+        if (!TimeOnly.TryParse(text?.Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out var time)) return false;
 
         minuteOfDay = time.Hour * TimeConstants.MinutesPerHour + time.Minute;
         if (isEndOfDay && minuteOfDay == 0) minuteOfDay = TimeConstants.MinutesPerDay;

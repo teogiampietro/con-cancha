@@ -7,7 +7,16 @@
 
 <main class="panel wide">
     <div class="row sp wrap">
-        <h1 class="no-margin">Agenda</h1>
+        <div class="row">
+            <h1 class="no-margin">Agenda</h1>
+            @if (_clubSlug is not null)
+            {
+                <button class="btn sec sm no-print" title="Copiar el link de reservas para clientes" @onclick="() => CopyBookingLinkAsync(ComponentToken)">
+                    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg>
+                    @(_isLinkCopied ? "Link copiado" : "Compartir link")
+                </button>
+            }
+        </div>
         <DateNavigator Date="_date" Today="_today" DateChanged="ChangeDayAsync" />
     </div>
     <p class="mut no-margin">@DisplayFormat.LongDate(_date)@(_date == _today ? " · hoy" : "")</p>
@@ -18,6 +27,17 @@
             <Stat Label="Ocupación" Value="@($"{withCourts.Stats.OccupancyPercent}%")" />
             <Stat Label="Entró" Value="@DisplayFormat.Money(withCourts.Stats.Collected)" />
             <Stat Label="Se escapa" Value="@DisplayFormat.Money(withCourts.Stats.Missed)" Tone="bad" />
+        </div>
+    }
+
+    @if (_sports.Count > 1)
+    {
+        <div class="pills scroll-x no-print">
+            <button class="pill @(_sportFilter is null ? "on" : "")" @onclick="() => FilterBySport(null)">Todos</button>
+            @foreach (var sport in _sports)
+            {
+                <button class="pill @(_sportFilter == sport ? "on" : "")" @onclick="() => FilterBySport(sport)">@SportLabels.Get(sport)</button>
+            }
         </div>
     }
 
@@ -37,29 +57,56 @@
     }
     else
     {
-        <div class="cols">
-            @foreach (var courtDay in _agenda.Courts)
-            {
-                <section class="col">
-                    <div class="row sp"><b>@courtDay.Court.Name</b><span class="mut sm">@SportLabels.Get(courtDay.Court.Sport) · @courtDay.Court.SlotMinutes min</span></div>
-                    @foreach (var slot in courtDay.Slots)
+        <div class="tg">
+            <div class="tg-in" style="--n:@_visibleCourts.Count">
+                <div class="tg-h tg-corner"></div>
+                @foreach (var courtDay in _visibleCourts)
+                {
+                    <div class="tg-h"><b>@courtDay.Court.Name</b><span class="sm mut">@SportLabels.Get(courtDay.Court.Sport) · @courtDay.Court.SlotMinutes min</span></div>
+                }
+                <div class="tg-axis" style="height:@(ColumnHeight)px">
+                    @foreach (var hour in AxisHours)
                     {
-                        <button class="slot @SlotClass(slot)" disabled="@IsDisabled(slot)" @onclick="() => OpenSlot(courtDay, slot)">
-                            <span class="t">@DisplayFormat.Time(slot.StartMinuteOfDay)</span>
-                            @if (slot.Booking is { } booking)
-                            {
-                                <span class="grow">@BookingTitle(booking) @if (booking.Origin == BookingOrigin.Online) { <span class="chip">online</span> }</span>
-                                <span class="chip @BookingPresentation.ChipClass(booking)">@BookingPresentation.ChipText(booking)</span>
-                            }
-                            else
-                            {
-                                <span class="grow mut sm">@(slot.IsPast ? "Pasó" : "Libre")</span>
-                                <span class="p">@(slot.Price is { } price ? DisplayFormat.Money(price) : "—")</span>
-                            }
-                        </button>
+                        <span style="top:@(OffsetOf(hour))px">@DisplayFormat.Time(hour)</span>
                     }
-                </section>
-            }
+                </div>
+                @foreach (var courtDay in _visibleCourts)
+                {
+                    <div class="tg-col" style="height:@(ColumnHeight)px">
+                        @foreach (var slot in courtDay.Slots)
+                        {
+                            <button class="tc @CardClass(slot)" style="top:@(CardTop(slot))px;height:@(CardHeight(slot))px" disabled="@IsDisabled(slot)" @onclick="() => OpenSlot(courtDay, slot)">
+                                @if (slot.Booking is { Kind: BookingKind.Block } block)
+                                {
+                                    <b>@DisplayFormat.Time(slot.StartMinuteOfDay)</b>
+                                    <span>🔒 @(block.Reason ?? "Bloqueado")</span>
+                                }
+                                else if (slot.Booking is { } booking)
+                                {
+                                    <div class="row sp"><span class="sm mut">@DisplayFormat.Time(slot.StartMinuteOfDay)</span><span class="chip @BookingPresentation.ChipClass(booking)">@BookingPresentation.ChipText(booking)</span></div>
+                                    <div>
+                                        <b>@booking.CustomerName</b>
+                                        @if (booking.Origin == BookingOrigin.Online) { <span class="chip">online</span> }
+                                        <div class="sm mut">@DisplayFormat.Money(booking.Price)</div>
+                                    </div>
+                                }
+                                else if (slot.IsPast)
+                                {
+                                    <span>@DisplayFormat.Time(slot.StartMinuteOfDay) · @(slot.Price is { } pastPrice ? DisplayFormat.Money(pastPrice) : "—")</span>
+                                }
+                                else
+                                {
+                                    <div class="row sp"><b>@DisplayFormat.Time(slot.StartMinuteOfDay)</b><b>＋</b></div>
+                                    <div>
+                                        <div class="tcp">@(slot.Price is { } price ? DisplayFormat.Money(price) : "—")</div>
+                                        <div class="sm mut">Libre</div>
+                                    </div>
+                                }
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
         </div>
     }
 </main>
