@@ -6,19 +6,16 @@ using ConCancha.Domain.Common;
 using ConCancha.Domain.Courts;
 using ConCancha.Web.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace ConCancha.Web.Components.Pages;
 
 public partial class Agenda : PanelPageBase
 {
-    private const string ClipboardWriteFunction = "navigator.clipboard.writeText";
     private const int PixelsPerHour = 72;
     private const int GridPaddingPixels = 10;
     private const int CardInsetPixels = 2;
 
     [Inject] private ClubClock Clock { get; set; } = null!;
-    [Inject] private IJSRuntime Js { get; set; } = null!;
 
     private sealed record SelectedFreeSlot(CourtDto Court, AgendaSlotDto Slot);
 
@@ -34,8 +31,6 @@ public partial class Agenda : PanelPageBase
     private Sport? _sportFilter;
     private int _gridStartMinute;
     private int _gridEndMinute;
-    private string? _clubSlug;
-    private bool _isLinkCopied;
 
     private int ColumnHeight => OffsetOf(_gridEndMinute) + GridPaddingPixels;
 
@@ -49,21 +44,7 @@ public partial class Agenda : PanelPageBase
 
         _today = await Clock.GetTodayAsync(ComponentToken);
         _date = _today;
-        await LoadClubSlugAsync(ComponentToken);
         await LoadDayAsync(ComponentToken);
-    }
-
-    private async Task LoadClubSlugAsync(CancellationToken cancellationToken)
-    {
-        var result = await Api.GetCurrentClubAsync(cancellationToken);
-        if (result.IsSuccess) _clubSlug = result.Value!.Slug;
-    }
-
-    private async Task CopyBookingLinkAsync(CancellationToken cancellationToken)
-    {
-        var link = Navigation.ToAbsoluteUri(PageRoutes.PublicClub(_clubSlug!)).ToString();
-        await Js.InvokeVoidAsync(ClipboardWriteFunction, cancellationToken, link);
-        _isLinkCopied = true;
     }
 
     private async Task LoadDayAsync(CancellationToken cancellationToken)

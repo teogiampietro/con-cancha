@@ -1,0 +1,26 @@
+<aside class="side no-print">
+    <div class="brand">
+        <div class="av">@Initial</div>
+        <div class="grow">
+            <b>@Club.Name</b>
+            <div class="sm mut"><a href="@PageRoutes.PublicClub(Club.Slug)" target="_blank" rel="noopener">/@Club.Slug ↗</a></div>
+        </div>
+        <ShareLinkButton Slug="@Club.Slug" IconOnly="true" />
+    </div>
+
+    @foreach (var group in PanelNavItems.GroupedFor(Role))
+    {
+        @if (PanelNavGroupLabels.Get(group.Key) is { } label)
+        {
+            <div class="grp">@label</div>
+        }
+        @foreach (var item in group)
+        {
+            <NavLink class="nav" href="@item.Route" Match="item.Match" ActiveClass="on"><Icon Name="@item.Icon" /> @item.Label</NavLink>
+        }
+    }
+
+    <div class="grow"></div>
+    <a class="nav" href="@PageRoutes.PublicClub(Club.Slug)" target="_blank" rel="noopener"><Icon Name="@PanelIcons.Eye" /> Ver mi página</a>
+    <button class="nav" @onclick="() => OnSignOut.InvokeAsync()"><Icon Name="@PanelIcons.Logout" /> Cerrar sesión</button>
+</aside>

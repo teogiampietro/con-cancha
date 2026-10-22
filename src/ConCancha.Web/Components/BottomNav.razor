@@ -1,0 +1,7 @@
+<nav class="bnav no-print" aria-label="Navegación del panel">
+    @foreach (var item in PanelNavItems.BottomBarFor(Role))
+    {
+        <NavLink href="@item.Route" Match="item.Match" ActiveClass="on"><Icon Name="@item.Icon" />@item.Label</NavLink>
+    }
+    <button @onclick="() => OnMore.InvokeAsync()"><Icon Name="@PanelIcons.More" />Más</button>
+</nav>

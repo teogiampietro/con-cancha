@@ -1,9 +1,8 @@
 @page "/panel"
+@layout PanelLayout
 @inherits PanelPageBase
 
 <PageTitle>Panel · ConCancha</PageTitle>
-
-<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
 
 <main class="panel">
     @if (_club is null)

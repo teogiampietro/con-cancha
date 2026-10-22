@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+
+@if (Session.Current?.Club is { } club)
+{
+    <div class="app">
+        <PanelNav Club="club" Role="@Session.Current.Role" OnSignOut="SignOutAsync" />
+        <div class="app-main">@Body</div>
+    </div>
+    <BottomNav Role="@Session.Current.Role" OnMore="() => _isMoreOpen = true" />
+    @if (_isMoreOpen)
+    {
+        <MoreSheet Club="club" Role="@Session.Current.Role" OnClose="() => _isMoreOpen = false" OnSignOut="SignOutAsync" />
+    }
+}
+else
+{
+    @Body
+}

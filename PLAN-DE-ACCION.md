@@ -84,6 +84,9 @@ Señas con comprobante, lista de espera, turnos fijos, cuenta de jugador, puntos
 - Pruebas en celular.
 - **Estado:** hecho en código: matriz de permisos por rol probada endpoint por endpoint (dueño / encargado / sin club / anónimo) y un test que exige declarar el acceso de cada acción (encontró cinco endpoints públicos anónimos solo por omisión; ahora son `[AllowAnonymous]` explícitos); manejador global de errores (500 genérico en español, detalle solo en logs); logs de eventos de negocio sin datos personales; tests extra de reglas (turnos sin cruzar medianoche, ventana de cancelación por club); script de backup y guía en [docs/OPERACION.md](docs/OPERACION.md). Pendiente de hacer a mano: activar backups programados en Railway, probar una restauración y recorrer el checklist en un celular real.
 
+### Módulo M1: Navegación y estructura del panel (ver [PLAN-DE-MODULOS.md](PLAN-DE-MODULOS.md))
+- **Estado:** hecho en código: `PanelLayout` con menú lateral agrupado (Hoy / El club), barra inferior móvil con hoja "Todo el panel", marca del club, "Ver mi página", Cerrar sesión y `ShareLinkButton` (menú, hoja y Agenda); catálogo `PanelNavItems` por rol (el encargado no ve Canchas) con tests; `PanelHeader` eliminado. Recorrido en navegador a 1280 y 390 px como dueño. Sin recorrer: copiar el link (portapapeles), cerrar sesión, vista de encargado en navegador, celular real. Los ítems de módulos futuros (Espera, Asistente, Crecer) no aparecen hasta que existan.
+
 ### Fase 6: Piloto (continuo)
 - Un club real, feedback semanal, ajustar reglas abiertas (sección 3).
 - Recién después elegir el siguiente módulo (señas es el candidato natural).

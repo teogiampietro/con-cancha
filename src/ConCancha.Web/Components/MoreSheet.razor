@@ -1,0 +1,12 @@
+<Sheet Title="Todo el panel" OnClose="OnClose">
+    <a class="mrow" href="@PageRoutes.PublicClub(Club.Slug)" target="_blank" rel="noopener"><Icon Name="@PanelIcons.Eye" /> Ver mi página · /@Club.Slug</a>
+    <ShareLinkButton Slug="@Club.Slug" CssClass="btn block" />
+    <div class="col more-list" @onclick="() => OnClose.InvokeAsync()">
+        @foreach (var item in PanelNavItems.MoreFor(Role))
+        {
+            <NavLink class="mrow" href="@item.Route" Match="item.Match"><Icon Name="@item.Icon" /> @item.Label</NavLink>
+        }
+    </div>
+    <hr class="sep" />
+    <button class="mrow" @onclick="() => OnSignOut.InvokeAsync()"><Icon Name="@PanelIcons.Logout" /> Cerrar sesión</button>
+</Sheet>

@@ -1,20 +1,16 @@
 @page "/panel/agenda"
+@layout PanelLayout
 @inherits PanelPageBase
 
 <PageTitle>Agenda · ConCancha</PageTitle>
-
-<PanelHeader OnSignOut="() => SignOutAsync(ComponentToken)" />
 
 <main class="panel wide">
     <div class="row sp wrap">
         <div class="row">
             <h1 class="no-margin">Agenda</h1>
-            @if (_clubSlug is not null)
+            @if (Session.Current?.Club?.Slug is { } slug)
             {
-                <button class="btn sec sm no-print" title="Copiar el link de reservas para clientes" @onclick="() => CopyBookingLinkAsync(ComponentToken)">
-                    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg>
-                    @(_isLinkCopied ? "Link copiado" : "Compartir link")
-                </button>
+                <ShareLinkButton Slug="@slug" />
             }
         </div>
         <DateNavigator Date="_date" Today="_today" DateChanged="ChangeDayAsync" />

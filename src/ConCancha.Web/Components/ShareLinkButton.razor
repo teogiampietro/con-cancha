@@ -1,0 +1,6 @@
+@inherits CancellableComponentBase
+
+<button class="@CssClass no-print" title="@Label" aria-label="@Label" @onclick="() => CopyAsync(ComponentToken)">
+    <Icon Name="@PanelIcons.Share" />
+    @if (!IconOnly) { <span>@Label</span> }
+</button>

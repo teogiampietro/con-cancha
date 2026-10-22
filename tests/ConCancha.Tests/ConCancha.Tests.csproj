@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\ConCancha.Infrastructure\ConCancha.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\ConCancha.Contracts\ConCancha.Contracts.csproj" />
     <ProjectReference Include="..\..\src\ConCancha.Application\ConCancha.Application.csproj" />
+    <ProjectReference Include="..\..\src\ConCancha.Web\ConCancha.Web.csproj" Aliases="web" />
   </ItemGroup>
 
 </Project>

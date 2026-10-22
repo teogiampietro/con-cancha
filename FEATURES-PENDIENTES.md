@@ -29,15 +29,15 @@ Comparación entre [maqueta/index.html](maqueta/index.html) y el código actual 
 
 | # | Feature | Detalle en la maqueta | Prioridad |
 |---|---|---|---|
-| 2.1 | Menú lateral agrupado (Hoy / El club / Crecer) con íconos | La app tiene solo una barra superior con 6 enlaces; no hay agrupación ni íconos | MVP |
-| 2.2 | Barra inferior móvil (Inicio, Agenda, Caja, Espera, Asistente, Más) y hoja "Todo el panel" | No hay navegación móvil específica | MVP |
-| 2.3 | Marca del club en el menú (inicial, nombre, link `/{slug}` y botón **Compartir link** que copia la URL) | El link solo aparece en el Inicio | MVP |
-| 2.4 | Botón compartir link también en la Agenda | No existe | MVP |
+| 2.1 | Menú lateral agrupado (Hoy / El club / Crecer) con íconos | La app tiene solo una barra superior con 6 enlaces; no hay agrupación ni íconos **Hecho en M1: menú lateral con grupos e íconos.** | MVP |
+| 2.2 | Barra inferior móvil (Inicio, Agenda, Caja, Espera, Asistente, Más) y hoja "Todo el panel" | No hay navegación móvil específica **Hecho en M1: barra inferior (Inicio, Agenda, Caja, Más) y hoja "Todo el panel"; Espera y Asistente aparecen cuando existan sus módulos.** | MVP |
+| 2.3 | Marca del club en el menú (inicial, nombre, link `/{slug}` y botón **Compartir link** que copia la URL) | El link solo aparece en el Inicio **Hecho en M1: marca, link y botón Compartir en el menú.** | MVP |
+| 2.4 | Botón compartir link también en la Agenda | No existe **Hecho en M1: `ShareLinkButton` en la Agenda.** | MVP |
 | 2.5 | Secciones del menú que se ocultan según lo activado (Buffet, Torneos) | No aplica todavía: los módulos no existen | Post-MVP |
 | 2.6 | Barra superior con estado de prueba ("Prueba sin arrancar", 14 días desde el primer turno) y campana de avisos | No existe | Post-MVP |
 | 2.7 | Banner "Activá los avisos" (push) | No existe | Post-MVP |
-| 2.8 | Cerrar sesión desde el menú y acceso a "Ver mi página" | Existe "Salir"; falta "Ver mi página" | MVP |
-| 2.9 | Ruta `/panel` con redirección según el estado del alta | Existe parcialmente; revisar el caso de club recién creado sin canchas | MVP |
+| 2.8 | Cerrar sesión desde el menú y acceso a "Ver mi página" | Existe "Salir"; falta "Ver mi página" **Hecho en M1: "Ver mi página" y Cerrar sesión en el menú.** | MVP |
+| 2.9 | Ruta `/panel` con redirección según el estado del alta | Existe parcialmente; revisar el caso de club recién creado sin canchas **Sin cambios en M1: el Inicio ya redirige al asistente de alta si está pendiente; falta recorrer el caso en navegador.** | MVP |
 
 ## 3. Funciones del día a día (panel)
 
