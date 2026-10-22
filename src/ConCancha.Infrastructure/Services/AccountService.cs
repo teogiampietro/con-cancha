@@ -1,5 +1,6 @@
 using System.Text;
 using ConCancha.Application.Abstractions;
+using ConCancha.Application.Emails;
 using ConCancha.Application.Messages;
 using ConCancha.Application.Results;
 using ConCancha.Contracts.Accounts;
@@ -57,9 +58,9 @@ public sealed class AccountService(
         if (user is null) return;
 
         var token = await users.GeneratePasswordResetTokenAsync(user).ConfigureAwait(false);
-        var body = string.Format(AccountMessages.PasswordResetBodyTemplate, BuildResetLink(user.Email!, token));
+        var email = EmailTemplates.PasswordReset(BuildResetLink(user.Email!, token));
 
-        await emailSender.SendAsync(user.Email!, AccountMessages.PasswordResetSubject, body, cancellationToken).ConfigureAwait(false);
+        await emailSender.SendAsync(user.Email!, email.Subject, email.Body, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Result> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken)

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace ConCancha.Infrastructure;
 
@@ -22,6 +23,9 @@ public static class DependencyInjection
     private const int MaxFailedAccessAttempts = 5;
     private const int LockoutMinutes = 10;
     private const string AddPaddingHeader = "Add-Padding";
+    private const int EmailProviderTimeoutSeconds = 10;
+    private const string IncompleteEmailSettings =
+        "Email:From and Email:ResendApiKey are required unless Email:Provider is Log.";
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
@@ -34,6 +38,7 @@ public static class DependencyInjection
         return services
             .AddPersistence()
             .AddIdentityServices()
+            .AddEmail()
             .AddApplicationServices();
     }
 
@@ -64,6 +69,31 @@ public static class DependencyInjection
         return services;
     }
 
+    private static IServiceCollection AddEmail(this IServiceCollection services)
+    {
+        services.AddOptions<EmailOptions>()
+            .BindConfiguration(EmailOptions.SectionName)
+            .Validate(options => options.IsComplete, IncompleteEmailSettings)
+            .ValidateOnStart();
+        services.AddHttpClient(ResendEmailTransport.HttpClientName, client =>
+        {
+            client.BaseAddress = new Uri(ResendEmailTransport.ApiUrl);
+            client.Timeout = TimeSpan.FromSeconds(EmailProviderTimeoutSeconds);
+        });
+        services.AddSingleton<ResendEmailTransport>();
+        services.AddSingleton<LoggingEmailTransport>();
+        services.AddSingleton<IEmailTransport>(SelectEmailTransport);
+        services.AddSingleton<EmailQueue>();
+        services.AddSingleton<IEmailSender, QueuedEmailSender>();
+        services.AddHostedService<EmailDispatcher>();
+        return services;
+    }
+
+    private static IEmailTransport SelectEmailTransport(IServiceProvider provider) =>
+        provider.GetRequiredService<IOptions<EmailOptions>>().Value.Provider == EmailProvider.Resend
+            ? provider.GetRequiredService<ResendEmailTransport>()
+            : provider.GetRequiredService<LoggingEmailTransport>();
+
     private static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<SessionFactory>();
@@ -85,7 +115,6 @@ public static class DependencyInjection
         services.AddScoped<CustomerResolver>();
         services.AddScoped<VisitorBookings>();
         services.AddScoped<IPublicBookingService, PublicBookingService>();
-        services.AddSingleton<IEmailSender, LoggingEmailSender>();
         return services;
     }
 

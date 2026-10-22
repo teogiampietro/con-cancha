@@ -226,8 +226,8 @@ La app no tiene cuentas de jugador. La maqueta incluye:
 |---|---|---|---|
 | 7.1 | **Notificaciones internas** (campana) | La maqueta genera avisos por reserva online nueva, seña aprobada, etc. | Post-MVP |
 | 7.2 | **Push web / PWA** | Botones "Activar avisos" y "Activar notificaciones" (simulados) | Post-MVP |
-| 7.3 | **Verificación de mail** | Código por mail en el registro del jugador y en "Pedir el mail la primera vez". Hoy `LoggingEmailSender` solo registra en el log | Decidir (pregunta abierta nº 2 del plan) |
-| 7.4 | **Envío real de mails** | Recuperar contraseña y verificación usan un sender que solo escribe en el log | MVP para el piloto (necesita un proveedor) |
+| 7.3 | **Verificación de mail** | Código por mail en el registro del jugador y en "Pedir el mail la primera vez". El envío real ya existe (M7); falta la verificación en sí | Decidir (pregunta abierta nº 2 del plan) |
+| 7.4 | **Envío real de mails** | **Hecho (M7):** Resend por API HTTP con cola y reintentos; "Olvidé mi contraseña" lo usa. Falta cargar `Email__From` (dominio verificado) y `Email__ResendApiKey` en Render | MVP para el piloto |
 | 7.5 | **Subida y almacenamiento de archivos** | Logo del club y comprobantes de seña | Post-MVP |
 | 7.6 | **Hora simulada y controles de demo** | Solo para la maqueta; no se migra | No aplica |
 | 7.7 | **Landing con dos entradas** (jugador / dueño) y registro | La app tiene `/` (Home); comparar el contenido | Decidir |
@@ -241,7 +241,7 @@ La app no tiene cuentas de jugador. La maqueta incluye:
    - **Equipo**: sumar y quitar encargados (§5.2).
    - **Resumen** con "se puede escapar en 7 días" y decisiones pendientes (§4.6).
    - Sección "Tus turnos" en el sitio público (6.1.4) y checklist real de primeros pasos (§3.1).
-   - Envío real de mails (7.4).
+   - Envío real de mails (7.4). Hecho (M7).
 2. **Primer módulo posterior al piloto:** Señas (§4.2), como ya propone el plan, junto con Configuración de Cobros y la tarjeta de Caja.
 3. **Después:** Lista de espera (§4.1), Métricas (§4.7), Turnos fijos (§3.7.1), Buffet (§4.3), cuenta de jugador con puntos y premios (§6.2, §4.5), Torneos (§4.4), Asistente (§4.8), Mi plan (§5.3).
 

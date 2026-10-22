@@ -34,6 +34,8 @@ services:
       Database__MigrateOnStartup: "true"
       Auth__CheckLeakedPasswords: "false"
       Web__BaseUrl: http://localhost:5090
+      # Log escribe el mail en la consola; para probar Resend: Email__Provider=Resend, Email__From y Email__ResendApiKey.
+      Email__Provider: Log
     ports:
       - "5089:8080"
 

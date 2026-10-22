@@ -31,6 +31,12 @@ services:
         value: "true"
       - key: Web__BaseUrl
         value: https://concancha-web.onrender.com
+      # Mails por la API HTTP de Resend (el plan free de Render bloquea SMTP). Sin estos dos valores la API no arranca.
+      # Email__From con el dominio verificado en Resend, por ejemplo: ConCancha <no-responder@tudominio.com.ar>
+      - key: Email__From
+        sync: false
+      - key: Email__ResendApiKey
+        sync: false
 
   - type: web
     name: concancha-web
