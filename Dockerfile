@@ -21,7 +21,7 @@ ARG PROJECT=ConCancha.Api
 ENV PROJECT=${PROJECT}
 WORKDIR /app
 COPY --from=build /app .
-# En Railway, ASPNETCORE_URLS se define con el puerto que inyecta la plataforma; las demás variables
+# En Render el puerto se fija con PORT=8080 (ver render.yaml); las demás variables
 # (ConnectionStrings__Default, Jwt__Key, Api__BaseUrl, Web__BaseUrl, Database__MigrateOnStartup) vienen del servicio.
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 EXPOSE 8080

@@ -1,0 +1,58 @@
+# Render Blueprint: Dashboard > New > Blueprint > seleccionar este repo.
+# Si los nombres concancha-api / concancha-web ya están tomados, Render agrega un sufijo:
+# en ese caso corregir Api__BaseUrl y Web__BaseUrl con las URLs reales.
+databases:
+  - name: concancha-db
+    databaseName: concancha
+    user: concancha
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: concancha-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: PROJECT
+        value: ConCancha.Api
+      - key: PORT
+        value: "8080"
+      # Npgsql no acepta URIs postgres://, así que se arma con las variables PG* que sí lee.
+      - key: ConnectionStrings__Default
+        value: SSL Mode=Prefer
+      - key: PGHOST
+        fromDatabase: { name: concancha-db, property: host }
+      - key: PGPORT
+        fromDatabase: { name: concancha-db, property: port }
+      - key: PGDATABASE
+        fromDatabase: { name: concancha-db, property: database }
+      - key: PGUSER
+        fromDatabase: { name: concancha-db, property: user }
+      - key: PGPASSWORD
+        fromDatabase: { name: concancha-db, property: password }
+      - key: Jwt__Key
+        generateValue: true
+      - key: Database__MigrateOnStartup
+        value: "true"
+      - key: Web__BaseUrl
+        value: https://concancha-web.onrender.com
+
+  - type: web
+    name: concancha-web
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: PROJECT
+        value: ConCancha.Web
+      - key: PORT
+        value: "8080"
+      - key: Api__BaseUrl
+        value: https://concancha-api.onrender.com
