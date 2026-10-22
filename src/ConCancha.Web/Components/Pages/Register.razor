@@ -40,7 +40,7 @@ else
                 <h1>¿Cómo se llama tu club?</h1>
                 <p class="mut">Escribilo como lo conocen tus jugadores.</p>
                 <input type="text" placeholder="Ej: Club Las Lomas" maxlength="@ClubLimits.NameMaxLength" autocomplete="off"
-                       value="@_name" @oninput="OnNameInput" required />
+                       value="@_clubNameInitialValue" @oninput="OnNameInput" required />
                 <div>
                     <p class="mut sm no-margin">Tu página va a ser:</p>
                     <b class="acc">@PublicSite.Domain/@(string.IsNullOrEmpty(_slug) ? "tu-club" : _slug)</b>
@@ -49,7 +49,7 @@ else
                     {
                         <label class="f" for="slug">Dirección de tu página</label>
                         <input id="slug" type="text" maxlength="@SlugRules.MaxLength" autocapitalize="off" autocomplete="off"
-                               value="@_slug" @oninput="OnSlugInput" />
+                               value="@_slugInitialValue" @oninput="OnSlugInput" />
                         <p class="hint">Solo letras, números y guiones. Es lo que va después de @PublicSite.Domain/</p>
                     }
                     else

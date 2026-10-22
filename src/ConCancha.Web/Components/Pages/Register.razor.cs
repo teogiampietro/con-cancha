@@ -22,6 +22,8 @@ public partial class Register : CancellableComponentBase
     private string _name = string.Empty;
     private string _slug = string.Empty;
     private string _phone = string.Empty;
+    private string _clubNameInitialValue = string.Empty;
+    private string _slugInitialValue = string.Empty;
     private string? _errorMessage;
     private string? _slugMessage;
     private bool? _isSlugAvailable;
@@ -50,7 +52,7 @@ public partial class Register : CancellableComponentBase
         }
 
         // Account created but no club yet: resume at the club name step.
-        if (Session.Current is not null) _step = RegistrationStep.ClubName;
+        if (Session.Current is not null) ShowClubNameStep();
         _isLoading = false;
         StateHasChanged();
     }
@@ -59,9 +61,24 @@ public partial class Register : CancellableComponentBase
 
     private void TogglePasswordVisibility() => _isPasswordVisible = !_isPasswordVisible;
 
-    private void EnableSlugEditing() => _isSlugEditable = true;
+    private void EnableSlugEditing()
+    {
+        _slugInitialValue = _slug;
+        _isSlugEditable = true;
+    }
 
-    private void GoBackToClubName() => _step = RegistrationStep.ClubName;
+    private void GoBackToClubName() => ShowClubNameStep();
+
+    /// <remarks>
+    /// The inputs only take their value from the server when they are created. Typing never re-sends it: with the
+    /// server on another continent, a re-render with an older value would overwrite the characters typed meanwhile.
+    /// </remarks>
+    private void ShowClubNameStep()
+    {
+        _clubNameInitialValue = _name;
+        _slugInitialValue = _slug;
+        _step = RegistrationStep.ClubName;
+    }
 
     private async Task SubmitAccountAsync(CancellationToken cancellationToken)
     {
@@ -78,7 +95,7 @@ public partial class Register : CancellableComponentBase
 
         await Session.SaveAsync(result.Value!, cancellationToken);
         _password = string.Empty;
-        _step = RegistrationStep.ClubName;
+        ShowClubNameStep();
     }
 
     private void OnNameInput(ChangeEventArgs args)
@@ -197,6 +214,6 @@ public partial class Register : CancellableComponentBase
 
         // The problem is in the link: go back to that step.
         if (result.StatusCode is StatusCodes.Status400BadRequest or StatusCodes.Status409Conflict)
-            _step = RegistrationStep.ClubName;
+            ShowClubNameStep();
     }
 }
