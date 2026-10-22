@@ -4,6 +4,7 @@ using ConCancha.Infrastructure.Email;
 using ConCancha.Infrastructure.Identity;
 using ConCancha.Infrastructure.Persistence;
 using ConCancha.Infrastructure.Services;
+using ConCancha.Infrastructure.Storage;
 using ConCancha.Infrastructure.Tenancy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<ITenantContext, TenantContext>();
         services.AddOptions<WebAppOptions>().BindConfiguration(WebAppOptions.SectionName);
         services.AddOptions<AuthOptions>().BindConfiguration(AuthOptions.SectionName);
+        services.AddOptions<FileStorageOptions>().BindConfiguration(FileStorageOptions.SectionName);
 
         return services
             .AddPersistence()
@@ -67,6 +69,8 @@ public static class DependencyInjection
         services.AddScoped<SessionFactory>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IClubService, ClubService>();
+        services.AddScoped<IClubAppearanceService, ClubAppearanceService>();
+        services.AddSingleton<IFileStore, LocalDiskFileStore>();
         services.AddScoped<CurrentClubProvider>();
         services.AddScoped<ICourtService, CourtService>();
         services.AddScoped<IPriceRuleService, PriceRuleService>();

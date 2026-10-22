@@ -72,6 +72,10 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
             entity.Property(club => club.Phone).HasMaxLength(ClubLimits.PhoneMaxLength);
             entity.Property(club => club.CountryCode).HasMaxLength(ClubLimits.CountryCodeLength).IsRequired();
             entity.Property(club => club.TimeZoneId).HasMaxLength(ClubLimits.TimeZoneMaxLength).IsRequired();
+            entity.Property(club => club.LogoPath).HasMaxLength(ClubLimits.LogoPathMaxLength);
+            entity.Property(club => club.PrimaryColor).HasMaxLength(ClubLimits.ColorLength).IsRequired().HasDefaultValue(ClubBranding.DefaultPrimaryColor);
+            entity.Property(club => club.SecondaryColor).HasMaxLength(ClubLimits.ColorLength).IsRequired().HasDefaultValue(ClubBranding.DefaultSecondaryColor);
+            entity.Property(club => club.EnabledModules).HasConversion<int>().HasDefaultValue(ClubModules.All);
             entity.HasIndex(club => club.Slug).IsUnique();
         });
 

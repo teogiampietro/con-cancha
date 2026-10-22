@@ -6,4 +6,6 @@ public static class ClubMessages
     public const string SlugAlreadyTaken = "Ese link ya lo usa otro club.";
     public const string ClubNotFound = "No encontramos ese club.";
     public const string UserNotFound = "No encontramos tu cuenta.";
+    public const string LogoNotFound = "Este club no tiene logo.";
+    public const string SectionDisabled = "Esta sección no está activa para este club.";
 }

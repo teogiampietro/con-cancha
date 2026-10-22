@@ -14,6 +14,9 @@ public static class ApiRoutes
     public const string ClubHours = "api/club/hours";
     public const string ClubProfile = "api/club/profile";
     public const string ClubCancellation = "api/club/cancellation";
+    public const string ClubColors = "api/club/colors";
+    public const string ClubLogo = "api/club/logo";
+    public const string ClubModules = "api/club/modules";
     public const string ChangePassword = "api/auth/change-password";
     public const string Setup = "api/club/setup";
     public const string SetupComplete = "api/club/setup/complete";

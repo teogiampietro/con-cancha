@@ -25,6 +25,8 @@ public partial class PublicClub : CancellableComponentBase
 
     [Parameter] public string Slug { get; set; } = string.Empty;
 
+    private string ThemeStyle => _club is null ? string.Empty : ClubTheme.Style(_club.PrimaryColor, _club.SecondaryColor);
+
     private DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, _clubZone).DateTime);
 
     private PublicCourtDto? SelectedCourt =>

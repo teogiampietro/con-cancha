@@ -3,6 +3,7 @@
 
 <PageTitle>@(_club is null ? "Reservá tu turno" : $"{_club.Name} · Reservá tu turno")</PageTitle>
 
+<div class="club-theme" style="@ThemeStyle">
 <main class="public">
     @if (_club is null)
     {
@@ -21,9 +22,15 @@
     }
     else
     {
-        <header class="col">
-            <h1 class="no-margin">@_club.Name</h1>
-            <p class="mut no-margin">Elegí el día, la cancha y el horario.</p>
+        <header class="club-header">
+            @if (_club.LogoVersion is { } logoVersion)
+            {
+                <img class="club-logo" src="@PageRoutes.ClubLogo(Slug, logoVersion)" alt="Logo de @_club.Name" />
+            }
+            <div class="col">
+                <h1 class="no-margin">@_club.Name</h1>
+                <p class="mut no-margin">Elegí el día, la cancha y el horario.</p>
+            </div>
         </header>
 
         @if (_myBookings is not null)
@@ -81,3 +88,4 @@
 {
     <PublicBookingSheet Slug="@Slug" Club="_club" Court="SelectedCourt!" Slot="chosen" Date="_date" OnClose="CloseSheetAsync" />
 }
+</div>

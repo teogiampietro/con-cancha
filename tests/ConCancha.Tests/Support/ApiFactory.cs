@@ -14,6 +14,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private const string UnlimitedRequests = "100000";
 
     private readonly TestDatabase _database = new();
+    private readonly string _storageRoot = Path.Combine(Path.GetTempPath(), $"concancha-tests-{Guid.NewGuid():N}");
 
     public CapturingEmailSender Emails { get; } = new();
 
@@ -23,6 +24,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         await base.DisposeAsync();
         await _database.DisposeAsync();
+        if (Directory.Exists(_storageRoot)) Directory.Delete(_storageRoot, recursive: true);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -42,6 +44,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         ["RateLimit:QueryPerMinute"] = UnlimitedRequests,
         ["RateLimit:PublicBookingPerMinute"] = UnlimitedRequests,
         ["Web:BaseUrl"] = WebBaseUrl,
+        ["Storage:RootPath"] = _storageRoot,
     };
 }
 

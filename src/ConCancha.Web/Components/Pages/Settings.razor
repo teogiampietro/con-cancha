@@ -26,6 +26,11 @@
             {
                 case SettingsTab.Brand:
                     <ClubProfileCard Club="_club" OnSaved="OnClubSavedAsync" />
+                    <ClubLogoCard Club="_club" OnSaved="OnClubSavedAsync" />
+                    <ClubColorsCard Club="_club" OnSaved="OnClubSavedAsync" />
+                    break;
+                case SettingsTab.Sections:
+                    <ClubSectionsCard Club="_club" OnSaved="OnClubSavedAsync" />
                     break;
                 case SettingsTab.Cancellation:
                     <CancellationCard Club="_club" OnSaved="OnClubSavedAsync" />

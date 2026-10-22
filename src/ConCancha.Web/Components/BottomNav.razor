@@ -1,5 +1,5 @@
 <nav class="bnav no-print" aria-label="Navegación del panel">
-    @foreach (var item in PanelNavItems.BottomBarFor(Role))
+    @foreach (var item in PanelNavItems.BottomBarFor(Role, Modules))
     {
         <NavLink href="@item.Route" Match="item.Match" ActiveClass="on"><Icon Name="@item.Icon" />@item.Label</NavLink>
     }

@@ -1,0 +1,31 @@
+@inherits CancellableComponentBase
+
+<form class="card col" @onsubmit="() => SaveAsync(ComponentToken)" @onsubmit:preventDefault>
+    <b>Colores</b>
+    <p class="mut sm no-margin">Los usa tu página de reservas. Tienen que verse bien sobre fondo oscuro.</p>
+    <div class="two">
+        <div>
+            <label class="f" for="club-primary">Color principal</label>
+            <div class="row">
+                <input id="club-primary" type="color" class="color-input" @bind="_primary" @bind:event="oninput" />
+                <span class="mut">@_primary.ToUpperInvariant()</span>
+            </div>
+            <FieldError Message="@_primaryError" />
+        </div>
+        <div>
+            <label class="f" for="club-secondary">Color secundario</label>
+            <div class="row">
+                <input id="club-secondary" type="color" class="color-input" @bind="_secondary" @bind:event="oninput" />
+                <span class="mut">@_secondary.ToUpperInvariant()</span>
+            </div>
+            <FieldError Message="@_secondaryError" />
+        </div>
+    </div>
+    <div class="color-preview" style="@PreviewStyle">
+        <span class="color-preview-title">@Club.Name</span>
+        <span class="btn sm color-preview-button">Reservar</span>
+    </div>
+    <ErrorMessage Message="@_errorMessage" />
+    @if (_isSaved) { <p class="sm success no-margin">Guardado.</p> }
+    <button class="btn" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Guardar colores")</button>
+</form>

@@ -19,6 +19,10 @@ public class RolePermissionsTests(ApiFactory api) : ApiTestBase(api)
         { "PUT", Routes.ClubHours },
         { "PUT", Routes.ClubProfile },
         { "PUT", Routes.ClubCancellation },
+        { "PUT", Routes.ClubColors },
+        { "PUT", Routes.ClubLogo },
+        { "DELETE", Routes.ClubLogo },
+        { "PUT", Routes.ClubModules },
         { "POST", Routes.ChangePassword },
         { "GET", Routes.CurrentClubTeam },
         { "GET", Routes.Setup },
@@ -116,7 +120,7 @@ public class RolePermissionsTests(ApiFactory api) : ApiTestBase(api)
     private async Task<HttpStatusCode> StatusAsync(string method, string url, string? token)
     {
         using var request = new HttpRequestMessage(new HttpMethod(method), url);
-        if (method is "POST" or "PUT") request.Content = JsonContent.Create(new { });
+        if (method is "POST" or "PUT") request.Content = url == Routes.ClubLogo ? new MultipartFormDataContent() : JsonContent.Create(new { });
         using var client = Api.CreateClient().WithBearer(token);
         return (await client.SendAsync(request, Ct)).StatusCode;
     }

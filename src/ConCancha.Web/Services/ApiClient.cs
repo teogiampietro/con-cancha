@@ -70,7 +70,7 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
     private HttpRequestMessage BuildRequest(HttpMethod method, string route, object? body, string? visitorToken = null)
     {
         var request = new HttpRequestMessage(method, route);
-        if (body is not null) request.Content = JsonContent.Create(body);
+        if (body is not null) request.Content = body as HttpContent ?? JsonContent.Create(body);
         if (session.Current?.Token is { } token)
             request.Headers.Authorization = new AuthenticationHeaderValue(BearerScheme, token);
         if (!string.IsNullOrEmpty(clientIp.Address))

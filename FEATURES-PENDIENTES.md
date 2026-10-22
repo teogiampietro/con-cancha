@@ -20,7 +20,7 @@ Comparación entre [maqueta/index.html](maqueta/index.html) y el código actual 
 | Canchas y precios | Sí | Sí | Faltan el alta con precio base y los turnos fijos |
 | Sitio público `/{slug}` y gestión por token | Sí | Sí | Faltan lista de espera, marca del club y seña |
 | Inicio / Resumen / Métricas | Sí | Parcial | El panel "Inicio" es mínimo; Resumen y Métricas no existen |
-| Configuración | Sí | Parcial | Hecho (M3): Marca básica, Cancelación y Tu cuenta; faltan Cobros, País, Secciones y Notificaciones |
+| Configuración | Sí | Parcial | Hecho (M3): Marca básica, Cancelación y Tu cuenta; hecho (M18): logo, colores y Secciones; faltan Cobros, País y Notificaciones |
 | Equipo, Mi plan | Sí | No | No existen |
 | Lista de espera, Señas, Buffet, Torneos, Premios | Sí | No | No existen |
 | Cuenta de jugador, "Busco jugadores" | Sí | No | No existen |
@@ -34,7 +34,7 @@ Comparación entre [maqueta/index.html](maqueta/index.html) y el código actual 
 | 2.2 | Barra inferior móvil (Inicio, Agenda, Caja, Espera, Asistente, Más) y hoja "Todo el panel" | No hay navegación móvil específica **Hecho en M1: barra inferior (Inicio, Agenda, Caja, Más) y hoja "Todo el panel"; Espera y Asistente aparecen cuando existan sus módulos.** | MVP |
 | 2.3 | Marca del club en el menú (inicial, nombre, link `/{slug}` y botón **Compartir link** que copia la URL) | El link solo aparece en el Inicio **Hecho en M1: marca, link y botón Compartir en el menú.** | MVP |
 | 2.4 | Botón compartir link también en la Agenda | No existe **Hecho en M1: `ShareLinkButton` en la Agenda.** | MVP |
-| 2.5 | Secciones del menú que se ocultan según lo activado (Buffet, Torneos) | No aplica todavía: los módulos no existen | Post-MVP |
+| 2.5 | Secciones del menú que se ocultan según lo activado (Buffet, Torneos) | Hecho (M18): `PanelNavItem.Module` oculta ítems y `[RequiresModule]` bloquea endpoints; aún no hay ítems ni endpoints de Buffet/Torneos | Post-MVP |
 | 2.6 | Barra superior con estado de prueba ("Prueba sin arrancar", 14 días desde el primer turno) y campana de avisos | No existe | Post-MVP |
 | 2.7 | Banner "Activá los avisos" (push) | No existe | Post-MVP |
 | 2.8 | Cerrar sesión desde el menú y acceso a "Ver mi página" | Existe "Salir"; falta "Ver mi página" **Hecho en M1: "Ver mi página" y Cerrar sesión en el menú.** | MVP |
@@ -163,13 +163,13 @@ Ya está: horario del club, alta y edición de canchas (con horario propio y act
 
 ### 5.1 Configuración (`/panel/config`, 4 pestañas)
 
-**Estado (M3 hecho, `/panel/configuracion`, solo dueño):** pestañas Marca (nombre y teléfono; el link no se edita), Cancelación (ventana en horas) y Tu cuenta (cambiar contraseña). Quedan fuera hasta sus módulos: logo y colores, País, Secciones, Cobros, "Pedir el mail la primera vez" y notificaciones. La ruta es `/panel/configuracion`, no `/panel/config`.
+**Estado (M3 hecho, `/panel/configuracion`, solo dueño):** pestañas Marca (nombre y teléfono; el link no se edita), Cancelación (ventana en horas) y Tu cuenta (cambiar contraseña). **M18 hecho:** pestaña Marca suma logo (PNG/JPG, 2 MB) y colores con vista previa; pestaña Secciones (Buffet y Torneos). Quedan fuera hasta sus módulos: País (decisión: Argentina fija), Cobros, "Pedir el mail la primera vez" y notificaciones. La ruta es `/panel/configuracion`, no `/panel/config`.
 
 | Pestaña | Contenido en la maqueta | Prioridad |
 |---|---|---|
-| **Marca** | Nombre del club, teléfono, **logo** (PNG/JPG, máx. 2 MB), **color principal y secundario** aplicados al sitio público (variable `--club`), vista previa | MVP el nombre y el teléfono (hecho); Post-MVP logo y colores |
+| **Marca** | Nombre del club, teléfono, **logo** (PNG/JPG, máx. 2 MB), **color principal y secundario** aplicados al sitio público (variable `--club`), vista previa | MVP el nombre y el teléfono (hecho); logo y colores hechos (M18, sin variable `--club`: se usan `--acc`, `--onacc` y `--club2`) |
 | **País** | País del club (hora y moneda) | Post-MVP (el plan fija Argentina) |
-| **Secciones del menú** | Mostrar u ocultar Buffet y Torneos | Post-MVP |
+| **Secciones del menú** | Mostrar u ocultar Buffet y Torneos | Hecho (M18) |
 | **Cobros** | Pedir seña, monto, alias o CBU | Post-MVP (con Señas) |
 | **Cancelación** | **Ventana de cancelación en horas** (existe en el dominio y la API, falta la UI) y **"Pedir el mail la primera vez"** con código de verificación | MVP la ventana (hecho); Post-MVP el mail |
 | **Tu cuenta** | **Cambiar contraseña** (actual, nueva ≥ 10, repetir) y activar notificaciones | MVP el cambio de contraseña (hecho) |
@@ -193,7 +193,7 @@ Ya está: selector de cancha, lista de turnos, hoja de reserva con nombre, Whats
 
 | # | Falta | Prioridad |
 |---|---|---|
-| 6.1.1 | **Marca del club**: color propio aplicado al sitio y logo (ver §5.1) | Post-MVP |
+| 6.1.1 | **Marca del club**: color propio aplicado al sitio y logo (ver §5.1) | Hecho (M18) en `/{slug}`; la página "Tu turno" todavía no toma la marca |
 | 6.1.2 | **Selector de 7 días** con tira de días y flechas | MVP (hecho: usa `DayStrip`; los 7 días entran en pantalla o se desplazan, sin flechas) |
 | 6.1.3 | Horarios **"Pasó"** atenuados, **"No disponible"** para bloqueos, **"Tu turno"** para los turnos del propio visitante | MVP (hecho) |
 | 6.1.4 | Sección **"Tus turnos en {club}"** con Cancelar, para el visitante anónimo (identificado por un token del navegador, nunca por teléfono) | MVP (hecho, solo en el dispositivo donde se reservó) |

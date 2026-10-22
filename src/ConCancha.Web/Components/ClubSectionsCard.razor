@@ -1,0 +1,17 @@
+@inherits CancellableComponentBase
+
+<form class="card col" @onsubmit="() => SaveAsync(ComponentToken)" @onsubmit:preventDefault>
+    <b>Secciones del menú</b>
+    <p class="mut sm no-margin">Elegí qué secciones opcionales querés ver en tu panel. Las que desactives no aparecen en el menú.</p>
+    @foreach (var (section, label) in Sections)
+    {
+        <label class="check">
+            <input type="checkbox" checked="@IsOn(section)" @onchange="e => Toggle(section, (bool)e.Value!)" />
+            <span>@label</span>
+        </label>
+    }
+    <p class="hint">Buffet y Torneos todavía no están disponibles: la elección queda guardada para cuando lleguen.</p>
+    <ErrorMessage Message="@_errorMessage" />
+    @if (_isSaved) { <p class="sm success no-margin">Guardado.</p> }
+    <button class="btn" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Guardar secciones")</button>
+</form>

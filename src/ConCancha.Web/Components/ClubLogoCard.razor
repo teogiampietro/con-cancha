@@ -1,0 +1,27 @@
+@inherits CancellableComponentBase
+
+<div class="card col">
+    <b>Logo</b>
+    <p class="mut sm no-margin">PNG o JPG, hasta 2 MB. Se ve arriba de tu página de reservas.</p>
+    <div class="row">
+        @if (Club.LogoVersion is { } version)
+        {
+            <img class="logo-preview" src="@PageRoutes.ClubLogo(Club.Slug, version)" alt="Logo de @Club.Name" />
+        }
+        else
+        {
+            <div class="logo-preview logo-empty">Sin logo</div>
+        }
+        <div class="col grow">
+            <label class="btn sec sm file-btn" for="club-logo">@(Club.LogoVersion is null ? "Subir logo" : "Cambiar logo")</label>
+            <InputFile id="club-logo" class="visually-hidden" accept="@AcceptedTypes" OnChange="UploadAsync" disabled="@_isBusy" />
+            @if (Club.LogoVersion is not null)
+            {
+                <button type="button" class="lnk" disabled="@_isBusy" @onclick="() => RemoveAsync(ComponentToken)">Quitar logo</button>
+            }
+        </div>
+    </div>
+    <ErrorMessage Message="@_errorMessage" />
+    @if (_isBusy) { <p class="sm mut no-margin">Guardando…</p> }
+    else if (_isSaved) { <p class="sm success no-margin">Guardado.</p> }
+</div>

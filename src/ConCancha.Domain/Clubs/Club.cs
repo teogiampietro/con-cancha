@@ -17,5 +17,11 @@ public class Club
 
     public int CancellationWindowHours { get; set; } = BookingPolicy.DefaultCancellationWindowHours;
 
+    /// <summary>Key of the logo in the file store; <c>null</c> when the club has none.</summary>
+    public string? LogoPath { get; set; }
+    public string PrimaryColor { get; set; } = ClubBranding.DefaultPrimaryColor;
+    public string SecondaryColor { get; set; } = ClubBranding.DefaultSecondaryColor;
+    public ClubModules EnabledModules { get; set; } = ClubModules.All;
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

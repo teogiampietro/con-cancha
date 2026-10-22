@@ -156,6 +156,15 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("EnabledModules")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(3);
+
+                    b.Property<string>("LogoPath")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(60)
@@ -167,6 +176,20 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                     b.Property<string>("Phone")
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<string>("PrimaryColor")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasDefaultValue("#6DFF7D");
+
+                    b.Property<string>("SecondaryColor")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasDefaultValue("#3F7D5A");
 
                     b.Property<string>("Slug")
                         .IsRequired()

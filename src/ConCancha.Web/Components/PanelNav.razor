@@ -8,7 +8,7 @@
         <ShareLinkButton Slug="@Club.Slug" IconOnly="true" />
     </div>
 
-    @foreach (var group in PanelNavItems.GroupedFor(Role))
+    @foreach (var group in PanelNavItems.GroupedFor(Role, Club.EnabledModules))
     {
         @if (PanelNavGroupLabels.Get(group.Key) is { } label)
         {

@@ -15,6 +15,10 @@ public static class PageRoutes
     public const string Settings = "/panel/configuracion";
     public const string Setup = "/panel/configuracion-inicial";
 
+    public const string ClubLogoPattern = "/club-logo/{slug}";
+
+    public static string ClubLogo(string slug, string version) => $"/club-logo/{Uri.EscapeDataString(slug)}?v={Uri.EscapeDataString(version)}";
+
     public static string PublicClub(string slug) => $"/{slug}";
 
     public static string PublicBooking(string slug, string token) => $"/{slug}/turno/{token}";

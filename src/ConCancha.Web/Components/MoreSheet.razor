@@ -2,7 +2,7 @@
     <a class="mrow" href="@PageRoutes.PublicClub(Club.Slug)" target="_blank" rel="noopener"><Icon Name="@PanelIcons.Eye" /> Ver mi página · /@Club.Slug</a>
     <ShareLinkButton Slug="@Club.Slug" CssClass="btn block" />
     <div class="col more-list" @onclick="() => OnClose.InvokeAsync()">
-        @foreach (var item in PanelNavItems.MoreFor(Role))
+        @foreach (var item in PanelNavItems.MoreFor(Role, Club.EnabledModules))
         {
             <NavLink class="mrow" href="@item.Route" Match="item.Match"><Icon Name="@item.Icon" /> @item.Label</NavLink>
         }

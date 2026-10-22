@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Components.Routing;
 
 namespace ConCancha.Web.Services.Navigation;
 
-/// <summary>Every panel destination and who sees it. A module that is not built yet has no row, so it never shows up.</summary>
+/// <summary>
+/// Every panel destination and who sees it. A module that is not built yet has no row, so it never shows up.
+/// A row tied to an optional section (<see cref="PanelNavItem.Module"/>) also disappears when the club hides that section.
+/// </summary>
 public static class PanelNavItems
 {
     private static readonly IReadOnlyList<PanelNavItem> All =
@@ -18,17 +21,23 @@ public static class PanelNavItems
         new("Configuración", PageRoutes.Settings, PanelIcons.Gear, PanelNavGroup.Club, OwnerOnly: true)
     ];
 
-    public static IReadOnlyList<PanelNavItem> VisibleTo(string? role) =>
-        All.Where(item => !item.OwnerOnly || IsOwner(role)).ToList();
+    public static IReadOnlyList<PanelNavItem> VisibleTo(string? role, ClubModules modules = ClubModules.All) =>
+        Filter(All, role, modules);
 
-    public static IReadOnlyList<PanelNavItem> BottomBarFor(string? role) =>
-        VisibleTo(role).Where(item => item.InBottomBar).ToList();
+    public static IReadOnlyList<PanelNavItem> BottomBarFor(string? role, ClubModules modules = ClubModules.All) =>
+        VisibleTo(role, modules).Where(item => item.InBottomBar).ToList();
 
-    public static IReadOnlyList<PanelNavItem> MoreFor(string? role) =>
-        VisibleTo(role).Where(item => !item.InBottomBar).ToList();
+    public static IReadOnlyList<PanelNavItem> MoreFor(string? role, ClubModules modules = ClubModules.All) =>
+        VisibleTo(role, modules).Where(item => !item.InBottomBar).ToList();
 
-    public static IReadOnlyList<IGrouping<PanelNavGroup, PanelNavItem>> GroupedFor(string? role) =>
-        VisibleTo(role).GroupBy(item => item.Group).ToList();
+    public static IReadOnlyList<IGrouping<PanelNavGroup, PanelNavItem>> GroupedFor(string? role, ClubModules modules = ClubModules.All) =>
+        VisibleTo(role, modules).GroupBy(item => item.Group).ToList();
+
+    public static IReadOnlyList<PanelNavItem> Filter(IEnumerable<PanelNavItem> items, string? role, ClubModules modules) =>
+        items
+            .Where(item => !item.OwnerOnly || IsOwner(role))
+            .Where(item => item.Module is not { } module || modules.HasFlag(module))
+            .ToList();
 
     private static bool IsOwner(string? role) => role == nameof(ClubRole.Owner);
 }

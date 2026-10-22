@@ -1,3 +1,5 @@
+using ConCancha.Domain.Clubs;
+
 namespace ConCancha.Contracts.Clubs;
 
 public record ClubDto(
@@ -9,4 +11,8 @@ public record ClubDto(
     int OpeningMinuteOfDay,
     int ClosingMinuteOfDay,
     string TimeZoneId,
-    int CancellationWindowHours);
+    int CancellationWindowHours,
+    string PrimaryColor = ClubBranding.DefaultPrimaryColor,
+    string SecondaryColor = ClubBranding.DefaultSecondaryColor,
+    string? LogoVersion = null,
+    ClubModules EnabledModules = ClubModules.All);

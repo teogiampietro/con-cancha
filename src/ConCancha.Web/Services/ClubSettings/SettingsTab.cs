@@ -4,6 +4,7 @@ namespace ConCancha.Web.Services.ClubSettings;
 public enum SettingsTab
 {
     Brand,
+    Sections,
     Cancellation,
     Account
 }

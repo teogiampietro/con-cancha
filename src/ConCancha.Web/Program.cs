@@ -24,6 +24,7 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapClubLogo();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 app.Run();

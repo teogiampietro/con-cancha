@@ -5,6 +5,8 @@ namespace ConCancha.Web.Services;
 
 public sealed partial class ApiClient
 {
+    private const string DefaultLogoContentType = "image/png";
+
     public Task<ApiResult<PublicClubDto>> GetPublicClubAsync(string slug, CancellationToken cancellationToken) =>
         SendAsync<PublicClubDto>(HttpMethod.Get, $"{ApiRoutes.PublicClubs}/{Uri.EscapeDataString(slug)}", body: null, cancellationToken);
 
@@ -33,6 +35,22 @@ public sealed partial class ApiClient
         string slug, Guid bookingId, string? visitorToken, CancellationToken cancellationToken) =>
         SendAsync<PublicMyBookingsDto>(
             HttpMethod.Post, $"{PublicBase(slug)}/my-bookings/{bookingId}/cancel", body: null, cancellationToken, visitorToken);
+
+    public async Task<PublicLogo?> GetPublicLogoAsync(string slug, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var response = await http.GetAsync($"{PublicBase(slug)}/logo", cancellationToken);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var contentType = response.Content.Headers.ContentType?.MediaType ?? DefaultLogoContentType;
+            return new PublicLogo(await response.Content.ReadAsByteArrayAsync(cancellationToken), contentType);
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+    }
 
     private static string PublicBase(string slug) => $"{ApiRoutes.PublicClubs}/{Uri.EscapeDataString(slug)}";
 }

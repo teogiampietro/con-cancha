@@ -178,3 +178,17 @@ h1:focus { outline: none; }
     .side { display: none; } .bnav { display: flex; }
     .app-main { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
 }
+
+.club-theme { min-height: 100%; }
+.club-header { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; border-bottom: 3px solid var(--club2, var(--line)); }
+.club-logo { width: 64px; height: 64px; object-fit: contain; border-radius: 12px; background: var(--card); flex: none; }
+.logo-preview { width: 72px; height: 72px; object-fit: contain; border-radius: 12px; background: var(--card2); border: 1px solid var(--line); flex: none; }
+.logo-empty { display: grid; place-items: center; color: var(--mut); font-size: 12px; border-style: dashed; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.file-btn { cursor: pointer; align-self: flex-start; }
+.check { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--acc); }
+.color-input { width: 48px; height: 40px; padding: 2px; background: var(--card2); cursor: pointer; }
+.color-preview { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--bg);
+                 border: 1px solid var(--line); border-left: 6px solid var(--club2); border-radius: 12px; }
+.color-preview-title { font-weight: 700; color: var(--acc); }
