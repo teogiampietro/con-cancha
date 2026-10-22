@@ -2,7 +2,9 @@ using ConCancha.Application.Abstractions;
 using ConCancha.Application.Messages;
 using ConCancha.Application.Results;
 using ConCancha.Contracts.Courts;
+using ConCancha.Domain.Common;
 using ConCancha.Domain.Courts;
+using ConCancha.Domain.Pricing;
 using ConCancha.Infrastructure.Persistence;
 using ConCancha.Infrastructure.Services.Mapping;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +15,7 @@ public sealed class CourtService(ConCanchaDbContext db) : ICourtService
 {
     private const string NameField = "name";
     private const string SlotMinutesField = "slotMinutes";
+    private const string BasePriceField = "basePrice";
     private const string OpeningField = "openingMinuteOfDay";
 
     public async Task<IReadOnlyList<CourtDto>> ListAsync(CancellationToken cancellationToken)
@@ -33,6 +36,7 @@ public sealed class CourtService(ConCanchaDbContext db) : ICourtService
 
         var court = Apply(new Court(), request, name);
         db.Courts.Add(court);
+        if (request.BasePrice is { } basePrice) db.PriceRules.Add(NewBaseRule(court, basePrice));
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Result<CourtDto>.Success(CourtMapper.ToDto(court));
     }
@@ -56,6 +60,15 @@ public sealed class CourtService(ConCanchaDbContext db) : ICourtService
     private Task<bool> NameExistsAsync(string name, Guid? excludedId, CancellationToken cancellationToken) =>
         db.Courts.AnyAsync(court => court.Name == name && court.Id != excludedId, cancellationToken);
 
+    private static PriceRule NewBaseRule(Court court, decimal price) => new()
+    {
+        Court = court,
+        Days = null,
+        FromMinuteOfDay = 0,
+        ToMinuteOfDay = TimeConstants.MinutesPerDay,
+        Price = price,
+    };
+
     private static Court Apply(Court court, CourtRequest request, string name)
     {
         court.Name = name;
@@ -73,6 +86,8 @@ public sealed class CourtService(ConCanchaDbContext db) : ICourtService
             return ServiceError.Validation(nameof(request.Sport).ToLowerInvariant(), "Elegí un deporte.");
         if (!CourtLimits.AllowedSlotMinutes.Contains(request.SlotMinutes))
             return ServiceError.Validation(SlotMinutesField, CourtMessages.InvalidSlotMinutes);
+        if (request.BasePrice is { } basePrice && PriceRuleValidator.ValidatePrice(basePrice) is { } reason)
+            return ServiceError.Validation(BasePriceField, reason);
 
         return ValidateHours(request);
     }

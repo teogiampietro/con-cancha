@@ -1,6 +1,7 @@
 using ConCancha.Contracts.Agenda;
 using ConCancha.Contracts.Bookings;
 using ConCancha.Contracts.Courts;
+using ConCancha.Contracts.Customers;
 using ConCancha.Domain.Bookings;
 using ConCancha.Web.Services;
 using Microsoft.AspNetCore.Components;
@@ -35,6 +36,11 @@ public partial class BookingSheet
     {
         _isBlocking = isBlocking;
         _errorMessage = null;
+    }
+
+    private void OnCustomerPicked(CustomerSuggestionDto customer)
+    {
+        if (!string.IsNullOrEmpty(customer.Phone)) _phone = customer.Phone;
     }
 
     private async Task ReserveAsync(CancellationToken cancellationToken)

@@ -27,6 +27,18 @@ public sealed partial class ApiClient
     public Task<ApiResult<BookingDto>> ChangeBookingPriceAsync(Guid bookingId, decimal price, CancellationToken cancellationToken) =>
         SendAsync<BookingDto>(HttpMethod.Put, $"{ApiRoutes.Bookings}/{bookingId}/price", new ChangePriceRequest(price), cancellationToken);
 
+    public Task<ApiResult<BookingDto>> MoveBookingAsync(Guid bookingId, MoveBookingRequest request, CancellationToken cancellationToken) =>
+        SendAsync<BookingDto>(HttpMethod.Post, $"{ApiRoutes.Bookings}/{bookingId}/move", request, cancellationToken);
+
+    public Task<ApiResult<BookingDto>> MarkUnpaidAsync(Guid bookingId, CancellationToken cancellationToken) =>
+        SendAsync<BookingDto>(HttpMethod.Post, $"{ApiRoutes.Bookings}/{bookingId}/unpay", body: null, cancellationToken);
+
+    public Task<ApiResult<BookingDto>> ResetAttendanceAsync(Guid bookingId, CancellationToken cancellationToken) =>
+        SendAsync<BookingDto>(HttpMethod.Post, $"{ApiRoutes.Bookings}/{bookingId}/attendance/reset", body: null, cancellationToken);
+
+    public Task<ApiResult<BookingDto>> ChangePaymentMethodAsync(Guid bookingId, PaymentMethod method, CancellationToken cancellationToken) =>
+        SendAsync<BookingDto>(HttpMethod.Put, $"{ApiRoutes.Bookings}/{bookingId}/payment-method", new MarkPaidRequest(method), cancellationToken);
+
     public Task<ApiResult<BookingDto>> CancelBookingAsync(Guid bookingId, CancellationToken cancellationToken) =>
         SendAsync<BookingDto>(HttpMethod.Post, $"{ApiRoutes.Bookings}/{bookingId}/cancel", body: null, cancellationToken);
 }

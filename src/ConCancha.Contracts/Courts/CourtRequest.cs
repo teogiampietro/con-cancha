@@ -3,6 +3,7 @@ using ConCancha.Domain.Courts;
 
 namespace ConCancha.Contracts.Courts;
 
+/// <param name="BasePrice">Only read when creating: it becomes the court's price for every day and hour.</param>
 public record CourtRequest(
     [Required(ErrorMessage = "Poné el nombre de la cancha."),
      MinLength(CourtLimits.NameMinLength, ErrorMessage = "Poné el nombre de la cancha."),
@@ -11,4 +12,5 @@ public record CourtRequest(
     int SlotMinutes,
     int? OpeningMinuteOfDay,
     int? ClosingMinuteOfDay,
-    bool IsActive = true);
+    bool IsActive = true,
+    decimal? BasePrice = null);

@@ -1,5 +1,6 @@
 using ConCancha.Contracts.Bookings;
 using ConCancha.Domain.Bookings;
+using ConCancha.Domain.Customers;
 
 namespace ConCancha.Web.Services;
 
@@ -26,5 +27,14 @@ public static class BookingPresentation
         if (kind == BookingKind.Block || status == BookingStatus.Cancelled) return string.Empty;
         if (attendance == Attendance.NoShow) return "warn";
         return attendance == Attendance.Played || payment == PaymentStatus.Paid ? "ok" : "warn";
+    }
+
+    /// <summary>The club taps send: nothing leaves automatically. Null when the phone is not a number WhatsApp can open.</summary>
+    public static string? WhatsAppUrl(BookingDto booking)
+    {
+        if (PhoneNormalizer.Normalize(booking.CustomerPhone) is not { } phone) return null;
+
+        var firstName = (booking.CustomerName ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        return ReminderMessage.WhatsAppUrl(phone, firstName is null ? "Hola!" : $"Hola {firstName}!");
     }
 }

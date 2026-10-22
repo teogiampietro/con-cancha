@@ -19,6 +19,7 @@ public sealed class BookingService(
     CurrentClubProvider currentClub,
     SlotBooker slotBooker,
     CustomerResolver customers,
+    TimeProvider clock,
     ILogger<BookingService> logger) : IBookingService
 {
     private const string PriceField = "price";
@@ -64,6 +65,58 @@ public sealed class BookingService(
 
     public Task<Result<BookingDto>> ChangePriceAsync(Guid bookingId, ChangePriceRequest request, CancellationToken cancellationToken) =>
         ChangeAsync(bookingId, booking => ChangePrice(booking, request.Price), saveChanges: true, cancellationToken);
+
+    public Task<Result<BookingDto>> MarkUnpaidAsync(Guid bookingId, CancellationToken cancellationToken) =>
+        ChangeAsync(bookingId, booking => ApplyRule(booking, b => b.MarkUnpaid()), saveChanges: true, cancellationToken);
+
+    public Task<Result<BookingDto>> ResetAttendanceAsync(Guid bookingId, CancellationToken cancellationToken) =>
+        ChangeAsync(bookingId, booking => ApplyRule(booking, b => b.UndoAttendance()), saveChanges: true, cancellationToken);
+
+    public Task<Result<BookingDto>> ChangePaymentMethodAsync(Guid bookingId, MarkPaidRequest request, CancellationToken cancellationToken) =>
+        ChangeAsync(bookingId, booking => ApplyRule(booking, b => b.ChangePaymentMethod(request.Method)), saveChanges: true, cancellationToken);
+
+    public async Task<Result<BookingDto>> MoveAsync(Guid bookingId, MoveBookingRequest request, CancellationToken cancellationToken)
+    {
+        var club = await currentClub.GetAsync(cancellationToken).ConfigureAwait(false);
+        var booking = await db.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken).ConfigureAwait(false);
+        if (club is null || booking is null)
+            return Result<BookingDto>.Failure(ServiceError.NotFound(BookingMessages.BookingNotFound));
+
+        var zone = ClubTimeZone.For(club);
+        var moved = await TryMoveAsync(booking, request, zone, cancellationToken).ConfigureAwait(false);
+        if (moved.Error is not null) return Result<BookingDto>.Failure(moved.Error);
+
+        logger.LogInformation("Booking {BookingId} moved to court {CourtId} for club {ClubId}", booking.Id, booking.CourtId, booking.ClubId);
+        return Result<BookingDto>.Success(BookingMapper.ToDto(booking, zone));
+    }
+
+    private async Task<Result> TryMoveAsync(
+        Booking booking, MoveBookingRequest request, ClubTimeZone zone, CancellationToken cancellationToken)
+    {
+        var (date, _) = zone.ToLocal(booking.StartsAt);
+        var target = await slotBooker.ResolveSlotAsync(request.CourtId, date, request.StartMinuteOfDay, cancellationToken).ConfigureAwait(false);
+        if (target.Error is not null) return Result.Failure(target.Error);
+        if (target.Value!.StartsAt <= clock.GetUtcNow()) return Result.Failure(ServiceError.Conflict(BookingMessages.SlotInThePast));
+
+        var slot = target.Value!;
+        if (ApplyRule(booking, b => b.Move(slot.Court.Id, slot.StartsAt, slot.EndsAt)) is { } broken)
+            return Result.Failure(broken);
+
+        return await slotBooker.TrySaveChangesAsync(booking, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static ServiceError? ApplyRule(Booking booking, Action<Booking> rule)
+    {
+        try
+        {
+            rule(booking);
+            return null;
+        }
+        catch (BookingRuleException exception)
+        {
+            return BookingRuleErrors.ToServiceError(exception.Rule);
+        }
+    }
 
     public Task<Result<BookingDto>> CancelAsync(Guid bookingId, CancellationToken cancellationToken) =>
         ChangeAsync(bookingId, CancelAndLog, saveChanges: true, cancellationToken);

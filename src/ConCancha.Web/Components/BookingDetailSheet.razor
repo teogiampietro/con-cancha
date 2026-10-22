@@ -1,70 +1,95 @@
 @inherits CancellableComponentBase
 
-<Sheet Title="@($"{CourtName} · {DisplayFormat.Time(Booking.StartMinuteOfDay)}")" OnClose="OnClose">
-    <p class="mut sm no-margin">@DisplayFormat.LongDate(Booking.Date) · @DisplayFormat.Time(Booking.StartMinuteOfDay) a @DisplayFormat.Time(Booking.EndMinuteOfDay)</p>
+@if (_isMoving)
+{
+    <MoveBookingSheet CourtName="@CourtName" Booking="Booking" OnMoved="OnChanged" OnBack="() => _isMoving = false" OnClose="OnClose" />
+}
+else
+{
+    <Sheet Title="@($"{CourtName} · {DisplayFormat.Time(Booking.StartMinuteOfDay)}")" OnClose="OnClose">
+        <p class="mut sm no-margin">@DisplayFormat.LongDate(Booking.Date) · @DisplayFormat.Time(Booking.StartMinuteOfDay) a @DisplayFormat.Time(Booking.EndMinuteOfDay)</p>
 
-    @if (Booking.Kind == BookingKind.Block)
-    {
-        <div class="card col">
-            <b>Horario bloqueado</b>
-            <span class="mut">@Booking.Reason</span>
-        </div>
-    }
-    else
-    {
-        <div class="card col">
-            <div class="row sp"><b>@Booking.CustomerName</b>@if (Booking.PaymentStatus == PaymentStatus.Paid) { <span class="chip ok">Pagó · @DisplayFormat.PaymentMethodLabel(Booking.PaymentMethod!.Value)</span> } else { <span class="chip warn">Debe</span> }</div>
-            @if (!string.IsNullOrEmpty(Booking.CustomerPhone)) { <span class="mut">@Booking.CustomerPhone</span> }
-            <div class="row sp"><span class="mut">Precio</span><b>@DisplayFormat.Money(Booking.Price)</b></div>
-            @if (Booking.Attendance == Attendance.Played) { <span class="chip ok">Jugado</span> }
-            @if (Booking.Attendance == Attendance.NoShow) { <span class="chip warn">No vino</span> }
-        </div>
-    }
+        @if (Booking.Kind == BookingKind.Block)
+        {
+            <div class="card col">
+                <b>Horario bloqueado</b>
+                <span class="mut">@Booking.Reason</span>
+            </div>
+        }
+        else
+        {
+            <div class="card col">
+                <div class="row sp"><b>@Booking.CustomerName</b>@if (Booking.PaymentStatus == PaymentStatus.Paid) { <span class="chip ok">Pagó · @DisplayFormat.PaymentMethodLabel(Booking.PaymentMethod!.Value)</span> } else { <span class="chip warn">Debe</span> }</div>
+                @if (!string.IsNullOrEmpty(Booking.CustomerPhone)) { <span class="mut">@Booking.CustomerPhone</span> }
+                <div class="row sp"><span class="mut">Precio</span><b>@DisplayFormat.Money(Booking.Price)</b></div>
+                @if (Booking.Attendance == Attendance.Played) { <span class="chip ok">Jugado</span> }
+                @if (Booking.Attendance == Attendance.NoShow) { <span class="chip warn">No vino</span> }
+            </div>
+        }
 
-    <ErrorMessage Message="@_errorMessage" />
+        <ErrorMessage Message="@_errorMessage" />
 
-    @if (_isConfirmingCancel)
-    {
-        <p class="no-margin">¿Seguro que querés @(Booking.Kind == BookingKind.Block ? "quitar el bloqueo" : "cancelar este turno")?</p>
-        <div class="row">
-            <button class="btn sec grow" @onclick="() => _isConfirmingCancel = false">No, volver</button>
-            <button class="btn danger grow" disabled="@_isBusy" @onclick="() => CancelAsync(ComponentToken)">Sí, @(Booking.Kind == BookingKind.Block ? "quitar" : "cancelar")</button>
-        </div>
-    }
-    else if (_isChoosingMethod)
-    {
-        <label class="f no-margin">¿Cómo pagó?</label>
-        <div class="row">
-            @foreach (var method in PaymentMethods)
-            {
-                <button class="btn grow" disabled="@_isBusy" @onclick="() => PayAsync(method, ComponentToken)">@DisplayFormat.PaymentMethodLabel(method)</button>
-            }
-        </div>
-    }
-    else if (_isChangingPrice)
-    {
-        <form class="col" @onsubmit="() => ChangePriceAsync(ComponentToken)" @onsubmit:preventDefault>
-            <label class="f no-margin" for="new-price">Nuevo precio</label>
-            <input id="new-price" type="number" min="0" step="100" inputmode="numeric" @bind="_newPrice" />
-            <button class="btn" disabled="@_isBusy">Guardar precio</button>
-        </form>
-    }
-    else
-    {
-        <div class="col">
-            @if (Booking.Kind == BookingKind.Reservation)
-            {
-                @if (Booking.PaymentStatus == PaymentStatus.Pending)
+        @if (_isConfirmingCancel)
+        {
+            <p class="no-margin">¿Seguro que querés @(Booking.Kind == BookingKind.Block ? "quitar el bloqueo" : "cancelar este turno")?</p>
+            <div class="row">
+                <button class="btn sec grow" @onclick="() => _isConfirmingCancel = false">No, volver</button>
+                <button class="btn danger grow" disabled="@_isBusy" @onclick="() => CancelAsync(ComponentToken)">Sí, @(Booking.Kind == BookingKind.Block ? "quitar" : "cancelar")</button>
+            </div>
+        }
+        else if (_isChoosingMethod)
+        {
+            <label class="f no-margin">¿Cómo pagó?</label>
+            <div class="row">
+                @foreach (var method in PaymentMethods)
                 {
-                    <button class="btn" @onclick="() => _isChoosingMethod = true">Marcar como pagado</button>
+                    <button class="btn grow" disabled="@_isBusy" @onclick="() => PayAsync(method, ComponentToken)">@DisplayFormat.PaymentMethodLabel(method)</button>
                 }
-                <div class="row">
-                    <button class="btn sec grow" disabled="@(_isBusy || Booking.Attendance == Attendance.Played)" @onclick="() => RunAsync(Api.MarkPlayedAsync(Booking.Id, ComponentToken))">Marcar como jugado</button>
-                    <button class="btn sec grow" disabled="@(_isBusy || Booking.Attendance == Attendance.NoShow || Booking.PaymentStatus == PaymentStatus.Paid)" @onclick="() => RunAsync(Api.MarkNoShowAsync(Booking.Id, ComponentToken))">No vino</button>
-                </div>
-                <button class="btn sec" @onclick="StartChangingPrice">Cambiar precio</button>
-            }
-            <button class="btn danger" @onclick="() => _isConfirmingCancel = true">@(Booking.Kind == BookingKind.Block ? "Quitar bloqueo" : "Cancelar turno")</button>
-        </div>
-    }
-</Sheet>
+            </div>
+        }
+        else if (_isChangingPrice)
+        {
+            <form class="col" @onsubmit="() => ChangePriceAsync(ComponentToken)" @onsubmit:preventDefault>
+                <label class="f no-margin" for="new-price">Nuevo precio</label>
+                <input id="new-price" type="number" min="0" step="100" inputmode="numeric" @bind="_newPrice" />
+                <button class="btn" disabled="@_isBusy">Guardar precio</button>
+            </form>
+        }
+        else
+        {
+            <div class="col">
+                @if (Booking.Kind == BookingKind.Reservation)
+                {
+                    @if (Booking.PaymentStatus == PaymentStatus.Pending)
+                    {
+                        <button class="btn" @onclick="() => _isChoosingMethod = true">Marcar como pagado</button>
+                    }
+                    <div class="row">
+                        <button class="btn sec grow" disabled="@(_isBusy || Booking.Attendance == Attendance.Played)" @onclick="() => RunAsync(Api.MarkPlayedAsync(Booking.Id, ComponentToken))">Marcar como jugado</button>
+                        <button class="btn sec grow" disabled="@(_isBusy || Booking.Attendance == Attendance.NoShow || Booking.PaymentStatus == PaymentStatus.Paid)" @onclick="() => RunAsync(Api.MarkNoShowAsync(Booking.Id, ComponentToken))">No vino</button>
+                    </div>
+                    @if (Booking.Attendance != Attendance.Pending)
+                    {
+                        <button class="btn sec" disabled="@_isBusy" @onclick="() => RunAsync(Api.ResetAttendanceAsync(Booking.Id, ComponentToken))">Deshacer estado</button>
+                    }
+                    @if (Booking.PaymentStatus == PaymentStatus.Paid)
+                    {
+                        <div class="row">
+                            <button class="btn sec grow" disabled="@_isBusy" @onclick="() => RunAsync(Api.MarkUnpaidAsync(Booking.Id, ComponentToken))">Marcar que debe</button>
+                            <button class="btn sec grow" disabled="@_isBusy" @onclick="() => ChangeMethodAsync(ComponentToken)">Pasar a @DisplayFormat.PaymentMethodLabel(OtherMethod).ToLowerInvariant()</button>
+                        </div>
+                    }
+                    <div class="row">
+                        @if (BookingPresentation.WhatsAppUrl(Booking) is { } whatsApp)
+                        {
+                            <a class="btn sec sm grow center" target="_blank" rel="noopener noreferrer" href="@whatsApp">WhatsApp</a>
+                        }
+                        <button class="btn sec sm grow" @onclick="() => _isMoving = true">Mover</button>
+                        <button class="btn sec sm grow" @onclick="StartChangingPrice">Cambiar precio</button>
+                    </div>
+                }
+                <button class="btn danger" @onclick="() => _isConfirmingCancel = true">@(Booking.Kind == BookingKind.Block ? "Quitar bloqueo" : "Cancelar turno")</button>
+            </div>
+        }
+    </Sheet>
+}

@@ -15,4 +15,9 @@ public static class BookingMessages
     public const string NotAReservation = "Esta acción es solo para reservas.";
     public const string TryAgain = "No pudimos guardar el turno. Probá de nuevo.";
     public const string CourtInactive = "La cancha está desactivada.";
+    public const string DifferentDuration = "El nuevo horario tiene que durar lo mismo que el turno.";
+    public const string SameSlot = "El turno ya está en ese horario.";
+    public const string SlotInThePast = "Ese horario ya pasó.";
+    public const string NotPaid = "El turno todavía no está pagado.";
+    public const string NoAttendanceToUndo = "El turno no tiene un estado para deshacer.";
 }

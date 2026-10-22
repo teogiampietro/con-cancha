@@ -42,6 +42,24 @@ public class BookingsController(IBookingService bookings) : ApiControllerBase
     public async Task<IActionResult> ChangePrice(Guid bookingId, ChangePriceRequest request, CancellationToken cancellationToken) =>
         ToActionResult(await bookings.ChangePriceAsync(bookingId, request, cancellationToken), Ok);
 
+    [HttpPost("{bookingId:guid}/move")]
+    [ProducesResponseType<BookingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Move(Guid bookingId, MoveBookingRequest request, CancellationToken cancellationToken) =>
+        ToActionResult(await bookings.MoveAsync(bookingId, request, cancellationToken), Ok);
+
+    [HttpPost("{bookingId:guid}/unpay")]
+    public async Task<IActionResult> MarkUnpaid(Guid bookingId, CancellationToken cancellationToken) =>
+        ToActionResult(await bookings.MarkUnpaidAsync(bookingId, cancellationToken), Ok);
+
+    [HttpPost("{bookingId:guid}/attendance/reset")]
+    public async Task<IActionResult> ResetAttendance(Guid bookingId, CancellationToken cancellationToken) =>
+        ToActionResult(await bookings.ResetAttendanceAsync(bookingId, cancellationToken), Ok);
+
+    [HttpPut("{bookingId:guid}/payment-method")]
+    public async Task<IActionResult> ChangePaymentMethod(Guid bookingId, MarkPaidRequest request, CancellationToken cancellationToken) =>
+        ToActionResult(await bookings.ChangePaymentMethodAsync(bookingId, request, cancellationToken), Ok);
+
     [HttpPost("{bookingId:guid}/cancel")]
     public async Task<IActionResult> Cancel(Guid bookingId, CancellationToken cancellationToken) =>
         ToActionResult(await bookings.CancelAsync(bookingId, cancellationToken), Ok);

@@ -24,6 +24,14 @@
             }
         </div>
     </div>
+    @if (Court is null)
+    {
+        <div>
+            <label class="f" for="court-base-price">Precio base por turno</label>
+            <input id="court-base-price" type="number" min="0" step="100" inputmode="numeric" @bind="_basePrice" />
+            <p class="hint">Rige todos los días y horarios. Después podés sumar precios por día u horario.</p>
+        </div>
+    }
     <label class="chk"><input type="checkbox" @bind="_hasOwnHours" /> Esta cancha tiene un horario distinto al del club</label>
     @if (_hasOwnHours)
     {

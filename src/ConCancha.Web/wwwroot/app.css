@@ -21,6 +21,8 @@ p { margin: 0 0 10px; }
 label.f, .f { display: block; font-size: 13px; color: var(--mut); margin: 0 0 6px; }
 input { width: 100%; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; color: var(--txt); font: inherit; padding: 14px; outline: 0; }
 input:focus { border-color: var(--acc); }
+select { width: 100%; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; color: var(--txt); font: inherit; padding: 14px; outline: 0; }
+select:focus { border-color: var(--acc); }
 .hint { font-size: 12px; color: var(--mut); margin: 6px 0 0; }
 
 .btn { display: inline-flex; align-items: center; justify-content: center; background: var(--acc); color: var(--onacc); border: 0; border-radius: 12px;
@@ -85,6 +87,7 @@ input[type="checkbox"] { width: auto; }
 .tc.past { border: 1px dashed #2b2b30; background: transparent; color: #6f6f78; justify-content: flex-end; text-decoration: line-through; font-size: 13px; cursor: default; }
 .tc.bkc { border-left: 3px solid #4a4a52; }
 .tc.pend { border-color: #5a4216; background: #1d1608; }
+.nowline { position: absolute; left: 0; right: 0; height: 2px; background: var(--acc); z-index: 1; opacity: .8; pointer-events: none; }
 .tc.blk { background: repeating-linear-gradient(45deg, #101012, #101012 8px, #151518 8px, #151518 16px); color: var(--mut); }
 .scroll-x { flex-wrap: nowrap; overflow-x: auto; } .scroll-x .pill { flex: none; white-space: nowrap; }
 .btn .ic { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; margin-right: 6px; }
@@ -102,6 +105,12 @@ input[type="checkbox"] { width: auto; }
 .day { flex: 0 0 auto; min-width: 58px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 10px; background: var(--card);
        color: var(--txt); border: 1px solid var(--line); border-radius: 12px; font: inherit; cursor: pointer; }
 .day b { font-size: 18px; } .day.on { background: var(--acc); color: var(--onacc); border-color: var(--acc); } .day.on .xs { color: var(--onacc); }
+.ac { position: relative; }
+.ac-list { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin-top: 4px; background: var(--card); border: 1px solid var(--line);
+           border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); }
+.ac-item { display: flex; justify-content: space-between; gap: 10px; width: 100%; padding: 12px 14px; background: none; border: 0; border-top: 1px solid var(--line);
+           color: var(--txt); font: inherit; text-align: left; cursor: pointer; }
+.ac-item:first-child { border-top: 0; } .ac-item:hover, .ac-item:focus { background: var(--card2); }
 .hint.error { color: var(--bad); }
 input[readonly] { color: var(--mut); }
 

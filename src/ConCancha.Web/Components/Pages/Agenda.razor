@@ -16,6 +16,7 @@
         <DateNavigator Date="_date" Today="_today" DateChanged="ChangeDayAsync" />
     </div>
     <p class="mut no-margin">@DisplayFormat.LongDate(_date)@(_date == _today ? " · hoy" : "")</p>
+    <DayStrip Date="_date" Today="_today" DateChanged="ChangeDayAsync" />
 
     @if (_agenda is { Courts.Count: > 0 } withCourts)
     {
@@ -53,7 +54,7 @@
     }
     else
     {
-        <div class="tg">
+        <div class="tg" id="@GridId">
             <div class="tg-in" style="--n:@_visibleCourts.Count">
                 <div class="tg-h tg-corner"></div>
                 @foreach (var courtDay in _visibleCourts)
@@ -69,6 +70,10 @@
                 @foreach (var courtDay in _visibleCourts)
                 {
                     <div class="tg-col" style="height:@(ColumnHeight)px">
+                        @if (ShowNowLine)
+                        {
+                            <div class="nowline" style="top:@(OffsetOf(_nowMinute))px"></div>
+                        }
                         @foreach (var slot in courtDay.Slots)
                         {
                             <button class="tc @CardClass(slot)" style="top:@(CardTop(slot))px;height:@(CardHeight(slot))px" disabled="@IsDisabled(slot)" @onclick="() => OpenSlot(courtDay, slot)">

@@ -18,6 +18,11 @@ public class CustomersController(ICustomerDirectoryService customers) : ApiContr
         [FromQuery] string? search, [FromQuery] bool onlyDebtors, [FromQuery] bool onlyNoShows, CancellationToken cancellationToken) =>
         Ok(await customers.ListAsync(search, onlyDebtors, onlyNoShows, cancellationToken));
 
+    [HttpGet("api/customers/suggestions")]
+    public async Task<ActionResult<IReadOnlyList<CustomerSuggestionDto>>> Suggest(
+        [FromQuery] string? q, CancellationToken cancellationToken) =>
+        Ok(await customers.SuggestAsync(q, cancellationToken));
+
     /// <summary>The same list, as a CSV file that opens in Excel.</summary>
     [HttpGet("api/customers/export")]
     public async Task<IActionResult> Export(

@@ -1,0 +1,33 @@
+@inherits CancellableComponentBase
+
+<Sheet Title="Mover turno" OnClose="OnClose">
+    <p class="mut sm no-margin">@Booking.CustomerName · @DisplayFormat.LongDate(Booking.Date) · @DisplayFormat.Time(Booking.StartMinuteOfDay) en @CourtName</p>
+    <p class="mut sm no-margin">Solo se muestran horarios libres del mismo día y con la misma duración.</p>
+
+    @if (_options is null)
+    {
+        <p class="loading">@(_errorMessage is null ? "Cargando horarios…" : "")</p>
+    }
+    else if (_options.Count == 0)
+    {
+        <div class="card center mut">No hay horarios libres para mover este turno.</div>
+    }
+    else
+    {
+        <div>
+            <label class="f" for="move-target">Nuevo horario</label>
+            <select id="move-target" @bind="_selectedKey">
+                @foreach (var option in _options)
+                {
+                    <option value="@option.Key">@DisplayFormat.Time(option.StartMinuteOfDay) · @option.CourtName</option>
+                }
+            </select>
+        </div>
+    }
+
+    <ErrorMessage Message="@_errorMessage" />
+    <div class="row">
+        <button class="btn sec grow" @onclick="() => OnBack.InvokeAsync()">Volver</button>
+        <button class="btn grow" disabled="@(_isBusy || _options is not { Count: > 0 })" @onclick="() => MoveAsync(ComponentToken)">@(_isBusy ? "Moviendo…" : "Mover")</button>
+    </div>
+</Sheet>

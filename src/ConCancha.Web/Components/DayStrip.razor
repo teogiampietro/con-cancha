@@ -1,0 +1,9 @@
+<div class="days no-print" role="tablist">
+    @foreach (var day in Visible)
+    {
+        <button class="day @(day == Date ? "on" : "")" role="tab" aria-selected="@(day == Date)" @onclick="() => DateChanged.InvokeAsync(day)">
+            <span class="xs">@Label(day)</span>
+            <b>@day.Day</b>
+        </button>
+    }
+</div>

@@ -1,0 +1,18 @@
+@inherits CancellableComponentBase
+
+<div class="ac">
+    <input id="@Id" type="text" maxlength="@MaxLength" autocomplete="off" role="combobox" aria-expanded="@(_suggestions.Count > 0)"
+           value="@Value" @oninput="OnInputAsync" @onkeydown="OnKeyDown" />
+    @if (_suggestions.Count > 0)
+    {
+        <div class="ac-list" role="listbox">
+            @foreach (var suggestion in _suggestions)
+            {
+                <button type="button" class="ac-item" role="option" @onclick="() => PickAsync(suggestion)">
+                    <b>@suggestion.Name</b>
+                    @if (!string.IsNullOrEmpty(suggestion.Phone)) { <span class="sm mut">@suggestion.Phone</span> }
+                </button>
+            }
+        </div>
+    }
+</div>

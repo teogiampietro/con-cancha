@@ -16,6 +16,7 @@ public partial class CourtForm : CancellableComponentBase
     private string _opening = string.Empty;
     private string _closing = string.Empty;
     private bool _isActive = true;
+    private decimal? _basePrice;
     private string? _errorMessage;
     private bool _isBusy;
 
@@ -62,7 +63,13 @@ public partial class CourtForm : CancellableComponentBase
 
     private bool TryBuildRequest(out CourtRequest request)
     {
-        request = new CourtRequest(_name.Trim(), _sport, _slotMinutes, null, null, _isActive);
+        request = new CourtRequest(_name.Trim(), _sport, _slotMinutes, null, null, _isActive, Court is null ? _basePrice : null);
+        if (Court is null && _basePrice is null)
+        {
+            _errorMessage = "Poné el precio base del turno.";
+            return false;
+        }
+
         if (!_hasOwnHours) return true;
 
         if (DisplayFormat.TryParseTimeInput(_opening, isEndOfDay: false, out var opening)

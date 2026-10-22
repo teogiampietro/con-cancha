@@ -6,4 +6,6 @@ public interface ICustomerDirectoryService
 {
     Task<IReadOnlyList<CustomerSummaryDto>> ListAsync(
         string? search, bool onlyDebtors, bool onlyNoShows, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<CustomerSuggestionDto>> SuggestAsync(string? query, CancellationToken cancellationToken);
 }

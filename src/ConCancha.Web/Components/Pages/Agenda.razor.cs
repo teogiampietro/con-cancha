@@ -6,6 +6,7 @@ using ConCancha.Domain.Common;
 using ConCancha.Domain.Courts;
 using ConCancha.Web.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace ConCancha.Web.Components.Pages;
 
@@ -14,8 +15,12 @@ public partial class Agenda : PanelPageBase
     private const int PixelsPerHour = 72;
     private const int GridPaddingPixels = 10;
     private const int CardInsetPixels = 2;
+    private const string GridId = "agenda-grid";
+    private const string ScrollToNowFunction = "concancha.scrollToNow";
+    private static readonly TimeSpan NowRefreshInterval = TimeSpan.FromMinutes(1);
 
     [Inject] private ClubClock Clock { get; set; } = null!;
+    [Inject] private IJSRuntime Js { get; set; } = null!;
 
     private sealed record SelectedFreeSlot(CourtDto Court, AgendaSlotDto Slot);
 
@@ -31,6 +36,10 @@ public partial class Agenda : PanelPageBase
     private Sport? _sportFilter;
     private int _gridStartMinute;
     private int _gridEndMinute;
+    private int _nowMinute;
+    private bool _scrollToNowPending;
+
+    private bool ShowNowLine => _date == _today && _nowMinute >= _gridStartMinute && _nowMinute <= _gridEndMinute;
 
     private int ColumnHeight => OffsetOf(_gridEndMinute) + GridPaddingPixels;
 
@@ -44,7 +53,35 @@ public partial class Agenda : PanelPageBase
 
         _today = await Clock.GetTodayAsync(ComponentToken);
         _date = _today;
+        _nowMinute = await Clock.GetMinuteOfDayAsync(ComponentToken);
+        _scrollToNowPending = true;
         await LoadDayAsync(ComponentToken);
+        _ = KeepNowCurrentAsync(ComponentToken);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_scrollToNowPending || _agenda is not { Courts.Count: > 0 }) return;
+
+        _scrollToNowPending = false;
+        if (ShowNowLine) await Js.InvokeVoidAsync(ScrollToNowFunction, ComponentToken, GridId);
+    }
+
+    private async Task KeepNowCurrentAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(NowRefreshInterval);
+        try
+        {
+            do
+            {
+                _nowMinute = await Clock.GetMinuteOfDayAsync(cancellationToken);
+                await InvokeAsync(StateHasChanged);
+            }
+            while (await timer.WaitForNextTickAsync(cancellationToken));
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
     private async Task LoadDayAsync(CancellationToken cancellationToken)
@@ -95,6 +132,7 @@ public partial class Agenda : PanelPageBase
     private Task ChangeDayAsync(DateOnly date)
     {
         _date = date;
+        _scrollToNowPending = date == _today;
         return LoadDayAsync(ComponentToken);
     }
 

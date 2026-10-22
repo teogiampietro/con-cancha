@@ -23,7 +23,7 @@
         <form class="col" @onsubmit="() => ReserveAsync(ComponentToken)" @onsubmit:preventDefault>
             <div>
                 <label class="f" for="booking-name">Nombre</label>
-                <input id="booking-name" type="text" maxlength="@BookingLimits.CustomerNameMaxLength" autocomplete="off" @bind="_name" @bind:event="oninput" />
+                <CustomerAutocomplete Id="booking-name" MaxLength="BookingLimits.CustomerNameMaxLength" @bind-Value="_name" OnPicked="OnCustomerPicked" />
             </div>
             <div>
                 <label class="f" for="booking-phone">WhatsApp (opcional)</label>

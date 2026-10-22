@@ -15,7 +15,7 @@ Comparación entre [maqueta/index.html](maqueta/index.html) y el código actual 
 |---|---|---|---|
 | Alta de club y asistente de configuración | Sí | Sí | Completo |
 | Login / recuperar contraseña | Sí | Sí | Completo |
-| Agenda (grilla, cargar, bloquear, pagar, jugado, no vino, cancelar, precio) | Sí | Sí | Falta Mover turno y accesos extra |
+| Agenda (grilla, cargar, bloquear, pagar, jugado, no vino, cancelar, precio) | Sí | Sí | **Hecho en M2:** mover, deshacer, atajos |
 | Reservas, Recordar, Caja, Clientes | Sí | Sí | Faltan detalles (ver §3) |
 | Canchas y precios | Sí | Sí | Faltan el alta con precio base y los turnos fijos |
 | Sitio público `/{slug}` y gestión por token | Sí | Sí | Faltan lista de espera, "Tus turnos", marca del club y seña |
@@ -57,17 +57,17 @@ Ya está: navegación por día, grilla con columnas por cancha, indicadores Ocup
 
 | # | Falta | Prioridad |
 |---|---|---|
-| 3.2.1 | **Mover turno** (mismo día y misma duración, a un horario libre de cualquier cancha). Falta endpoint y hoja en la UI | MVP |
-| 3.2.2 | **Selector de 7 días** (tira de días Hoy / Mañana / Jue 23…) además de las flechas ‹ › | MVP |
-| 3.2.3 | **Línea de "ahora"** sobre la grilla y scroll inicial hacia la hora actual | MVP (verificar contra el diff de Agenda sin commitear) |
-| 3.2.4 | Horarios pasados atenuados / "Pasó" con su precio | MVP (verificar) |
-| 3.2.5 | **Autocompletar clientes** al cargar turno (la maqueta usa un `datalist` con los clientes existentes) | MVP |
-| 3.2.6 | Cargar el turno con **"¿Ya pagó?" Debe / Pagó** en el mismo formulario | MVP (verificar) |
-| 3.2.7 | **Deshacer estado** (volver de Jugado / No vino a confirmado) | MVP |
-| 3.2.8 | **Marcar que debe** (deshacer el pago) y **cambiar el método** (efectivo ↔ transferencia) desde el detalle | MVP |
-| 3.2.9 | **Botón WhatsApp** en el detalle del turno | MVP |
+| 3.2.1 | **Mover turno** (mismo día y misma duración, a un horario libre de cualquier cancha). Falta endpoint y hoja en la UI **Hecho en M2:** `POST api/bookings/{id}/move` y `MoveBookingSheet`; solo mismo día y misma duración (decisión confirmada). | MVP |
+| 3.2.2 | **Selector de 7 días** (tira de días Hoy / Mañana / Jue 23…) además de las flechas ‹ › **Hecho en M2:** `DayStrip` de 7 días en la Agenda (las flechas ‹ › siguen). | MVP |
+| 3.2.3 | **Línea de "ahora"** sobre la grilla y scroll inicial hacia la hora actual **Hecho en M2:** línea de "ahora" (se actualiza cada minuto) y scroll inicial hacia la hora actual. | MVP (verificar contra el diff de Agenda sin commitear) |
+| 3.2.4 | Horarios pasados atenuados / "Pasó" con su precio **Verificado en M2:** los horarios pasados ya salían atenuados con su precio. | MVP (verificar) |
+| 3.2.5 | **Autocompletar clientes** al cargar turno (la maqueta usa un `datalist` con los clientes existentes) **Hecho en M2:** `CustomerAutocomplete` con `GET api/customers/suggestions?q=` (nombre y teléfono; desde 2 letras). | MVP |
+| 3.2.6 | Cargar el turno con **"¿Ya pagó?" Debe / Pagó** en el mismo formulario **Verificado en M2:** el formulario ya traía Debe / Pagó con método. | MVP (verificar) |
+| 3.2.7 | **Deshacer estado** (volver de Jugado / No vino a confirmado) **Hecho en M2:** `POST api/bookings/{id}/attendance/reset` y botón "Deshacer estado". | MVP |
+| 3.2.8 | **Marcar que debe** (deshacer el pago) y **cambiar el método** (efectivo ↔ transferencia) desde el detalle **Hecho en M2:** `POST api/bookings/{id}/unpay` y `PUT api/bookings/{id}/payment-method`; la Caja se actualiza. | MVP |
+| 3.2.9 | **Botón WhatsApp** en el detalle del turno **Hecho en M2:** botón WhatsApp en el detalle (`wa.me`, el club toca enviar). | MVP |
 | 3.2.10 | Etiquetas en la grilla: "fijo", "online", "busca jugadores"; seña pendiente | Depende de los módulos de §4 |
-| 3.2.11 | **Alta de cancha con precio base** en un paso (la maqueta pide nombre, deporte, duración y precio base, y crea la regla base automáticamente) | MVP (verificar el formulario actual) |
+| 3.2.11 | **Alta de cancha con precio base** en un paso (la maqueta pide nombre, deporte, duración y precio base, y crea la regla base automáticamente) **Hecho en M2:** `CourtRequest.BasePrice` crea la regla base en el mismo alta; el formulario lo pide. | MVP (verificar el formulario actual) |
 
 ### 3.3 Reservas
 

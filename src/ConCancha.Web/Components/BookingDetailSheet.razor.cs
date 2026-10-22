@@ -12,6 +12,7 @@ public partial class BookingDetailSheet
     private bool _isConfirmingCancel;
     private bool _isChoosingMethod;
     private bool _isChangingPrice;
+    private bool _isMoving;
     private decimal? _newPrice;
     private string? _errorMessage;
     private bool _isBusy;
@@ -23,6 +24,8 @@ public partial class BookingDetailSheet
     [Parameter] public EventCallback OnChanged { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
+    private PaymentMethod OtherMethod => Booking.PaymentMethod == PaymentMethod.Cash ? PaymentMethod.Transfer : PaymentMethod.Cash;
+
     private void StartChangingPrice()
     {
         _newPrice = DisplayFormat.Normalize(Booking.Price);
@@ -31,6 +34,9 @@ public partial class BookingDetailSheet
 
     private Task PayAsync(PaymentMethod method, CancellationToken cancellationToken) =>
         RunAsync(Api.MarkPaidAsync(Booking.Id, method, cancellationToken));
+
+    private Task ChangeMethodAsync(CancellationToken cancellationToken) =>
+        RunAsync(Api.ChangePaymentMethodAsync(Booking.Id, OtherMethod, cancellationToken));
 
     private Task CancelAsync(CancellationToken cancellationToken) =>
         RunAsync(Api.CancelBookingAsync(Booking.Id, cancellationToken));

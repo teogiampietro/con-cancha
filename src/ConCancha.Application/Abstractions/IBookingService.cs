@@ -19,5 +19,13 @@ public interface IBookingService
 
     Task<Result<BookingDto>> ChangePriceAsync(Guid bookingId, ChangePriceRequest request, CancellationToken cancellationToken);
 
+    Task<Result<BookingDto>> MoveAsync(Guid bookingId, MoveBookingRequest request, CancellationToken cancellationToken);
+
+    Task<Result<BookingDto>> MarkUnpaidAsync(Guid bookingId, CancellationToken cancellationToken);
+
+    Task<Result<BookingDto>> ResetAttendanceAsync(Guid bookingId, CancellationToken cancellationToken);
+
+    Task<Result<BookingDto>> ChangePaymentMethodAsync(Guid bookingId, MarkPaidRequest request, CancellationToken cancellationToken);
+
     Task<Result<BookingDto>> CancelAsync(Guid bookingId, CancellationToken cancellationToken);
 }

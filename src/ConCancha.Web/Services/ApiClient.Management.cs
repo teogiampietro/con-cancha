@@ -22,6 +22,10 @@ public sealed partial class ApiClient
         SendAsync<IReadOnlyList<CustomerSummaryDto>>(
             HttpMethod.Get, CustomerQuery(ApiRoutes.Customers, search, onlyDebtors, onlyNoShows), body: null, cancellationToken);
 
+    public Task<ApiResult<IReadOnlyList<CustomerSuggestionDto>>> GetCustomerSuggestionsAsync(string query, CancellationToken cancellationToken) =>
+        SendAsync<IReadOnlyList<CustomerSuggestionDto>>(
+            HttpMethod.Get, $"{ApiRoutes.CustomerSuggestions}?q={Uri.EscapeDataString(query)}", body: null, cancellationToken);
+
     public async Task<ApiResult<FileDownload>> ExportCustomersAsync(
         string? search, bool onlyDebtors, bool onlyNoShows, CancellationToken cancellationToken)
     {

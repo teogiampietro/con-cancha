@@ -62,12 +62,20 @@ public sealed class SlotBooker(ConCanchaDbContext db, CurrentClubProvider curren
     public async Task<Result> TrySaveAsync(Booking booking, CancellationToken cancellationToken)
     {
         db.Bookings.Add(booking);
-        try
-        {
-            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        var saved = await TrySaveChangesAsync(booking, cancellationToken).ConfigureAwait(false);
+        if (saved.IsSuccess)
             logger.LogInformation(
                 "Booking {BookingId} created ({Kind}, {Origin}) on court {CourtId} for club {ClubId}",
                 booking.Id, booking.Kind, booking.Origin, booking.CourtId, booking.ClubId);
+        return saved;
+    }
+
+    /// <summary>Saves what the booking already changed (a move) under the same no-overlap guarantee as a new booking.</summary>
+    public async Task<Result> TrySaveChangesAsync(Booking booking, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return Result.Success();
         }
         catch (Exception exception) when (FindPostgresError(exception) is { } sqlState && IsSlotContention(sqlState))

@@ -9,6 +9,34 @@ namespace ConCancha.Infrastructure.Services;
 
 public sealed class CustomerDirectoryService(ConCanchaDbContext db) : ICustomerDirectoryService
 {
+    private const int MinSuggestionQueryLength = 2;
+    private const int MaxSuggestions = 8;
+    private const int SuggestionCandidates = 60;
+    private const string LikeEscape = "\\";
+
+    public async Task<IReadOnlyList<CustomerSuggestionDto>> SuggestAsync(string? query, CancellationToken cancellationToken)
+    {
+        var text = query?.Trim();
+        if (text is null || text.Length < MinSuggestionQueryLength) return [];
+
+        var pattern = $"%{EscapeLike(text)}%";
+        var recent = await db.Bookings.AsNoTracking()
+            .Where(booking => booking.Kind == BookingKind.Reservation && booking.CustomerName != null
+                && EF.Functions.ILike(booking.CustomerName, pattern, LikeEscape))
+            .OrderByDescending(booking => booking.CreatedAt)
+            .Select(booking => new { Name = booking.CustomerName!, booking.CustomerPhone })
+            .Take(SuggestionCandidates).ToListAsync(cancellationToken).ConfigureAwait(false);
+
+        return recent
+            .GroupBy(booking => booking.Name.Trim().ToLowerInvariant())
+            .Select(group => new CustomerSuggestionDto(
+                group.First().Name, group.Select(booking => booking.CustomerPhone).FirstOrDefault(phone => !string.IsNullOrEmpty(phone))))
+            .Take(MaxSuggestions).ToList();
+    }
+
+    private static string EscapeLike(string text) =>
+        text.Replace(LikeEscape, LikeEscape + LikeEscape).Replace("%", LikeEscape + "%").Replace("_", LikeEscape + "_");
+
     public async Task<IReadOnlyList<CustomerSummaryDto>> ListAsync(
         string? search, bool onlyDebtors, bool onlyNoShows, CancellationToken cancellationToken)
     {

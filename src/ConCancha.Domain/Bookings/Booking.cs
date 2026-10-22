@@ -40,4 +40,54 @@ public class Booking : IBelongsToClub
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? CancelledAt { get; set; }
+
+    /// <summary>Same day is the caller's rule (it knows the club's time zone); the duration cannot change.</summary>
+    public void Move(Guid courtId, DateTimeOffset startsAt, DateTimeOffset endsAt)
+    {
+        RequireActiveReservation();
+        if (endsAt - startsAt != EndsAt - StartsAt) throw new BookingRuleException(BookingRule.DifferentDuration);
+        if (courtId == CourtId && startsAt == StartsAt) throw new BookingRuleException(BookingRule.SameSlot);
+
+        CourtId = courtId;
+        StartsAt = startsAt;
+        EndsAt = endsAt;
+        ReminderSentAt = null;
+    }
+
+    public void UndoAttendance()
+    {
+        RequireActiveReservation();
+        if (Attendance == Attendance.Pending) throw new BookingRuleException(BookingRule.NoAttendanceToUndo);
+
+        Attendance = Attendance.Pending;
+    }
+
+    public void MarkUnpaid()
+    {
+        RequireActiveReservation();
+        RequirePaid();
+
+        PaymentStatus = PaymentStatus.Pending;
+        PaymentMethod = null;
+    }
+
+    public void ChangePaymentMethod(PaymentMethod method)
+    {
+        RequireActiveReservation();
+        RequirePaid();
+        if (!Enum.IsDefined(method)) throw new BookingRuleException(BookingRule.InvalidPaymentMethod);
+
+        PaymentMethod = method;
+    }
+
+    private void RequirePaid()
+    {
+        if (PaymentStatus != PaymentStatus.Paid) throw new BookingRuleException(BookingRule.NotPaid);
+    }
+
+    private void RequireActiveReservation()
+    {
+        if (Status == BookingStatus.Cancelled) throw new BookingRuleException(BookingRule.Cancelled);
+        if (Kind != BookingKind.Reservation) throw new BookingRuleException(BookingRule.NotAReservation);
+    }
 }

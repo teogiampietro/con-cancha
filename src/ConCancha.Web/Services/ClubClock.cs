@@ -1,4 +1,5 @@
 using ConCancha.Domain.Clubs;
+using ConCancha.Domain.Common;
 
 namespace ConCancha.Web.Services;
 
@@ -11,6 +12,13 @@ public sealed class ClubClock(ApiClient api, TimeProvider clock)
     {
         _zone ??= await LoadZoneAsync(cancellationToken);
         return DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(clock.GetUtcNow(), _zone).DateTime);
+    }
+
+    public async Task<int> GetMinuteOfDayAsync(CancellationToken cancellationToken)
+    {
+        _zone ??= await LoadZoneAsync(cancellationToken);
+        var local = TimeZoneInfo.ConvertTime(clock.GetUtcNow(), _zone);
+        return local.Hour * TimeConstants.MinutesPerHour + local.Minute;
     }
 
     private async Task<TimeZoneInfo> LoadZoneAsync(CancellationToken cancellationToken)

@@ -23,6 +23,7 @@ public static class ApiRoutes
     public const string Reservations = "api/reservations";
     public const string Customers = "api/customers";
     public const string CustomersExport = "api/customers/export";
+    public const string CustomerSuggestions = "api/customers/suggestions";
     public const string Cash = "api/cash";
     public const string Reminders = "api/reminders";
     public const string Bookings = "api/bookings";
