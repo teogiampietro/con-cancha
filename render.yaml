@@ -22,19 +22,9 @@ services:
         value: ConCancha.Api
       - key: PORT
         value: "8080"
-      # Npgsql no acepta URIs postgres://, así que se arma con las variables PG* que sí lee.
+      # La app convierte la URI postgres:// de Render al formato de Npgsql.
       - key: ConnectionStrings__Default
-        value: SSL Mode=Prefer
-      - key: PGHOST
-        fromDatabase: { name: concancha-db, property: host }
-      - key: PGPORT
-        fromDatabase: { name: concancha-db, property: port }
-      - key: PGDATABASE
-        fromDatabase: { name: concancha-db, property: database }
-      - key: PGUSER
-        fromDatabase: { name: concancha-db, property: user }
-      - key: PGPASSWORD
-        fromDatabase: { name: concancha-db, property: password }
+        fromDatabase: { name: concancha-db, property: connectionString }
       - key: Jwt__Key
         generateValue: true
       - key: Database__MigrateOnStartup

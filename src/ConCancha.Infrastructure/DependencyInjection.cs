@@ -43,7 +43,7 @@ public static class DependencyInjection
             // Read when the context is created (not when the container is built) so tests can override it.
             var connectionString = provider.GetRequiredService<IConfiguration>().GetConnectionString(ConnectionStringName)
                 ?? throw new InvalidOperationException($"Missing connection string 'ConnectionStrings:{ConnectionStringName}'.");
-            options.UseNpgsql(connectionString);
+            options.UseNpgsql(PostgresConnectionString.Normalize(connectionString));
         });
 
     private static IServiceCollection AddIdentityServices(this IServiceCollection services)
