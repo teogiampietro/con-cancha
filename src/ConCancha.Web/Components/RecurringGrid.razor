@@ -1,0 +1,72 @@
+@inherits CancellableComponentBase
+
+@if (Courts.Count == 0)
+{
+    <div class="card center mut">Primero cargá una cancha.</div>
+}
+else if (_items is null)
+{
+    <p class="loading">@(_errorMessage ?? "Cargando…")</p>
+}
+else
+{
+    <div class="card col">
+        <p class="mut sm no-margin">El que juega siempre el mismo día y hora. Se agenda solo las próximas @RecurringSchedule.WindowWeeks semanas y bloquea el horario.</p>
+        <div class="pills scroll-x">
+            @foreach (var court in Courts)
+            {
+                <button class="pill @(court.Id == _court.Id ? "on" : "")" @onclick="() => SelectCourtAsync(court)">@court.Name</button>
+            }
+        </div>
+        <ErrorMessage Message="@_errorMessage" />
+        @if (_notice is not null) { <p class="sm no-margin" role="status">@_notice</p> }
+
+        <div class="scroll-x">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th></th>
+                        @foreach (var (_, label) in DisplayFormat.WeekOrder) { <th>@label</th> }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var start in _starts)
+                    {
+                        <tr>
+                            <td><b>@DisplayFormat.Time(start)</b></td>
+                            @foreach (var (day, _) in DisplayFormat.WeekOrder)
+                            {
+                                var item = FindActive(day, start);
+                                <td>
+                                    <button class="btn @(item is null ? "sec" : "") sm" aria-label="@CellLabel(day, start, item)" @onclick="() => OpenCell(day, start, item)">@(item is null ? "+" : FirstName(item))</button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="hint">Tocá un casillero libre para sumar un fijo, o uno ocupado para cambiarlo o quitarlo.</p>
+    </div>
+
+    @if (Paused.Count > 0)
+    {
+        <div class="card col">
+            <b>Pausados</b>
+            <p class="mut sm no-margin">Cambió la duración o el horario de la cancha y estos fijos ya no entran. Se cancelaron sus turnos futuros.</p>
+            @foreach (var item in Paused)
+            {
+                <div class="row sp">
+                    <span>@item.CustomerName · @DisplayFormat.DayName(item.Day) @DisplayFormat.Time(item.StartMinuteOfDay)</span>
+                    <button class="lnk" @onclick="() => RemovePausedAsync(item, ComponentToken)">Quitar</button>
+                </div>
+            }
+        </div>
+    }
+}
+
+@if (_cell is { } cell)
+{
+    <RecurringSheet CourtId="_court.Id" CourtName="@_court.Name" Day="cell.Day" StartMinuteOfDay="cell.Start" Existing="cell.Item"
+                    OnSaved="OnSavedAsync" OnRemoved="OnRemovedAsync" OnClose="CloseCell" />
+}

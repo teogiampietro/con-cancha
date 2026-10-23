@@ -6,11 +6,20 @@ namespace ConCancha.Web.Components.Pages;
 
 public partial class Courts : PanelPageBase
 {
+    private enum CourtsTab
+    {
+        Courts,
+        Recurring,
+    }
+
+    private CourtsTab _tab = CourtsTab.Courts;
     private ClubDto? _club;
     private IReadOnlyList<CourtDto>? _courts;
     private Guid? _editingCourtId;
     private Guid? _pricesCourtId;
     private bool _isCreating;
+
+    private IReadOnlyList<CourtDto> ActiveCourts => _courts?.Where(court => court.IsActive).ToList() ?? [];
 
     protected override async Task OnInitializedAsync()
     {

@@ -81,6 +81,9 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
+                    b.Property<Guid?>("RecurringBookingId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset?>("ReminderSentAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -102,11 +105,60 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ManagementTokenHash");
 
+                    b.HasIndex("RecurringBookingId");
+
                     b.HasIndex("VisitorTokenHash");
 
                     b.HasIndex("ClubId", "StartsAt");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("ConCancha.Domain.Bookings.RecurringBooking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CourtId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("StartMinuteOfDay")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("CourtId", "Day", "StartMinuteOfDay")
+                        .IsUnique()
+                        .HasFilter("\"IsActive\"");
+
+                    b.ToTable("RecurringBookings");
                 });
 
             modelBuilder.Entity("ConCancha.Domain.Cash.CashClosure", b =>
@@ -623,6 +675,27 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("CourtId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ConCancha.Domain.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ConCancha.Domain.Bookings.RecurringBooking", null)
+                        .WithMany()
+                        .HasForeignKey("RecurringBookingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Court");
+                });
+
+            modelBuilder.Entity("ConCancha.Domain.Bookings.RecurringBooking", b =>
+                {
+                    b.HasOne("ConCancha.Domain.Courts.Court", "Court")
+                        .WithMany()
+                        .HasForeignKey("CourtId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ConCancha.Domain.Customers.Customer", null)

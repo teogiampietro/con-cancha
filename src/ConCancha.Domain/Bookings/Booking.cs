@@ -19,6 +19,9 @@ public class Booking : IBelongsToClub
     public BookingStatus Status { get; set; } = BookingStatus.Confirmed;
 
     public Guid? CustomerId { get; set; }
+
+    /// <summary>Set when the booking comes from a weekly fixed turn.</summary>
+    public Guid? RecurringBookingId { get; set; }
     public BookingOrigin Origin { get; set; } = BookingOrigin.Panel;
 
     /// <summary>SHA-256 of the secret in the player's management link. Never the secret itself.</summary>

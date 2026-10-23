@@ -2,13 +2,15 @@ using ConCancha.Api.Auth;
 using ConCancha.Application.Abstractions;
 using ConCancha.Contracts.Courts;
 using ConCancha.Contracts.Pricing;
+using ConCancha.Contracts.RecurringBookings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConCancha.Api.Controllers;
 
 [Authorize(Roles = ClubRoles.Any)]
-public class CourtsController(ICourtService courts, IPriceRuleService priceRules) : ApiControllerBase
+public class CourtsController(ICourtService courts, IPriceRuleService priceRules, IRecurringBookingService recurringBookings)
+    : ApiControllerBase
 {
     [HttpGet("api/courts")]
     public async Task<ActionResult<IReadOnlyList<CourtDto>>> List(CancellationToken cancellationToken) =>
@@ -46,4 +48,31 @@ public class CourtsController(ICourtService courts, IPriceRuleService priceRules
     [Authorize(Roles = ClubRoles.Owner)]
     public async Task<IActionResult> DeletePriceRule(Guid ruleId, CancellationToken cancellationToken) =>
         ToActionResult(await priceRules.DeleteAsync(ruleId, cancellationToken), NoContent);
+
+    [HttpGet("api/courts/{courtId:guid}/recurring-bookings")]
+    [Authorize(Roles = ClubRoles.Owner)]
+    public async Task<IActionResult> ListRecurringBookings(Guid courtId, CancellationToken cancellationToken) =>
+        ToActionResult(await recurringBookings.ListByCourtAsync(courtId, cancellationToken), Ok);
+
+    [HttpPost("api/courts/{courtId:guid}/recurring-bookings")]
+    [Authorize(Roles = ClubRoles.Owner)]
+    [ProducesResponseType<RecurringBookingResultDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreateRecurringBooking(
+        Guid courtId, RecurringBookingRequest request, CancellationToken cancellationToken) =>
+        ToActionResult(
+            await recurringBookings.CreateAsync(courtId, request, cancellationToken),
+            result => StatusCode(StatusCodes.Status201Created, result));
+
+    [HttpPut("api/courts/{courtId:guid}/recurring-bookings/{recurringId:guid}")]
+    [Authorize(Roles = ClubRoles.Owner)]
+    public async Task<IActionResult> UpdateRecurringBooking(
+        Guid courtId, Guid recurringId, UpdateRecurringBookingRequest request, CancellationToken cancellationToken) =>
+        ToActionResult(await recurringBookings.UpdateAsync(courtId, recurringId, request, cancellationToken), Ok);
+
+    [HttpDelete("api/courts/{courtId:guid}/recurring-bookings/{recurringId:guid}")]
+    [Authorize(Roles = ClubRoles.Owner)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteRecurringBooking(Guid courtId, Guid recurringId, CancellationToken cancellationToken) =>
+        ToActionResult(await recurringBookings.DeleteAsync(courtId, recurringId, cancellationToken), NoContent);
 }

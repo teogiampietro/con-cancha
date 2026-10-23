@@ -36,6 +36,10 @@ public class RolePermissionsTests(ApiFactory api) : ApiTestBase(api)
         { "POST", $"{Routes.Courts}/{AnyId}/price-rules" },
         { "PUT", $"{Routes.PriceRules}/{AnyId}" },
         { "DELETE", $"{Routes.PriceRules}/{AnyId}" },
+        { "GET", $"{Routes.Courts}/{AnyId}/recurring-bookings" },
+        { "POST", $"{Routes.Courts}/{AnyId}/recurring-bookings" },
+        { "PUT", $"{Routes.Courts}/{AnyId}/recurring-bookings/{AnyId}" },
+        { "DELETE", $"{Routes.Courts}/{AnyId}/recurring-bookings/{AnyId}" },
     };
 
     public static TheoryData<string, string> PanelEndpoints => new()

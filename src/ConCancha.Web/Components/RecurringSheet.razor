@@ -1,0 +1,35 @@
+@inherits CancellableComponentBase
+
+<Sheet Title="@(Existing is null ? "Turno fijo" : "Cambiar turno fijo")" OnClose="OnClose">
+    <p class="mut sm no-margin">@DisplayFormat.DayName(Day) @DisplayFormat.Time(StartMinuteOfDay) · @CourtName</p>
+    <p class="mut sm no-margin">Se agenda solo las próximas @RecurringSchedule.WindowWeeks semanas y bloquea el horario. El precio es el de la cancha para ese día y hora.</p>
+
+    <form class="col" @onsubmit="() => SaveAsync(ComponentToken)" @onsubmit:preventDefault>
+        <div>
+            <label class="f" for="recurring-name">Nombre</label>
+            <input id="recurring-name" type="text" maxlength="@BookingLimits.CustomerNameMaxLength" autocomplete="off" @bind="_name" @bind:event="oninput" />
+        </div>
+        <div>
+            <label class="f" for="recurring-phone">WhatsApp</label>
+            <input id="recurring-phone" type="tel" maxlength="@BookingLimits.PhoneMaxLength" autocomplete="off" @bind="_phone" @bind:event="oninput" />
+        </div>
+        <ErrorMessage Message="@_errorMessage" />
+        <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Guardando…" : "Guardar fijo")</button>
+    </form>
+
+    @if (Existing is not null)
+    {
+        @if (_confirmingRemoval)
+        {
+            <p class="mut sm no-margin">Se cancelan todos los turnos futuros de este fijo. Los pasados quedan como están.</p>
+            <div class="row">
+                <button class="btn sec grow" @onclick="() => _confirmingRemoval = false">No quitar</button>
+                <button class="btn danger grow" disabled="@_isBusy" @onclick="() => RemoveAsync(ComponentToken)">Sí, quitar</button>
+            </div>
+        }
+        else
+        {
+            <button class="btn danger block" @onclick="() => _confirmingRemoval = true">Quitar fijo</button>
+        }
+    }
+</Sheet>

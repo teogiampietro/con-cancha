@@ -24,6 +24,7 @@ public static class ApiRoutes
     public const string SetupComplete = "api/club/setup/complete";
     public const string Courts = "api/courts";
     public const string PriceRules = "api/price-rules";
+    public const string RecurringBookingsSegment = "recurring-bookings";
     public const string Agenda = "api/agenda";
     public const string Reservations = "api/reservations";
     public const string Customers = "api/customers";

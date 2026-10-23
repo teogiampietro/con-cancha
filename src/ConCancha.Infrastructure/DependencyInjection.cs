@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddOptions<WebAppOptions>().BindConfiguration(WebAppOptions.SectionName);
         services.AddOptions<AuthOptions>().BindConfiguration(AuthOptions.SectionName);
         services.AddOptions<FileStorageOptions>().BindConfiguration(FileStorageOptions.SectionName);
+        services.AddOptions<RecurringBookingOptions>().BindConfiguration(RecurringBookingOptions.SectionName);
 
         return services
             .AddPersistence()
@@ -116,6 +117,11 @@ public static class DependencyInjection
         services.AddScoped<ICashService, CashService>();
         services.AddScoped<IReminderService, ReminderService>();
         services.AddScoped<SlotBooker>();
+        services.AddScoped<RecurringBookingScheduler>();
+        services.AddScoped<RecurringBookingReconciler>();
+        services.AddScoped<IRecurringBookingService, RecurringBookingService>();
+        services.AddSingleton<RecurringBookingRenewal>();
+        services.AddHostedService<RecurringBookingRenewalWorker>();
         services.AddScoped<CustomerResolver>();
         services.AddScoped<VisitorBookings>();
         services.AddScoped<IPublicBookingService, PublicBookingService>();

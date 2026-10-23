@@ -13,6 +13,7 @@ public static class BookingMapper
         return new BookingDto(
             booking.Id, booking.CourtId, booking.StartsAt, booking.EndsAt, date, startMinute, endMinute,
             booking.Kind, booking.Status, booking.CustomerName, booking.CustomerPhone, booking.Price,
-            booking.PaymentStatus, booking.PaymentMethod, booking.Attendance, booking.Reason, booking.Origin);
+            booking.PaymentStatus, booking.PaymentMethod, booking.Attendance, booking.Reason, booking.Origin,
+            booking.RecurringBookingId);
     }
 }

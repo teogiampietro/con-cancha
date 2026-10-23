@@ -22,6 +22,7 @@ else
                 <div class="row sp"><b>@Booking.CustomerName</b>@if (Booking.PaymentStatus == PaymentStatus.Paid) { <span class="chip ok">Pagó · @DisplayFormat.PaymentMethodLabel(Booking.PaymentMethod!.Value)</span> } else { <span class="chip warn">Debe</span> }</div>
                 @if (!string.IsNullOrEmpty(Booking.CustomerPhone)) { <span class="mut">@Booking.CustomerPhone</span> }
                 <div class="row sp"><span class="mut">Precio</span><b>@DisplayFormat.Money(Booking.Price)</b></div>
+                @if (Booking.RecurringBookingId is not null) { <span class="chip">Turno fijo</span> }
                 @if (Booking.Attendance == Attendance.Played) { <span class="chip ok">Jugado</span> }
                 @if (Booking.Attendance == Attendance.NoShow) { <span class="chip warn">No vino</span> }
             </div>

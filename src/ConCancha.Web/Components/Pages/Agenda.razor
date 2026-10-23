@@ -88,6 +88,7 @@
                                     <div>
                                         <b>@booking.CustomerName</b>
                                         @if (booking.Origin == BookingOrigin.Online) { <span class="chip">online</span> }
+                                        @if (booking.RecurringBookingId is not null) { <span class="chip">fijo</span> }
                                         <div class="sm mut">@DisplayFormat.Money(booking.Price)</div>
                                     </div>
                                 }

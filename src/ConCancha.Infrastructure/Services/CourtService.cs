@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConCancha.Infrastructure.Services;
 
-public sealed class CourtService(ConCanchaDbContext db) : ICourtService
+public sealed class CourtService(ConCanchaDbContext db, RecurringBookingReconciler recurringReconciler) : ICourtService
 {
     private const string NameField = "name";
     private const string SlotMinutesField = "slotMinutes";
@@ -52,8 +52,10 @@ public sealed class CourtService(ConCanchaDbContext db) : ICourtService
         if (await NameExistsAsync(name, courtId, cancellationToken).ConfigureAwait(false))
             return Result<CourtDto>.Failure(ServiceError.Conflict(CourtMessages.DuplicateName));
 
+        var slotLengthChanged = court.SlotMinutes != request.SlotMinutes;
         Apply(court, request, name);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await recurringReconciler.ReconcileCourtAsync(court, slotLengthChanged, cancellationToken).ConfigureAwait(false);
         return Result<CourtDto>.Success(CourtMapper.ToDto(court));
     }
 

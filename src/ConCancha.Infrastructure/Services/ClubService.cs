@@ -19,6 +19,7 @@ public sealed class ClubService(
     UserManager<AppUser> users,
     ITenantContext tenant,
     SessionFactory sessionFactory,
+    RecurringBookingReconciler recurringReconciler,
     ILogger<ClubService> logger) : IClubService
 {
     private const string SlugField = "slug";
@@ -73,11 +74,14 @@ public sealed class ClubService(
         if (OperatingHours.Validate(request.OpeningMinuteOfDay, request.ClosingMinuteOfDay) is { } reason)
             return Result<ClubDto>.Failure(ServiceError.Validation(HoursField, reason));
 
-        return await UpdateCurrentClubAsync(club =>
+        var result = await UpdateCurrentClubAsync(club =>
         {
             club.OpeningMinuteOfDay = request.OpeningMinuteOfDay;
             club.ClosingMinuteOfDay = request.ClosingMinuteOfDay;
         }, cancellationToken).ConfigureAwait(false);
+
+        if (result.IsSuccess) await recurringReconciler.ReconcileClubHoursAsync(cancellationToken).ConfigureAwait(false);
+        return result;
     }
 
     public async Task<Result<ClubDto>> UpdateProfileAsync(UpdateClubProfileRequest request, CancellationToken cancellationToken)

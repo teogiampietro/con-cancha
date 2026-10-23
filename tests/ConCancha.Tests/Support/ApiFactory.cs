@@ -46,6 +46,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         ["Web:BaseUrl"] = WebBaseUrl,
         ["Storage:RootPath"] = _storageRoot,
         ["Email:Provider"] = "Log",
+        ["RecurringBookings:RenewalEnabled"] = "false",
     };
 }
 

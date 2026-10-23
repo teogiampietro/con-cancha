@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConCancha.Infrastructure.Services;
 
-public sealed class PriceRuleService(ConCanchaDbContext db) : IPriceRuleService
+public sealed class PriceRuleService(ConCanchaDbContext db, RecurringBookingScheduler recurringScheduler) : IPriceRuleService
 {
     private const string PriceField = "price";
 
@@ -34,6 +34,7 @@ public sealed class PriceRuleService(ConCanchaDbContext db) : IPriceRuleService
         var rule = Apply(new PriceRule { CourtId = courtId }, request);
         db.PriceRules.Add(rule);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await recurringScheduler.RepriceUpcomingAsync(courtId, cancellationToken).ConfigureAwait(false);
         return Result<PriceRuleDto>.Success(CourtMapper.ToDto(rule));
     }
 
@@ -46,6 +47,7 @@ public sealed class PriceRuleService(ConCanchaDbContext db) : IPriceRuleService
 
         Apply(rule, request);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await recurringScheduler.RepriceUpcomingAsync(rule.CourtId, cancellationToken).ConfigureAwait(false);
         return Result<PriceRuleDto>.Success(CourtMapper.ToDto(rule));
     }
 
@@ -56,6 +58,7 @@ public sealed class PriceRuleService(ConCanchaDbContext db) : IPriceRuleService
 
         db.PriceRules.Remove(rule);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await recurringScheduler.RepriceUpcomingAsync(rule.CourtId, cancellationToken).ConfigureAwait(false);
         return Result.Success();
     }
 

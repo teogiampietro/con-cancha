@@ -13,6 +13,19 @@
     }
     else
     {
+        <div class="seg">
+            <button class="@(_tab == CourtsTab.Courts ? "on" : "")" @onclick="() => _tab = CourtsTab.Courts">Canchas</button>
+            <button class="@(_tab == CourtsTab.Recurring ? "on" : "")" @onclick="() => _tab = CourtsTab.Recurring">Turnos fijos</button>
+        </div>
+    }
+
+    @if (_club is not null && _courts is not null && _tab == CourtsTab.Recurring)
+    {
+        <RecurringGrid Courts="ActiveCourts"
+                       ClubOpeningMinuteOfDay="_club.OpeningMinuteOfDay" ClubClosingMinuteOfDay="_club.ClosingMinuteOfDay" />
+    }
+    else if (_club is not null && _courts is not null)
+    {
         <ClubHoursCard OpeningMinuteOfDay="_club.OpeningMinuteOfDay" ClosingMinuteOfDay="_club.ClosingMinuteOfDay" OnSaved="OnHoursSaved" />
 
         @foreach (var court in _courts)

@@ -20,7 +20,7 @@ Cada módulo se puede decidir por separado: **entra** o **no entra**. En cada un
 | **M1** | Navegación y estructura del panel | Núcleo | 2–3 d | — | Alta | ✅ |
 | **M2** | Agenda: mover, deshacer y atajos | Núcleo | 3–4 d | — | Alta | ✅ |
 | **M3** | Configuración del club | Núcleo | 3–4 d | M1 | Alta | ✅ |
-| **M4** | Equipo (encargados) | Núcleo | 2–3 d | M7 | Alta |  |
+| **M4** | Equipo (encargados) | Núcleo | 2–3 d | M7 | Alta | ✅ |
 | **M5** | Inicio guiado y Resumen | Núcleo | 3–4 d | M1 | Media |  |
 | **M6** | Sitio público: mejoras | Núcleo | 2–3 d | — | Media | ✅ |
 | **M7** | Envío real de mails | Núcleo | 1–2 d | — | Alta (piloto) | ✅ |

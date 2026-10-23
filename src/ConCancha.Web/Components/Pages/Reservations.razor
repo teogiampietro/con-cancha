@@ -37,6 +37,7 @@
                     <span class="grow">
                         <b>@item.Booking.CustomerName</b>
                         @if (item.Booking.Origin == BookingOrigin.Online) { <span class="chip">online</span> }
+                        @if (item.Booking.RecurringBookingId is not null) { <span class="chip">fijo</span> }
                         <span class="sm mut block-text">@DisplayFormat.ShortDate(item.Booking.Date) · @DisplayFormat.Time(item.Booking.StartMinuteOfDay) · @item.CourtName · @DisplayFormat.Money(item.Booking.Price)</span>
                     </span>
                     <span class="chip @BookingPresentation.ChipClass(item.Booking)">@BookingPresentation.ChipText(item.Booking)</span>

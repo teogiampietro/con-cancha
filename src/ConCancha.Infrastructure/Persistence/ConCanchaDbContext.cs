@@ -29,6 +29,7 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
     public DbSet<Court> Courts => Set<Court>();
     public DbSet<PriceRule> PriceRules => Set<PriceRule>();
     public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<RecurringBooking> RecurringBookings => Set<RecurringBooking>();
     public DbSet<ClubSetup> ClubSetups => Set<ClubSetup>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<CashClosure> CashClosures => Set<CashClosure>();
@@ -49,6 +50,7 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
         ConfigureCourt(modelBuilder);
         ConfigurePriceRule(modelBuilder);
         ConfigureBooking(modelBuilder);
+        ConfigureRecurringBooking(modelBuilder);
         ConfigureClubSetup(modelBuilder);
         ConfigureCustomer(modelBuilder);
         ConfigureCashClosure(modelBuilder);
@@ -147,6 +149,20 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
             entity.HasIndex(booking => booking.CustomerId);
             entity.HasOne(booking => booking.Court).WithMany().HasForeignKey(booking => booking.CourtId).OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(booking => new { booking.ClubId, booking.StartsAt });
+            entity.HasOne<RecurringBooking>().WithMany().HasForeignKey(booking => booking.RecurringBookingId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(booking => booking.RecurringBookingId);
+        });
+
+    private static void ConfigureRecurringBooking(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<RecurringBooking>(entity =>
+        {
+            entity.Property(recurring => recurring.CustomerName).HasMaxLength(BookingLimits.CustomerNameMaxLength).IsRequired();
+            entity.Property(recurring => recurring.CustomerPhone).HasMaxLength(BookingLimits.PhoneMaxLength);
+            entity.Property(recurring => recurring.Day).HasConversion<int>();
+            entity.HasOne(recurring => recurring.Court).WithMany().HasForeignKey(recurring => recurring.CourtId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Customer>().WithMany().HasForeignKey(recurring => recurring.CustomerId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(recurring => new { recurring.CourtId, recurring.Day, recurring.StartMinuteOfDay })
+                .IsUnique().HasFilter("\"IsActive\"");
         });
 
     private static void ConfigureCustomer(ModelBuilder modelBuilder) =>

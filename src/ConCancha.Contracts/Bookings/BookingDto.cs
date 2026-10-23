@@ -19,4 +19,5 @@ public record BookingDto(
     PaymentMethod? PaymentMethod,
     Attendance Attendance,
     string? Reason,
-    BookingOrigin Origin);
+    BookingOrigin Origin,
+    Guid? RecurringBookingId = null);

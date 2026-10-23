@@ -19,6 +19,14 @@ public static class DisplayFormat
         (Weekdays.Friday, "Vie"), (Weekdays.Saturday, "Sáb"), (Weekdays.Sunday, "Dom"),
     ];
 
+    public static readonly IReadOnlyList<(DayOfWeek Day, string Label)> WeekOrder =
+    [
+        (DayOfWeek.Monday, "Lun"), (DayOfWeek.Tuesday, "Mar"), (DayOfWeek.Wednesday, "Mié"), (DayOfWeek.Thursday, "Jue"),
+        (DayOfWeek.Friday, "Vie"), (DayOfWeek.Saturday, "Sáb"), (DayOfWeek.Sunday, "Dom"),
+    ];
+
+    public static string DayName(DayOfWeek day) => DayNames[(int)day];
+
     public static string Money(decimal amount) => "$\u00A0" + amount.ToString("N0", MoneyFormat);
 
     /// <summary>Drops the trailing zeros the API sends (24000.00) so a number input shows "24000", not "24000,00".</summary>

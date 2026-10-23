@@ -17,7 +17,7 @@ Comparación entre [maqueta/index.html](maqueta/index.html) y el código actual 
 | Login / recuperar contraseña | Sí | Sí | Completo |
 | Agenda (grilla, cargar, bloquear, pagar, jugado, no vino, cancelar, precio) | Sí | Sí | **Hecho en M2:** mover, deshacer, atajos |
 | Reservas, Recordar, Caja, Clientes | Sí | Sí | Faltan detalles (ver §3) |
-| Canchas y precios | Sí | Sí | Faltan el alta con precio base y los turnos fijos |
+| Canchas y precios | Sí | Sí | **Hecho en M2 y M11:** alta con precio base y turnos fijos |
 | Sitio público `/{slug}` y gestión por token | Sí | Sí | Faltan lista de espera, marca del club y seña |
 | Inicio / Resumen / Métricas | Sí | Parcial | El panel "Inicio" es mínimo; Resumen y Métricas no existen |
 | Configuración | Sí | Parcial | Hecho (M3): Marca básica, Cancelación y Tu cuenta; hecho (M18): logo, colores y Secciones; faltan Cobros, País y Notificaciones |
@@ -66,7 +66,7 @@ Ya está: navegación por día, grilla con columnas por cancha, indicadores Ocup
 | 3.2.7 | **Deshacer estado** (volver de Jugado / No vino a confirmado) **Hecho en M2:** `POST api/bookings/{id}/attendance/reset` y botón "Deshacer estado". | MVP |
 | 3.2.8 | **Marcar que debe** (deshacer el pago) y **cambiar el método** (efectivo ↔ transferencia) desde el detalle **Hecho en M2:** `POST api/bookings/{id}/unpay` y `PUT api/bookings/{id}/payment-method`; la Caja se actualiza. | MVP |
 | 3.2.9 | **Botón WhatsApp** en el detalle del turno **Hecho en M2:** botón WhatsApp en el detalle (`wa.me`, el club toca enviar). | MVP |
-| 3.2.10 | Etiquetas en la grilla: "fijo", "online", "busca jugadores"; seña pendiente | Depende de los módulos de §4 |
+| 3.2.10 | Etiquetas en la grilla: "fijo", "online", "busca jugadores"; seña pendiente **Hecho en M11 ("fijo"):** también en Reservas y en el detalle; "online" ya existía; faltan "busca jugadores" y seña. | Depende de los módulos de §4 |
 | 3.2.11 | **Alta de cancha con precio base** en un paso (la maqueta pide nombre, deporte, duración y precio base, y crea la regla base automáticamente) **Hecho en M2:** `CourtRequest.BasePrice` crea la regla base en el mismo alta; el formulario lo pide. | MVP (verificar el formulario actual) |
 
 ### 3.3 Reservas
@@ -103,9 +103,9 @@ Ya está: horario del club, alta y edición de canchas (con horario propio y act
 
 | # | Falta | Prioridad |
 |---|---|---|
-| 3.7.1 | **Turnos fijos**: grilla semanal por cancha (Lun a Dom × horarios), tocar un casillero para asignar o cambiar un fijo, agenda automática de las **próximas 12 semanas** que bloquea el horario, eliminar un fijo cancela los turnos futuros | Post-MVP (el plan lo deja fuera) |
+| 3.7.1 | **Turnos fijos**: grilla semanal por cancha (Lun a Dom × horarios), tocar un casillero para asignar o cambiar un fijo, agenda automática de las **próximas 12 semanas** que bloquea el horario, eliminar un fijo cancela los turnos futuros **Hecho en M11:** pestaña Turnos fijos en Canchas, 12 semanas con renovación automática; el fijo sigue el precio de la franja. | Post-MVP |
 | 3.7.2 | Aviso del impacto en el plan al sumar canchas ("Cada cancha extra suma al plan") | Post-MVP (depende de Mi plan) |
-| 3.7.3 | Pestañas Canchas / Precios / Turnos fijos con la vista de precios por cancha agrupada | Revisar la organización actual |
+| 3.7.3 | Pestañas Canchas / Precios / Turnos fijos con la vista de precios por cancha agrupada **Parcial (M11):** hay pestañas Canchas y Turnos fijos; los precios siguen dentro de cada cancha. | Revisar la organización actual |
 
 ## 4. Módulos de la maqueta que no existen en la app
 
