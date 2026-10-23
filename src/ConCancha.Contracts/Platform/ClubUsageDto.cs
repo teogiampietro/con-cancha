@@ -1,3 +1,4 @@
+using ConCancha.Contracts.Subscriptions;
 using ConCancha.Domain.Platform;
 
 namespace ConCancha.Contracts.Platform;
@@ -8,6 +9,7 @@ namespace ConCancha.Contracts.Platform;
 /// <param name="OnlineBookingsInPeriod">Turns in the period that came through the public site.</param>
 /// <param name="AverageBookingsPerDay">Turns in the period divided by its days.</param>
 /// <param name="LastBookingOn">Day the club last loaded or received a reservation; <c>null</c> when it never did.</param>
+/// <param name="Subscription">Trial and payments, as of now.</param>
 public record ClubUsageDto(
     Guid Id,
     string Name,
@@ -22,4 +24,5 @@ public record ClubUsageDto(
     int BookingsInPreviousPeriod,
     int OnlineBookingsInPeriod,
     double AverageBookingsPerDay,
-    DateOnly? LastBookingOn);
+    DateOnly? LastBookingOn,
+    ClubSubscriptionDto Subscription);

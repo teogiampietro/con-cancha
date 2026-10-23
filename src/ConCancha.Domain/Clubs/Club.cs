@@ -23,5 +23,11 @@ public class Club
     public string SecondaryColor { get; set; } = ClubBranding.DefaultSecondaryColor;
     public ClubModules EnabledModules { get; set; } = ClubModules.All;
 
+    /// <summary>When the free trial ends. Starts when the setup is completed, so it is <c>null</c> before that.</summary>
+    public DateTimeOffset? TrialEndsAt { get; set; }
+
+    /// <summary>Until when the current monthly payment covers the club; <c>null</c> for a club that never paid.</summary>
+    public DateTimeOffset? PaidUntil { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

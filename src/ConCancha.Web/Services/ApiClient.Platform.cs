@@ -1,5 +1,6 @@
 using ConCancha.Contracts.Accounts;
 using ConCancha.Contracts.Platform;
+using ConCancha.Contracts.Subscriptions;
 
 namespace ConCancha.Web.Services;
 
@@ -26,6 +27,21 @@ public sealed partial class ApiClient
             HttpMethod.Get,
             $"{ApiRoutes.PlatformClubs}/{clubId}/customers?{ApiPeriod(period)}&search={Uri.EscapeDataString(search)}&page={page}",
             body: null, cancellationToken, credential: ApiCredential.Platform);
+
+    public Task<ApiResult<object>> ExtendTrialAsync(Guid clubId, int days, CancellationToken cancellationToken) =>
+        SendAsync<object>(
+            HttpMethod.Post, $"{ApiRoutes.PlatformClubs}/{clubId}/trial/extension", new ExtendTrialRequest(days), cancellationToken,
+            credential: ApiCredential.Platform);
+
+    public Task<ApiResult<object>> MarkSubscriptionPaidAsync(Guid clubId, CancellationToken cancellationToken) =>
+        SendAsync<object>(
+            HttpMethod.Post, $"{ApiRoutes.PlatformClubs}/{clubId}/subscription/payment", body: null, cancellationToken,
+            credential: ApiCredential.Platform);
+
+    public Task<ApiResult<object>> SendRegularizationEmailAsync(Guid clubId, CancellationToken cancellationToken) =>
+        SendAsync<object>(
+            HttpMethod.Post, $"{ApiRoutes.PlatformClubs}/{clubId}/subscription/regularization-email", body: null, cancellationToken,
+            credential: ApiCredential.Platform);
 
     /// <summary>The API's parameter names; the panel's own URLs use <c>desde</c> and <c>hasta</c>.</summary>
     private static string ApiPeriod(PlatformPeriod period) =>

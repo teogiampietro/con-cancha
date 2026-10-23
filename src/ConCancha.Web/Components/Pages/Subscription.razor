@@ -1,0 +1,27 @@
+@page "/panel/suscripcion"
+@layout PanelLayout
+@inherits PanelPageBase
+
+<PageTitle>Suscripción · ConCancha</PageTitle>
+
+<main class="panel">
+    @if (!_isChecked)
+    {
+        <p class="loading">Cargando…</p>
+    }
+    else
+    {
+        <section class="card col">
+            <h1 class="no-margin">Tu prueba terminó</h1>
+            <p>@Explanation</p>
+            <ErrorMessage Message="@ErrorText" />
+            @if (_notice is not null) { <p class="sm mut">@_notice</p> }
+            @if (IsOwner)
+            {
+                <button class="btn" disabled="@_isBusy" @onclick="() => RetryAsync(ComponentToken)">
+                    @(_isBusy ? "Revisando…" : "Ya tengo mi suscripción, revisar de nuevo")
+                </button>
+            }
+        </section>
+    }
+</main>

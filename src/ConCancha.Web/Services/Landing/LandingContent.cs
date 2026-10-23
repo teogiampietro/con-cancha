@@ -6,23 +6,59 @@ public static class LandingContent
     public const string TrialPlanButton = "Empezar mis 14 días gratis";
     public const string ExampleClubLink = "concancha.com/nombre-del-club";
     public const string NotifyContactAddress = "hola@concancha.com";
-    public const string PaidPlanName = "Plan Completo";
-    public const string PaidPlanBadge = "Recomendado";
-    public const string PaidPlanTagline = "Se paga solo con un par de turnos que antes quedaban vacíos.";
-    public const string PaidPlanIntro = "Todo lo del plan de prueba, más:";
+    public const string SoonButton = "En preparación";
 
     public static readonly IReadOnlyList<string> SloganLines = ["Más deportes.", "Más momentos.", "ConCancha."];
 
-    public static readonly PaidPlan Plan = new(
-        Price: "$50.000",
-        Period: "mes",
-        Includes:
-        [
-            "Gestión de torneos y ligas para llenar tus canchas",
-            "Gestión de bar/buffet, junto a la caja del club",
-            "Atención personalizada por WhatsApp, con una persona real",
-            "Asistente que responde las consultas de tus jugadores las 24 hs"
-        ]);
+    public static readonly IReadOnlyList<LandingPlan> Plans =
+    [
+        new(
+            Name: "Demo",
+            Badge: "Para empezar",
+            Price: "Gratis",
+            Period: "14 días",
+            Tagline: "Probá todo el plan Base sin tarjeta de crédito.",
+            Includes:
+            [
+                "Todo lo del plan Base durante 14 días",
+                "Hasta 4 canchas",
+                "Sin compromiso: al terminar, elegís un plan pago"
+            ],
+            ButtonText: TrialPlanButton,
+            IsAvailable: true),
+        new(
+            Name: "Base",
+            Badge: "Recomendado",
+            Price: "$40.000",
+            Period: "mes",
+            Tagline: "Todo lo que necesitás para dejar el cuaderno.",
+            Includes:
+            [
+                "Gestión de canchas, con precios por franja",
+                "Clientes, reservas y caja del día",
+                "Recordatorios de turnos por WhatsApp",
+                "Hasta 6 canchas"
+            ],
+            ButtonText: TrialPlanButton,
+            IsAvailable: true,
+            IsFeatured: true),
+        new(
+            Name: "Pro",
+            Badge: null,
+            Price: "Próximamente",
+            Period: null,
+            Tagline: "Torneos, buffet y asistente para llenar tus canchas.",
+            Includes:
+            [
+                "Todo lo del plan Base",
+                "Asistente de chat que responde, busca y reserva turnos",
+                "Torneos con inscripción, comprobantes y tabla de posiciones",
+                "Buffet del club: consumiciones, accesorios y paletas",
+                "Hasta 10 canchas (más de 10, contactanos)"
+            ],
+            ButtonText: SoonButton,
+            IsAvailable: false)
+    ];
 
     public static readonly IReadOnlyList<LandingItem> ClubFeatures =
     [
@@ -75,14 +111,6 @@ public static class LandingContent
         new("rocket", "Se arranca en minutos", "Sin tarjeta, sin instalar nada, y funciona en el celular de todos.")
     ];
 
-    public static readonly IReadOnlyList<string> TrialIncludes =
-    [
-        "Sin tarjeta de crédito y sin compromiso",
-        "Acceso completo para configurar el club",
-        "Cargá turnos y recibí reservas online",
-        "Al terminar, elegís un plan pago"
-    ];
-
     public static readonly IReadOnlyList<LandingItem> ChatbotFeatures =
     [
         new("chat", "Pestaña “Preguntar” en la página del club", "El jugador escribe como en WhatsApp: “¿Hay pádel el sábado a la tarde?” o “¿Cuánto sale la cancha de fútbol?”."),
@@ -96,7 +124,7 @@ public static class LandingContent
     [
         new("¿Necesito tarjeta de crédito para probarlo?", "No. Los 14 días de prueba son sin tarjeta y sin compromiso. Al terminar, elegís un plan pago."),
         new("¿Qué pasa con los datos de mi club?", "Cada club ve solo lo suyo. Además hay roles: el dueño configura y el encargado carga turnos y cobra."),
-        new("¿Cuántas canchas puedo cargar?", "Cargás las canchas de tu club, cada una con su deporte, la duración del turno y sus precios. Con la prueba gratis podés cargar hasta 4 canchas."),
+        new("¿Cuántas canchas puedo cargar?", "Cargás las canchas de tu club, cada una con su deporte, la duración del turno y sus precios. La prueba Demo permite hasta 4 canchas, el plan Base hasta 6 y el Pro hasta 10."),
         new("¿El jugador necesita crear una cuenta?", "No. Reserva con nombre y WhatsApp (el mail es opcional) y no descarga nada. Después ve y cancela sus turnos desde la página del club o con el link personal que recibe."),
         new("¿Tengo que instalar algo?", "No. Funciona en el navegador del celular, tanto para el club como para los jugadores.")
     ];

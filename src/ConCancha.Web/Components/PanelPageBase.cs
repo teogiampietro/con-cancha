@@ -18,21 +18,26 @@ public abstract class PanelPageBase : CancellableComponentBase
 
     protected string? ErrorText { get; set; }
 
-    /// <summary>Loads the session and redirects when this page is not for it. Returns whether the page can load its data.</summary>
-    protected async Task<bool> EnterPanelAsync(CancellationToken cancellationToken, bool ownerOnly = false)
+    /// <summary>
+    /// Loads the session and redirects when this page is not for it. Returns whether the page can load its data.
+    /// A club whose trial is over is sent to the subscription screen; that screen is the only one that skips the check.
+    /// </summary>
+    protected async Task<bool> EnterPanelAsync(CancellationToken cancellationToken, bool ownerOnly = false, bool checkSubscription = true)
     {
         await Session.LoadAsync(cancellationToken);
         if (Session.Current is null) return RedirectTo(PageRoutes.Login);
         if (!Session.HasClub) return RedirectTo(PageRoutes.Register);
-        return ownerOnly && !IsOwner ? RedirectTo(PageRoutes.Agenda) : true;
+        if (ownerOnly && !IsOwner) return RedirectTo(PageRoutes.Agenda);
+        return !checkSubscription || await HasSubscriptionAccessAsync(cancellationToken);
     }
 
-    /// <summary>Returns whether the call succeeded. An expired token signs out; any other error is shown.</summary>
+    /// <summary>Returns whether the call succeeded. An expired token signs out; a closed trial goes to the subscription screen; any other error is shown.</summary>
     protected async Task<bool> SucceededAsync<T>(ApiResult<T> result, CancellationToken cancellationToken)
     {
         if (result.IsSuccess) return true;
 
         if (result.StatusCode == StatusCodes.Status401Unauthorized) await SignOutAsync(cancellationToken);
+        else if (result.StatusCode == StatusCodes.Status402PaymentRequired) Navigation.NavigateTo(PageRoutes.Subscription, replace: true);
         else ErrorText = result.GeneralMessage;
         return false;
     }
@@ -41,6 +46,15 @@ public abstract class PanelPageBase : CancellableComponentBase
     {
         await Session.ClearAsync(cancellationToken);
         Navigation.NavigateTo(PageRoutes.Login);
+    }
+
+    private async Task<bool> HasSubscriptionAccessAsync(CancellationToken cancellationToken)
+    {
+        var result = await Api.GetClubSubscriptionAsync(cancellationToken);
+        if (!result.IsSuccess) return await SucceededAsync(result, cancellationToken);
+        if (result.Value!.HasAccess) return true;
+
+        return RedirectTo(PageRoutes.Subscription);
     }
 
     private bool RedirectTo(string route)

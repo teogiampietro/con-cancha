@@ -21,12 +21,6 @@ public partial class Home
     private IReadOnlyList<LandingItem> VisibleFeatures =>
         _audience == LandingAudience.Club ? LandingContent.ClubFeatures : LandingContent.PlayerFeatures;
 
-    private string PlanPriceLabel => LandingContent.Plan.Price ?? "[PRECIO A COMPLETAR]";
-
-    private string PlanPeriodLabel => LandingContent.Plan.Period ?? "[periodicidad]";
-
-    private bool IsPlanPending => LandingContent.Plan.Price is null;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;

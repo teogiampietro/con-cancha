@@ -14,8 +14,9 @@ namespace ConCancha.Infrastructure.Services;
 public sealed class ClubUsageReader(ConCanchaDbContext db)
 {
     /// <param name="clubId">One club, or every club when <c>null</c>.</param>
+    /// <param name="now">Instant the trials and payments are judged at.</param>
     public async Task<IReadOnlyList<ClubUsageDto>> ReadAsync(
-        UsageCalendar calendar, UsagePeriod period, Guid? clubId, CancellationToken cancellationToken)
+        UsageCalendar calendar, UsagePeriod period, Guid? clubId, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var clubs = await LoadClubsAsync(clubId, cancellationToken).ConfigureAwait(false);
         if (clubs.Count == 0) return [];
@@ -35,14 +36,15 @@ public sealed class ClubUsageReader(ConCanchaDbContext db)
                     courts.GetValueOrDefault(club.Id),
                     customers.GetValueOrDefault(club.Id),
                     owners.GetValueOrDefault(club.Id),
-                    lastBookings.GetValueOrDefault(club.Id))))
+                    lastBookings.GetValueOrDefault(club.Id)),
+                now))
             .ToList();
     }
 
     private Task<List<ClubRow>> LoadClubsAsync(Guid? clubId, CancellationToken cancellationToken) =>
         db.Clubs.AsNoTracking()
             .Where(club => clubId == null || club.Id == clubId)
-            .Select(club => new ClubRow(club.Id, club.Name, club.Slug, club.Phone, club.CreatedAt))
+            .Select(club => new ClubRow(club.Id, club.Name, club.Slug, club.Phone, club.CreatedAt, club.TrialEndsAt, club.PaidUntil))
             .ToListAsync(cancellationToken);
 
     private Task<Dictionary<Guid, BookingCounts>> CountBookingsAsync(
@@ -99,14 +101,16 @@ public sealed class ClubUsageReader(ConCanchaDbContext db)
         return lastCreated.ToDictionary(entry => entry.ClubId, entry => (DateOnly?)PlatformReporting.Zone.ToLocal(entry.CreatedAt).Date);
     }
 
-    private static ClubUsageDto ToUsage(ClubRow club, UsageCalendar calendar, UsagePeriod period, BookingCounts bookings, ClubFacts facts)
+    private static ClubUsageDto ToUsage(
+        ClubRow club, UsageCalendar calendar, UsagePeriod period, BookingCounts bookings, ClubFacts facts, DateTimeOffset now)
     {
         var createdOn = PlatformReporting.Zone.ToLocal(club.CreatedAt).Date;
         var activity = ClubActivityRules.Classify(createdOn, calendar.Today, bookings.RecentWeeks);
 
         return new ClubUsageDto(
             club.Id, club.Name, club.Slug, club.Phone, facts.OwnerEmail, createdOn, activity, facts.ActiveCourts, facts.Customers,
-            bookings.InPeriod, bookings.InPreviousPeriod, bookings.Online, period.AveragePerDay(bookings.InPeriod), facts.LastBookingOn);
+            bookings.InPeriod, bookings.InPreviousPeriod, bookings.Online, period.AveragePerDay(bookings.InPeriod), facts.LastBookingOn,
+            SubscriptionMapper.ToDto(club.TrialEndsAt, club.PaidUntil, now));
     }
 
     /// <summary>Every UTC instant the usage figures compare against, so one query covers all of them.</summary>
@@ -125,7 +129,8 @@ public sealed class ClubUsageReader(ConCanchaDbContext db)
             PlatformReporting.StartOf(calendar.NextWeekStart));
     }
 
-    private sealed record ClubRow(Guid Id, string Name, string Slug, string? Phone, DateTimeOffset CreatedAt);
+    private sealed record ClubRow(
+        Guid Id, string Name, string Slug, string? Phone, DateTimeOffset CreatedAt, DateTimeOffset? TrialEndsAt, DateTimeOffset? PaidUntil);
 
     private sealed record ClubFacts(int ActiveCourts, int Customers, string? OwnerEmail, DateOnly? LastBookingOn);
 

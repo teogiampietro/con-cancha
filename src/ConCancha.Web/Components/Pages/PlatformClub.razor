@@ -18,6 +18,7 @@ else
         <div class="row sp wrap">
             <h1 class="no-margin">@_detail.Usage.Name</h1>
             <span class="chip @PlatformFormat.StatusTone(_detail.Usage.Activity)">@PlatformFormat.Status(_detail.Usage.Activity)</span>
+            <span class="chip @PlatformFormat.SubscriptionTone(_detail.Usage.Subscription)">@PlatformFormat.SubscriptionLabel(_detail.Usage.Subscription)</span>
         </div>
         <p class="mut sm">
             @(_detail.Usage.OwnerEmail ?? "Sin dueño") · @(_detail.Usage.Phone ?? "sin teléfono") · alta el @PlatformFormat.Date(_detail.Usage.CreatedOn)

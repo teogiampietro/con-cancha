@@ -225,6 +225,9 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                     b.Property<int>("OpeningMinuteOfDay")
                         .HasColumnType("integer");
 
+                    b.Property<DateTimeOffset?>("PaidUntil")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
@@ -252,6 +255,9 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
+
+                    b.Property<DateTimeOffset?>("TrialEndsAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

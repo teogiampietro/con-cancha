@@ -45,6 +45,7 @@ public class RolePermissionsTests(ApiFactory api) : ApiTestBase(api)
     public static TheoryData<string, string> PanelEndpoints => new()
     {
         { "GET", Routes.CurrentClub },
+        { "GET", Routes.ClubSubscription },
         { "GET", Routes.Courts },
         { "GET", $"{Routes.Courts}/{AnyId}/price-rules" },
         { "GET", Routes.Agenda },
@@ -73,6 +74,9 @@ public class RolePermissionsTests(ApiFactory api) : ApiTestBase(api)
         { "GET", "api/platform/overview" },
         { "GET", $"api/platform/clubs/{AnyId}" },
         { "GET", $"api/platform/clubs/{AnyId}/customers" },
+        { "POST", $"api/platform/clubs/{AnyId}/trial/extension" },
+        { "POST", $"api/platform/clubs/{AnyId}/subscription/payment" },
+        { "POST", $"api/platform/clubs/{AnyId}/subscription/regularization-email" },
     };
 
     [Theory]

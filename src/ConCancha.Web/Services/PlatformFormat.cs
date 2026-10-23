@@ -1,7 +1,9 @@
 using System.Globalization;
 using ConCancha.Contracts.Platform;
+using ConCancha.Contracts.Subscriptions;
 using ConCancha.Domain.Courts;
 using ConCancha.Domain.Platform;
+using ConCancha.Domain.Subscriptions;
 
 namespace ConCancha.Web.Services;
 
@@ -54,6 +56,22 @@ public static class PlatformFormat
         ClubActivity.Active => "ok",
         ClubActivity.Inactive => "warn",
         _ => string.Empty,
+    };
+
+    public static string SubscriptionLabel(ClubSubscriptionDto subscription) => subscription.Status switch
+    {
+        SubscriptionStatus.TrialNotStarted => "Prueba sin arrancar",
+        SubscriptionStatus.Trial => $"Prueba: {Days(subscription.TrialDaysLeft ?? 0)}",
+        SubscriptionStatus.TrialExpired => "Prueba vencida",
+        SubscriptionStatus.Subscribed => $"Pagada hasta {DateOrDash(subscription.PaidUntilOn)}",
+        _ => "Pago pendiente",
+    };
+
+    public static string SubscriptionTone(ClubSubscriptionDto subscription) => subscription.Status switch
+    {
+        SubscriptionStatus.Subscribed => "ok",
+        SubscriptionStatus.TrialNotStarted or SubscriptionStatus.Trial => string.Empty,
+        _ => "warn",
     };
 
     public static string Sport(Sport sport) => sport switch

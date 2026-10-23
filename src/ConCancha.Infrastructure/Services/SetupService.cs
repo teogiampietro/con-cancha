@@ -7,6 +7,7 @@ using ConCancha.Domain.Common;
 using ConCancha.Domain.Courts;
 using ConCancha.Domain.Pricing;
 using ConCancha.Domain.Setup;
+using ConCancha.Domain.Subscriptions;
 using ConCancha.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,6 +61,7 @@ public sealed class SetupService(ConCanchaDbContext db, CurrentClubProvider curr
 
         setup.CompletedAt = DateTimeOffset.UtcNow;
         setup.UpdatedAt = setup.CompletedAt.Value;
+        club.TrialEndsAt = SubscriptionRules.TrialEndsAfterSetup(setup.CompletedAt.Value);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Result.Success();
     }

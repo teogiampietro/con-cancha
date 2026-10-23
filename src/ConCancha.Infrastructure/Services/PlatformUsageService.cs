@@ -14,11 +14,12 @@ public sealed class PlatformUsageService(
 
     public async Task<Result<PlatformOverviewDto>> GetOverviewAsync(DateOnly? from, DateOnly? to, CancellationToken cancellationToken)
     {
-        var calendar = CurrentCalendar();
+        var now = clock.GetUtcNow();
+        var calendar = CalendarAt(now);
         var period = ResolvePeriod(from, to, calendar);
         if (!period.IsSuccess) return Result<PlatformOverviewDto>.Failure(period.Error!);
 
-        var clubs = await usage.ReadAsync(calendar, period.Value!, clubId: null, cancellationToken).ConfigureAwait(false);
+        var clubs = await usage.ReadAsync(calendar, period.Value!, clubId: null, now, cancellationToken).ConfigureAwait(false);
         var ordered = clubs.OrderByDescending(club => club.BookingsInPeriod).ThenBy(club => club.Name).ToList();
         return Result<PlatformOverviewDto>.Success(new PlatformOverviewDto(
             ToDto(period.Value!), ToDto(period.Value!.Previous), Summarize(ordered), ordered));
@@ -27,11 +28,12 @@ public sealed class PlatformUsageService(
     public async Task<Result<ClubUsageDetailDto>> GetClubUsageAsync(
         Guid clubId, DateOnly? from, DateOnly? to, CancellationToken cancellationToken)
     {
-        var calendar = CurrentCalendar();
+        var now = clock.GetUtcNow();
+        var calendar = CalendarAt(now);
         var period = ResolvePeriod(from, to, calendar);
         if (!period.IsSuccess) return Result<ClubUsageDetailDto>.Failure(period.Error!);
 
-        var clubUsage = (await usage.ReadAsync(calendar, period.Value!, clubId, cancellationToken).ConfigureAwait(false)).SingleOrDefault();
+        var clubUsage = (await usage.ReadAsync(calendar, period.Value!, clubId, now, cancellationToken).ConfigureAwait(false)).SingleOrDefault();
         if (clubUsage is null)
             return Result<ClubUsageDetailDto>.Failure(ServiceError.NotFound(PlatformMessages.ClubNotFound));
 
@@ -44,7 +46,7 @@ public sealed class PlatformUsageService(
     public async Task<Result<PlatformCustomersPageDto>> GetClubCustomersAsync(
         Guid clubId, DateOnly? from, DateOnly? to, string? search, int page, CancellationToken cancellationToken)
     {
-        var calendar = CurrentCalendar();
+        var calendar = CalendarAt(clock.GetUtcNow());
         var period = ResolvePeriod(from, to, calendar);
         if (!period.IsSuccess) return Result<PlatformCustomersPageDto>.Failure(period.Error!);
         if (page < FirstPage) return Result<PlatformCustomersPageDto>.Failure(ServiceError.Validation("page", PlatformMessages.InvalidPage));
@@ -55,7 +57,7 @@ public sealed class PlatformUsageService(
             : Result<PlatformCustomersPageDto>.Success(result);
     }
 
-    private UsageCalendar CurrentCalendar() => new(PlatformReporting.Zone.ToLocal(clock.GetUtcNow()).Date);
+    private static UsageCalendar CalendarAt(DateTimeOffset now) => new(PlatformReporting.Zone.ToLocal(now).Date);
 
     private static Result<UsagePeriod> ResolvePeriod(DateOnly? from, DateOnly? to, UsageCalendar calendar)
     {

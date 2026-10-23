@@ -16,6 +16,7 @@ public static class PageRoutes
     public const string Team = "/panel/equipo";
     public const string AcceptInvitation = "/panel/invitacion";
     public const string Settings = "/panel/configuracion";
+    public const string Subscription = "/panel/suscripcion";
     public const string Setup = "/panel/configuracion-inicial";
     public const string PlatformLogin = "/plataforma/ingresar";
     public const string Platform = "/plataforma";

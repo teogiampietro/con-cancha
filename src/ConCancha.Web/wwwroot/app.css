@@ -203,6 +203,9 @@ h1:focus { outline: none; }
 .plat-period { gap: 12px; }
 .plat-shortcuts { flex-wrap: wrap; max-width: none; }
 .plat-custom { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.plat-manage { min-width: 220px; }
+.plat-manage > * { margin: 3px 6px 3px 0; }
+.plat-days { width: 72px; }
 .plat-bars { display: flex; align-items: flex-end; gap: 3px; height: 160px; overflow-x: auto; }
 .plat-bars > div { flex: 1 0 14px; min-width: 14px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
 .plat-bars i { display: block; width: 100%; min-height: 2px; background: var(--acc); border-radius: 6px 6px 0 0; }

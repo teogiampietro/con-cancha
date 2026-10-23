@@ -185,32 +185,32 @@
             <p class="lp-kicker">Planes</p>
             <h2>Probalo 14 días, sin compromiso</h2>
             <div class="lp-plans">
-                <article class="lp-plan">
-                    <span class="lp-badge sm">Para empezar</span>
-                    <h3>Prueba gratis por 14 días</h3>
-                    <p class="lp-price">Gratis</p>
-                    <ul class="lp-checks">
-                        @foreach (var included in LandingContent.TrialIncludes)
+                @foreach (var plan in LandingContent.Plans)
+                {
+                    <article class="lp-plan @(plan.IsFeatured ? "featured" : string.Empty) @(plan.IsAvailable ? string.Empty : "soon")">
+                        @if (plan.Badge is not null)
                         {
-                            <li><LandingIcon Name="check" /> @included</li>
+                            <span class="lp-badge @(plan.IsFeatured ? string.Empty : "sm")">@plan.Badge</span>
                         }
-                    </ul>
-                    <a class="lp-btn ghost block" href="@PageRoutes.Register">@LandingContent.TrialPlanButton</a>
-                </article>
-                <article class="lp-plan featured">
-                    <span class="lp-badge">@LandingContent.PaidPlanBadge</span>
-                    <h3>@LandingContent.PaidPlanName</h3>
-                    <p class="lp-price @(IsPlanPending ? "pending" : string.Empty)">@PlanPriceLabel <small>/ @PlanPeriodLabel</small></p>
-                    <p class="lp-plan-tagline">@LandingContent.PaidPlanTagline</p>
-                    <p class="lp-plan-intro">@LandingContent.PaidPlanIntro</p>
-                    <ul class="lp-checks">
-                        @foreach (var included in LandingContent.Plan.Includes)
+                        <h3>@plan.Name</h3>
+                        <p class="lp-price @(plan.IsAvailable ? string.Empty : "soon")">@plan.Price @if (plan.Period is not null) { <small>/ @plan.Period</small> }</p>
+                        <p class="lp-plan-tagline">@plan.Tagline</p>
+                        <ul class="lp-checks">
+                            @foreach (var included in plan.Includes)
+                            {
+                                <li><LandingIcon Name="check" /> @included</li>
+                            }
+                        </ul>
+                        @if (plan.IsAvailable)
                         {
-                            <li><LandingIcon Name="check" /> @included</li>
+                            <a class="lp-btn @(plan.IsFeatured ? string.Empty : "ghost") block" href="@PageRoutes.Register">@plan.ButtonText</a>
                         }
-                    </ul>
-                    <a class="lp-btn block" href="@PageRoutes.Register">@LandingContent.TrialPlanButton</a>
-                </article>
+                        else
+                        {
+                            <span class="lp-btn ghost block disabled" aria-disabled="true">@plan.ButtonText</span>
+                        }
+                    </article>
+                }
             </div>
         </div>
     </section>

@@ -1,5 +1,6 @@
 using ConCancha.Contracts.Platform;
 using ConCancha.Domain.Platform;
+using ConCancha.Domain.Subscriptions;
 using ConCancha.Web.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -24,6 +25,12 @@ public partial class PlatformOverview : PlatformPageBase
     private DateOnly _today;
     private ClubFilter _filter = ClubFilter.All;
     private string _search = string.Empty;
+    private string? _notice;
+    private readonly Dictionary<Guid, int> _extensionDays = [];
+
+    private static int MinExtensionDays => SubscriptionRules.MinExtensionDays;
+
+    private static int MaxExtensionDays => SubscriptionRules.MaxExtensionDays;
 
     [Parameter, SupplyParameterFromQuery(Name = "desde")] public string? DesdeQuery { get; set; }
 
@@ -42,12 +49,55 @@ public partial class PlatformOverview : PlatformPageBase
         if (_loaded == _period) return;
 
         _loaded = _period;
+        await LoadOverviewAsync();
+    }
+
+    private int ExtensionDaysOf(Guid clubId) => _extensionDays.GetValueOrDefault(clubId, SubscriptionRules.TrialDays);
+
+    private void SetExtensionDays(Guid clubId, int days) => _extensionDays[clubId] = days;
+
+    private async Task ExtendTrialAsync(Guid clubId)
+    {
+        var days = ExtensionDaysOf(clubId);
+        var name = NameOf(clubId);
+        var result = await Api.ExtendTrialAsync(clubId, days, ComponentToken);
+        if (await SucceededAsync(result, ComponentToken))
+            await ReloadAsync($"Le sumaste {PlatformFormat.Days(days)} de prueba a {name}.");
+    }
+
+    private async Task MarkPaidAsync(Guid clubId)
+    {
+        var name = NameOf(clubId);
+        var result = await Api.MarkSubscriptionPaidAsync(clubId, ComponentToken);
+        if (await SucceededAsync(result, ComponentToken))
+            await ReloadAsync($"Registraste el pago de {name}: cubre {PlatformFormat.Days(SubscriptionRules.PaidDays)} más.");
+    }
+
+    private async Task SendRegularizationAsync(ClubUsageDto club)
+    {
+        var result = await Api.SendRegularizationEmailAsync(club.Id, ComponentToken);
+        if (await SucceededAsync(result, ComponentToken))
+            _notice = $"Enviamos el mail para regularizar la cuenta a {club.OwnerEmail}.";
+    }
+
+    private async Task ReloadAsync(string notice)
+    {
+        _notice = notice;
+        await LoadOverviewAsync();
+    }
+
+    private async Task LoadOverviewAsync()
+    {
         var request = ++_latestRequest;
         var result = await Api.GetPlatformOverviewAsync(_period, ComponentToken);
         if (request != _latestRequest) return;
 
         if (await SucceededAsync(result, ComponentToken)) _overview = result.Value;
     }
+
+    private static bool CanRegularize(ClubUsageDto club) => SubscriptionRules.NeedsRegularization(club.Subscription.Status);
+
+    private string NameOf(Guid clubId) => _overview?.Clubs.FirstOrDefault(club => club.Id == clubId)?.Name ?? "el club";
 
     private static bool Matches(ClubFilter filter, ClubActivity activity) => filter switch
     {

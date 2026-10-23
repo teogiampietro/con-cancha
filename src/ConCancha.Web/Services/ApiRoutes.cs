@@ -13,6 +13,7 @@ public static class ApiRoutes
     public const string PublicClubs = "api/public/clubs";
     public const string CurrentClub = "api/club";
     public const string CurrentClubTeam = "api/club/team";
+    public const string ClubSubscription = "api/club/subscription";
     public const string TeamInvitations = "api/club/team/invitations";
     public const string AcceptInvitation = "api/auth/accept-invitation";
     public const string ClubHours = "api/club/hours";

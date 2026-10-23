@@ -134,6 +134,8 @@ public static class DependencyInjection
         services.AddScoped<ClubBreakdownReader>();
         services.AddScoped<ClubCustomerReader>();
         services.AddScoped<IPlatformUsageService, PlatformUsageService>();
+        services.AddScoped<IClubSubscriptionService, ClubSubscriptionService>();
+        services.AddScoped<IPlatformSubscriptionService, PlatformSubscriptionService>();
         return services;
     }
 

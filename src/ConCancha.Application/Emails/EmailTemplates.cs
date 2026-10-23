@@ -14,6 +14,10 @@ public static class EmailTemplates
     private const string TeamInvitationBodyTemplate =
         "Te invitaron a ayudar en el mostrador de {0}. Para crear tu contraseña y entrar abrí este link (vale por {1} días):\n{2}\n\nSi no esperabas esta invitación, ignorá este mensaje.";
 
+    private const string SubscriptionPendingSubjectTemplate = "Pago pendiente de tu suscripción a ConCancha";
+    private const string SubscriptionPendingBodyTemplate =
+        "Hola. La suscripción de {0} a ConCancha está pendiente de pago. Para regularizarla, escribinos y te pasamos los datos para pagar.\n\nSi ya pagaste, escribinos para revisarlo.";
+
     private const string TeamMemberAddedSubjectTemplate = "Ya sos parte del equipo de {0} en ConCancha";
     private const string TeamMemberAddedBodyTemplate =
         "{0} te sumó como encargado. Entrá con tu contraseña de siempre:\n{1}";
@@ -27,6 +31,9 @@ public static class EmailTemplates
     public static EmailContent TeamInvitation(string clubName, string acceptLink, int validDays) =>
         new(string.Format(TeamInvitationSubjectTemplate, clubName),
             string.Format(TeamInvitationBodyTemplate, clubName, validDays, acceptLink));
+
+    public static EmailContent SubscriptionPending(string clubName) =>
+        new(SubscriptionPendingSubjectTemplate, string.Format(SubscriptionPendingBodyTemplate, clubName));
 
     public static EmailContent TeamMemberAdded(string clubName, string panelLink) =>
         new(string.Format(TeamMemberAddedSubjectTemplate, clubName),

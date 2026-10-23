@@ -1,6 +1,7 @@
 using ConCancha.Api.Commands;
 using ConCancha.Api.ErrorHandling;
 using ConCancha.Api.Extensions;
+using ConCancha.Api.Subscriptions;
 using ConCancha.Api.Tenancy;
 using ConCancha.Infrastructure;
 
@@ -19,7 +20,7 @@ builder.Services
     .AddProxyForwardedHeaders()
     .AddSwaggerWithBearer()
     .AddDatabaseHealthCheck();
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.Filters.Add<SubscriptionAccessFilter>());
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<UnhandledExceptionHandler>();
 

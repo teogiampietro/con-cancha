@@ -54,6 +54,24 @@ Cambiar el hash cierra al instante todas las sesiones de plataforma abiertas. La
 
 **Datos personales:** el panel muestra mail y teléfono de dueños y clientes. No se exportan ni se registran en logs.
 
+## Pruebas y suscripciones de los clubes
+
+Cada club tiene 14 días de prueba que arrancan al terminar su configuración inicial. Vencida la prueba sin suscripción, el panel del club muestra la pantalla "Tu prueba terminó" y la API responde 402 a sus pantallas. Los datos de la cuenta se conservan.
+
+Se gestiona desde la fila de cada club en `/plataforma`, columna **Gestionar**:
+
+| Acción | Qué hace |
+|---|---|
+| Número + **Extender prueba** | Suma los días indicados (1 a 365, 14 por defecto). Si la prueba ya venció, cuenta desde hoy. No aplica a clubes que todavía no terminaron la configuración. |
+| **Marcar pago** | Registra un pago hecho fuera de la app: la suscripción queda pagada por 30 días desde hoy, o desde el fin del mes ya pagado si todavía no venció. |
+| **Enviar mail** | Escribe al dueño del club para regularizar la cuenta. Solo está activo si la prueba venció o hay un pago pendiente. |
+
+**Pago pendiente:** cuando vence el mes pagado, la suscripción se renueva sola y el club sigue entrando. La fila pasa a "Pago pendiente" hasta que se marque el pago. Para pedirlo, usar **Enviar mail**.
+
+**Clubes que ya configuraron antes de esta función:** la migración les dio 14 días desde el fin de su configuración. Si ya pasaron esos días, quedan bloqueados hasta que se les extienda la prueba o se marque un pago.
+
+**Sin cobro automático:** la plataforma no cobra ni da de baja suscripciones. Para cortar a un club hay que hacerlo en la base de datos (poner `PaidUntil` en nulo y `TrialEndsAt` en el pasado).
+
 ## Revisión de permisos
 
 | Rol | Puede | No puede |

@@ -521,6 +521,8 @@ Piezas compartidas que conviene construir una sola vez, dentro del primer módul
 
 ### M20. Planes y cobro
 
+**Avance:** hecha la prueba de 14 días por club (arranca al terminar la configuración), el bloqueo al vencer y la suscripción registrada a mano desde el panel de plataforma (extender prueba, marcar pago, mail de regularización). Ver [OPERACION.md](OPERACION.md). Falta el cobro automático, "Mi plan" y la baja de suscripciones.
+
 **Incluye**
 - Pantalla **Mi plan** con "se te escapó este mes", turnos jugados y ocupación.
 - Precio por cantidad de canchas activas, descuento semestral, ajuste por inflación, **prueba de 14 días** que arranca al cargar el primer turno.
