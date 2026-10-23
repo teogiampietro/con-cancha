@@ -1,4 +1,5 @@
 @page "/"
+@inherits CancellableComponentBase
 
 <PageTitle>ConCancha · Los turnos de tu club, ordenados</PageTitle>
 
@@ -138,9 +139,6 @@
                     </article>
                 }
             </div>
-            <div class="lp-proof">
-                <div class="lp-placeholder">[ESPACIO PARA LOGOS DE CLUBES: completar con autorización de cada club]</div>
-            </div>
         </div>
     </section>
 
@@ -223,9 +221,14 @@
         </div>
     </section>
 
-    <section class="lp-closing">
+    <section class="lp-closing" id="@ClosingSectionId">
         <div class="lp-wrap center">
-            <h2>@LandingContent.Slogan</h2>
+            <h2 class="lp-slogan">
+                @foreach (var line in LandingContent.SloganLines)
+                {
+                    <span>@line</span>
+                }
+            </h2>
             <a class="lp-btn lg" href="@PageRoutes.Register">@LandingContent.TrialButton</a>
             <p class="lp-note">Sin tarjeta y sin compromiso.</p>
         </div>

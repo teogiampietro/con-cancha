@@ -100,9 +100,6 @@
 .lp-card p { color: var(--mut); margin: 0; font-size: 15px; } .lp-card.accent p { color: #c4d4ce; }
 .lp-ico { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center; border-radius: 12px; background: var(--ico-bg); color: var(--brand); margin-bottom: 12px; }
 
-.lp-proof { margin-top: 28px; }
-.lp-placeholder { border: 2px dashed var(--line-strong); border-radius: 14px; padding: 24px; text-align: center; color: var(--mut); font-weight: 600; font-size: 14px; }
-
 .lp-chatbot { display: grid; gap: 36px; align-items: center; }
 .lp-badge { display: inline-block; align-self: flex-start; background: var(--g-acc); color: var(--g-dark); font-family: Montserrat, sans-serif; font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 12px; border-radius: 99px; margin-bottom: 14px; }
 .lp-badge.sm { background: var(--ico-bg); color: var(--brand); }
@@ -140,8 +137,10 @@
 
 .lp-closing { background: linear-gradient(160deg, #0E7A5F, #0B1F1A 90%); color: #fff; padding: 72px 0; }
 .lp-closing h2 { font-size: clamp(28px, 7vw, 46px); max-width: 720px; margin: 0 auto 24px; }
+.lp-slogan span { display: block; } .lp-slogan span:last-child { color: var(--g-acc); }
 .lp-closing .lp-note { color: #bcd5cb; }
-.lp-footer { background: #07140f; color: #fff; padding: 28px 0; } .lp-footer-in { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.lp-footer { background: #07140f; color: #fff; padding: 28px 0; } .lp-footer-in { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.lp-footer-in > .lp-link { margin-left: auto; }
 
 @media (min-width: 768px) {
     .lp-hero { padding: 72px 0 80px; } .lp-hero-in { grid-template-columns: 1.1fr .9fr; align-items: center; }
@@ -152,7 +151,15 @@
 }
 @media (min-width: 900px) { .lp-nav-sections { display: flex; } }
 @media (min-width: 1024px) { .lp-cards { grid-template-columns: repeat(3, 1fr); } .lp-cards.benefits { grid-template-columns: repeat(4, 1fr); } .lp-cards.two { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 420px) { .lp-phones { transform: scale(.88); transform-origin: top center; height: 400px; } }
+@media (max-width: 420px) {
+    .lp-phones { transform: scale(.88); transform-origin: top center; height: 400px; }
+    .lp-nav .lp-logo { gap: 7px; } .lp-nav .lp-logo-mark { width: 20px; height: 26px; } .lp-nav .lp-logo-name { font-size: 20px; }
+    .lp-nav-links { gap: 12px; } .lp-nav-links .lp-link { font-size: 14px; } .lp-nav-links .lp-btn.sm { padding: 7px 11px; font-size: 13px; border-radius: 10px; }
+}
+@media (max-width: 360px) {
+    .lp-nav .lp-logo-mark { width: 17px; height: 22px; } .lp-nav .lp-logo-name { font-size: 17px; }
+    .lp-nav-links { gap: 10px; } .lp-nav-links .lp-link { font-size: 13px; } .lp-nav-links .lp-btn.sm { padding: 6px 9px; font-size: 12px; }
+}
 
 /* Entrance and reveal effects animate `translate` so they never fight the `transform` used by hover states. */
 @media (prefers-reduced-motion: no-preference) {
@@ -167,9 +174,15 @@
     .lp-card:hover, .lp-plan:hover { transform: translateY(-4px); box-shadow: 0 14px 30px var(--shadow); }
     .lp-plan.featured:hover { box-shadow: 0 24px 60px rgba(34, 208, 125, .35); }
 
+    .lp-closing.is-armed:not(.is-visible) :is(.lp-slogan span, .lp-btn, .lp-note) { opacity: 0; }
+    .lp-closing.is-visible .lp-slogan span:nth-child(1) { animation: lp-from-left .7s cubic-bezier(.2, .7, .2, 1) both; }
+    .lp-closing.is-visible .lp-slogan span:nth-child(2) { animation: lp-from-right .7s .6s cubic-bezier(.2, .7, .2, 1) both; }
+    .lp-closing.is-visible .lp-slogan span:nth-child(3) { animation: lp-pop .7s 1.2s cubic-bezier(.2, .7, .2, 1) both; }
+    .lp-closing.is-visible .lp-btn { animation: lp-rise .6s 1.8s cubic-bezier(.2, .7, .2, 1) both; }
+    .lp-closing.is-visible .lp-note { animation: lp-rise .6s 2.1s cubic-bezier(.2, .7, .2, 1) both; }
+
     @supports (animation-timeline: view()) {
-        .lp-section :is(.lp-kicker, h2, .lp-sub, .lp-tabs, .lp-h3, .lp-card, .lp-vs, .lp-plan, .lp-faq, .lp-chat, .lp-list li, .lp-notify, .lp-placeholder),
-        .lp-closing :is(h2, .lp-note) {
+        .lp-section :is(.lp-kicker, h2, .lp-sub, .lp-tabs, .lp-h3, .lp-card, .lp-vs, .lp-plan, .lp-faq, .lp-chat, .lp-list li, .lp-notify) {
             animation: lp-rise linear both; animation-timeline: view(); animation-range: entry 5% cover 25%;
         }
         .lp-nav::after { animation: lp-progress linear both; animation-timeline: scroll(root); }
@@ -178,5 +191,8 @@
 @media (prefers-reduced-motion: reduce) { .lp-btn { transition: none; } }
 
 @keyframes lp-rise { from { opacity: 0; translate: 0 32px; } to { opacity: 1; translate: 0 0; } }
+@keyframes lp-from-left { from { opacity: 0; translate: -120px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes lp-from-right { from { opacity: 0; translate: 120px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes lp-pop { from { opacity: 0; scale: .8; } to { opacity: 1; scale: 1; } }
 @keyframes lp-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
 @keyframes lp-progress { to { transform: scaleX(1); } }

@@ -2,7 +2,6 @@ namespace ConCancha.Web.Services.Landing;
 
 public static class LandingContent
 {
-    public const string Slogan = "Más deportes. Más momentos. ConCancha.";
     public const string TrialButton = "Probalo gratis 14 días";
     public const string TrialPlanButton = "Empezar mis 14 días gratis";
     public const string ExampleClubLink = "concancha.com/nombre-del-club";
@@ -11,6 +10,8 @@ public static class LandingContent
     public const string PaidPlanBadge = "Recomendado";
     public const string PaidPlanTagline = "Se paga solo con un par de turnos que antes quedaban vacíos.";
     public const string PaidPlanIntro = "Todo lo del plan de prueba, más:";
+
+    public static readonly IReadOnlyList<string> SloganLines = ["Más deportes.", "Más momentos.", "ConCancha."];
 
     public static readonly PaidPlan Plan = new(
         Price: "$50.000",
