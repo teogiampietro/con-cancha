@@ -160,12 +160,20 @@
                     <button class="lp-btn">Avisame cuando esté listo</button>
                 </form>
             </div>
-            <div class="lp-chat" aria-label="Ejemplo de conversación, función próximamente">
+            <div class="lp-chat" id="@ChatDemoId" aria-label="Ejemplo de conversación, función próximamente">
                 <div class="lp-chat-top"><span class="lp-dot"></span> Preguntar · Club La Quinta</div>
                 <div class="lp-chat-body">
                     <p class="msg me">¿Tienen cancha de pádel mañana después de las 20?</p>
-                    <p class="msg bot">Sí, mañana hay Pádel 2 a las 20:30 y 22:00. Salen $X. ¿Querés reservar?</p>
+                    <div class="lp-bot-turn">
+                        <span class="msg bot lp-typing" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <p class="msg bot">Sí, mañana hay Pádel 2 a las 20:30 y 22:00. Salen $30.000. ¿Querés reservar?</p>
+                    </div>
                     <div class="lp-chips"><span>20:30</span><span>22:00</span></div>
+                    <p class="msg me">Dale, el de las 20:30.</p>
+                    <div class="lp-bot-turn">
+                        <span class="msg bot lp-typing" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <p class="msg bot confirm"><LandingIcon Name="check" /> ¡Turno confirmado! Pádel 2, mañana a las 20:30.</p>
+                    </div>
                 </div>
                 <div class="lp-chat-input"><span>Escribí tu pregunta…</span><LandingIcon Name="send" /></div>
             </div>

@@ -96,7 +96,7 @@ public static class LandingContent
     [
         new("¿Necesito tarjeta de crédito para probarlo?", "No. Los 14 días de prueba son sin tarjeta y sin compromiso. Al terminar, elegís un plan pago."),
         new("¿Qué pasa con los datos de mi club?", "Cada club ve solo lo suyo. Además hay roles: el dueño configura y el encargado carga turnos y cobra."),
-        new("¿Cuántas canchas puedo cargar?", "Cargás las canchas de tu club, cada una con su deporte, la duración del turno y sus precios. [A COMPLETAR POR EL DUEÑO: límite de canchas por plan, si lo hay]"),
+        new("¿Cuántas canchas puedo cargar?", "Cargás las canchas de tu club, cada una con su deporte, la duración del turno y sus precios. Con la prueba gratis podés cargar hasta 4 canchas."),
         new("¿El jugador necesita crear una cuenta?", "No. Reserva con nombre y WhatsApp (el mail es opcional) y no descarga nada. Después ve y cancela sus turnos desde la página del club o con el link personal que recibe."),
         new("¿Tengo que instalar algo?", "No. Funciona en el navegador del celular, tanto para el club como para los jugadores.")
     ];

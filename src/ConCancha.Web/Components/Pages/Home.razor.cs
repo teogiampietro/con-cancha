@@ -8,6 +8,7 @@ public partial class Home
 {
     private const string NotifySubject = "Avisame cuando esté listo el chatbot de ConCancha";
     private const string ClosingSectionId = "cierre";
+    private const string ChatDemoId = "chat-demo";
     private const string RevealOnViewFunction = "concancha.revealOnView";
 
     private LandingAudience _audience = LandingAudience.Club;
@@ -30,6 +31,7 @@ public partial class Home
     {
         if (!firstRender) return;
 
+        await Js.InvokeVoidAsync(RevealOnViewFunction, ComponentToken, ChatDemoId);
         await Js.InvokeVoidAsync(RevealOnViewFunction, ComponentToken, ClosingSectionId);
     }
 
