@@ -4,7 +4,7 @@ namespace ConCancha.Web.Components;
 
 public partial class StepIndicator
 {
-    private const int TotalSteps = 3;
+    private const int TotalSteps = 4;
 
     [Parameter] public int Current { get; set; }
 

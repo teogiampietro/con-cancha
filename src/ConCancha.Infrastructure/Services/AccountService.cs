@@ -19,22 +19,47 @@ public sealed class AccountService(
     UserManager<AppUser> users,
     ConCanchaDbContext db,
     SessionFactory sessionFactory,
+    EmailVerifier emailVerifier,
     IEmailSender emailSender,
     IOptions<WebAppOptions> webOptions,
     ILogger<AccountService> logger) : IAccountService
 {
     private const string ResetPasswordPath = "/panel/restablecer";
 
-    public async Task<Result<SessionResponse>> RegisterAccountAsync(RegisterRequest request, CancellationToken cancellationToken)
+    public async Task<Result> RegisterAccountAsync(RegisterRequest request, CancellationToken cancellationToken)
     {
         var email = request.Email.Trim().ToLowerInvariant();
+        await DiscardPendingRegistrationAsync(email).ConfigureAwait(false);
         var user = new AppUser { UserName = email, Email = email };
 
         var creation = await users.CreateAsync(user, request.Password).ConfigureAwait(false);
-        if (creation.Succeeded)
-            return Result<SessionResponse>.Success(sessionFactory.Create(user, club: null, role: null));
+        if (!creation.Succeeded)
+            return Result.Failure(ToRegistrationError(creation));
 
-        return Result<SessionResponse>.Failure(ToRegistrationError(creation));
+        await emailVerifier.SendCodeAsync(user, cancellationToken).ConfigureAwait(false);
+        return Result.Success();
+    }
+
+    public async Task<Result<SessionResponse>> VerifyEmailAsync(VerifyEmailRequest request, CancellationToken cancellationToken)
+    {
+        var user = await users.FindByEmailAsync(request.Email.Trim()).ConfigureAwait(false);
+        if (user is null)
+            return Result<SessionResponse>.Failure(InvalidCodeError());
+
+        var confirmation = await emailVerifier.ConfirmAsync(user, request.Code).ConfigureAwait(false);
+        if (!confirmation.IsSuccess)
+            return Result<SessionResponse>.Failure(confirmation.Error!);
+
+        var membership = await FindFirstMembershipAsync(user.Id, cancellationToken).ConfigureAwait(false);
+        return Result<SessionResponse>.Success(sessionFactory.Create(user, membership?.Club, membership?.Role));
+    }
+
+    public async Task ResendVerificationCodeAsync(ResendVerificationRequest request, CancellationToken cancellationToken)
+    {
+        var user = await users.FindByEmailAsync(request.Email.Trim()).ConfigureAwait(false);
+        if (user is null || user.EmailConfirmed) return;
+
+        await emailVerifier.SendCodeAsync(user, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Result<SessionResponse>> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
@@ -47,8 +72,10 @@ public sealed class AccountService(
             return Result<SessionResponse>.Failure(error);
 
         await users.ResetAccessFailedCountAsync(user).ConfigureAwait(false);
-        var membership = await FindFirstMembershipAsync(user.Id, cancellationToken).ConfigureAwait(false);
+        if (!user.EmailConfirmed)
+            return await RejectUnverifiedEmailAsync(user, cancellationToken).ConfigureAwait(false);
 
+        var membership = await FindFirstMembershipAsync(user.Id, cancellationToken).ConfigureAwait(false);
         return Result<SessionResponse>.Success(sessionFactory.Create(user, membership?.Club, membership?.Role));
     }
 
@@ -90,6 +117,20 @@ public sealed class AccountService(
 
         logger.LogInformation("Password changed for user {UserId}", user.Id);
         return Result.Success();
+    }
+
+    private async Task<Result<SessionResponse>> RejectUnverifiedEmailAsync(AppUser user, CancellationToken cancellationToken)
+    {
+        await emailVerifier.SendCodeAsync(user, cancellationToken).ConfigureAwait(false);
+        return Result<SessionResponse>.Failure(ServiceError.Forbidden(AccountMessages.EmailNotVerified));
+    }
+
+    /// <remarks>An abandoned sign-up must not block the email forever: it is replaced by the new attempt.</remarks>
+    private async Task DiscardPendingRegistrationAsync(string email)
+    {
+        var existing = await users.FindByEmailAsync(email).ConfigureAwait(false);
+        if (existing is { EmailConfirmed: false })
+            await users.DeleteAsync(existing).ConfigureAwait(false);
     }
 
     private async Task<ServiceError?> RejectCredentialsAsync(AppUser user, string password)
@@ -144,6 +185,9 @@ public sealed class AccountService(
         IdentityErrorMapper.IsDuplicateEmail(creation)
             ? ServiceError.Conflict(AccountMessages.EmailAlreadyRegistered)
             : IdentityErrorMapper.ToValidationError(creation, nameof(RegisterRequest.Password));
+
+    private static ServiceError InvalidCodeError() =>
+        ServiceError.Validation(nameof(VerifyEmailRequest.Code), AccountMessages.InvalidVerificationCode);
 
     private static ServiceError InvalidTokenError() =>
         IdentityErrorMapper.ToValidationError(

@@ -21,6 +21,12 @@ public partial class Login : CancellableComponentBase
         var result = await Api.LoginAsync(_email, _password, cancellationToken);
         _isBusy = false;
 
+        if (result.StatusCode == StatusCodes.Status403Forbidden)
+        {
+            Navigation.NavigateTo(string.Format(PageRoutes.RegisterVerifyPattern, Uri.EscapeDataString(_email.Trim())));
+            return;
+        }
+
         if (!result.IsSuccess)
         {
             _errorMessage = result.GeneralMessage;

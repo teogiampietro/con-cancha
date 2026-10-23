@@ -17,7 +17,7 @@ public static class SwaggerExtensions
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
                 BearerFormat = "JWT",
-                Description = "Token returned by /api/auth/login and /api/auth/register.",
+                Description = "Token returned by /api/auth/login and /api/auth/verify-email.",
             });
             options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {

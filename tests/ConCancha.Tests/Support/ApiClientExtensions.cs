@@ -24,7 +24,11 @@ public static class ApiClientExtensions
         this HttpClient http, CancellationToken cancellationToken, string? email = null, string? password = null)
     {
         var request = new RegisterRequest(email ?? NewEmail(), password ?? ValidPassword);
-        var response = await http.PostAsJsonAsync(Routes.Register, request, cancellationToken);
+        var registration = await http.PostAsJsonAsync(Routes.Register, request, cancellationToken);
+        registration.EnsureSuccessStatusCode();
+
+        var verification = new VerifyEmailRequest(request.Email, CapturingEmailSender.LatestCodeFor(request.Email));
+        var response = await http.PostAsJsonAsync(Routes.VerifyEmail, verification, cancellationToken);
         return await ReadSessionAsync(response, cancellationToken);
     }
 

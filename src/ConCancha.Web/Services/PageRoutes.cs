@@ -5,6 +5,7 @@ public static class PageRoutes
     public const string Home = "/";
     public const string Login = "/panel/login";
     public const string Register = "/panel/registro";
+    public const string RegisterVerifyPattern = "/panel/registro?mail={0}";
     public const string Dashboard = "/panel";
     public const string Agenda = "/panel/agenda";
     public const string Reservations = "/panel/reservas";

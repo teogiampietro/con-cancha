@@ -15,4 +15,5 @@ public static class ApiFieldNames
     public const string NewPassword = "newPassword";
     public const string Password = "password";
     public const string Email = "email";
+    public const string Code = "code";
 }

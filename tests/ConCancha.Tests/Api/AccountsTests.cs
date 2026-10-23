@@ -19,14 +19,66 @@ public class AccountsTests(ApiFactory api) : ApiTestBase(api)
     private static readonly string ResetLinkPrefix = $"{ApiFactory.WebBaseUrl}/panel/restablecer";
     private static readonly Regex TokenInLink = new(@"token=([^\s&]+)");
 
+    private const string WrongCode = "000000";
+
     [Fact]
-    public async Task Register_CreatesAccountAndReturnsSessionWithoutClub()
+    public async Task Register_CreatesAccountAndVerifyingTheCodeReturnsSessionWithoutClub()
     {
         var session = await Http.RegisterAsync(Ct);
 
         Assert.False(string.IsNullOrEmpty(session.Token));
         Assert.Null(session.Club);
         Assert.Null(session.Role);
+    }
+
+    [Fact]
+    public async Task Register_DoesNotIssueSessionBeforeEmailIsVerified()
+    {
+        var email = ApiClientExtensions.NewEmail();
+
+        var response = await Http.PostAsJsonAsync(Routes.Register, new RegisterRequest(email, ApiClientExtensions.ValidPassword), Ct);
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.Contains(Api.Emails.Sent, sent => sent.To == email);
+        var login = await Http.LoginAsync(email, ApiClientExtensions.ValidPassword, Ct);
+        Assert.Equal(HttpStatusCode.Forbidden, login.StatusCode);
+    }
+
+    [Fact]
+    public async Task VerifyEmail_WithWrongCode_Returns400()
+    {
+        var email = ApiClientExtensions.NewEmail();
+        await Http.PostAsJsonAsync(Routes.Register, new RegisterRequest(email, ApiClientExtensions.ValidPassword), Ct);
+
+        var response = await Http.PostAsJsonAsync(Routes.VerifyEmail, new VerifyEmailRequest(email, WrongCode), Ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Register_WithUnverifiedEmailAgain_ReplacesThePendingAccount()
+    {
+        var email = ApiClientExtensions.NewEmail();
+        await Http.PostAsJsonAsync(Routes.Register, new RegisterRequest(email, ApiClientExtensions.ValidPassword), Ct);
+
+        var session = await Http.RegisterAsync(Ct, email, NewPassword);
+
+        Assert.False(string.IsNullOrEmpty(session.Token));
+        Assert.Equal(HttpStatusCode.OK, (await Http.LoginAsync(email, NewPassword, Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task ResendVerification_SendsNewCodeAndAlwaysAnswers202()
+    {
+        var email = ApiClientExtensions.NewEmail();
+        await Http.PostAsJsonAsync(Routes.Register, new RegisterRequest(email, ApiClientExtensions.ValidPassword), Ct);
+
+        var known = await Http.PostAsJsonAsync(Routes.ResendVerification, new ResendVerificationRequest(email), Ct);
+        var unknown = await Http.PostAsJsonAsync(Routes.ResendVerification, new ResendVerificationRequest(ApiClientExtensions.NewEmail()), Ct);
+
+        Assert.Equal(HttpStatusCode.Accepted, known.StatusCode);
+        Assert.Equal(HttpStatusCode.Accepted, unknown.StatusCode);
+        Assert.Equal(2, Api.Emails.Sent.Count(sent => sent.To == email));
     }
 
     [Fact]

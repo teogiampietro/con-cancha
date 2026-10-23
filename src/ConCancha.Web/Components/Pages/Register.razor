@@ -33,6 +33,24 @@ else
                 <p class="mut sm center">¿Ya tenés cuenta? <a href="/panel/login">Entrá</a>.</p>
             </form>
         }
+        else if (_step == RegistrationStep.VerifyEmail)
+        {
+            <form class="card col card-narrow" @onsubmit="() => SubmitCodeAsync(ComponentToken)" @onsubmit:preventDefault>
+                <StepIndicator Current="@((int)RegistrationStep.VerifyEmail)" />
+                <h1>Confirmá tu mail</h1>
+                <p class="mut">Te mandamos un código de 6 números a <b>@_email</b>. Puede tardar un minuto en llegar; fijate también en spam.</p>
+                <div>
+                    <label class="f" for="code">Código</label>
+                    <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="@AccountLimits.VerificationCodeMaxLength"
+                           @bind="_code" @bind:event="oninput" required />
+                </div>
+                <ErrorMessage Message="@_errorMessage" />
+                <p class="sm success">@_infoMessage</p>
+                <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Verificando…" : "Siguiente")</button>
+                <button type="button" class="btn sec block" @onclick="() => ResendCodeAsync(ComponentToken)" disabled="@_isBusy">Reenviar el código</button>
+                <button type="button" class="lnk" @onclick="GoBackToAccount">Cambiar el mail</button>
+            </form>
+        }
         else if (_step == RegistrationStep.ClubName)
         {
             <form class="card col card-narrow" @onsubmit="() => SubmitClubNameAsync(ComponentToken)" @onsubmit:preventDefault>

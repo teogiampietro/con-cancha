@@ -3,6 +3,8 @@ namespace ConCancha.Web.Services;
 public static class ApiRoutes
 {
     public const string Register = "api/auth/register";
+    public const string VerifyEmail = "api/auth/verify-email";
+    public const string ResendVerification = "api/auth/resend-verification";
     public const string Login = "api/auth/login";
     public const string ForgotPassword = "api/auth/forgot-password";
     public const string ResetPassword = "api/auth/reset-password";

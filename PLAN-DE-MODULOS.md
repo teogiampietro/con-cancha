@@ -27,7 +27,7 @@ Cada módulo se puede decidir por separado: **entra** o **no entra**. En cada un
 | **M8** | Señas con comprobante | Opcional | 6–8 d | M3, M7 | Media (siguiente natural) |  |
 | **M9** | Lista de espera | Opcional | 4–5 d | M6 | Media |  |
 | **M10** | Métricas | Opcional | 3–4 d | — | Media |  |
-| **M11** | Turnos fijos | Opcional | 4–5 d | M2 | Media |  |
+| **M11** | Turnos fijos | Opcional | 4–5 d | M2 | Media | ✅ |
 | **M12** | Buffet | Opcional | 6–8 d | — | Baja |  |
 | **M13** | Cuenta de jugador | Opcional | 7–9 d | M7 | Baja |  |
 | **M14** | Puntos y premios | Opcional | 4–5 d | M13 | Baja |  |

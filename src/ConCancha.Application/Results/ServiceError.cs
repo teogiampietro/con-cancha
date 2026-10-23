@@ -12,6 +12,8 @@ public sealed record ServiceError(
 
     public static ServiceError Unauthorized(string message) => new(ErrorKind.Unauthorized, message);
 
+    public static ServiceError Forbidden(string message) => new(ErrorKind.Forbidden, message);
+
     public static ServiceError Locked(string message) => new(ErrorKind.Locked, message);
 
     public static ServiceError NotFound(string message) => new(ErrorKind.NotFound, message);

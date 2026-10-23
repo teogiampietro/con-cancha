@@ -19,8 +19,14 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
     private const string UnknownErrorMessage = "Algo salió mal. Probá de nuevo.";
     private const int NoStatusCode = 0;
 
-    public Task<ApiResult<SessionResponse>> RegisterAsync(string email, string password, CancellationToken cancellationToken) =>
-        SendAsync<SessionResponse>(HttpMethod.Post, ApiRoutes.Register, new RegisterRequest(email, password), cancellationToken);
+    public Task<ApiResult<object>> RegisterAsync(string email, string password, CancellationToken cancellationToken) =>
+        SendAsync<object>(HttpMethod.Post, ApiRoutes.Register, new RegisterRequest(email, password), cancellationToken);
+
+    public Task<ApiResult<SessionResponse>> VerifyEmailAsync(string email, string code, CancellationToken cancellationToken) =>
+        SendAsync<SessionResponse>(HttpMethod.Post, ApiRoutes.VerifyEmail, new VerifyEmailRequest(email, code), cancellationToken);
+
+    public Task<ApiResult<object>> ResendVerificationAsync(string email, CancellationToken cancellationToken) =>
+        SendAsync<object>(HttpMethod.Post, ApiRoutes.ResendVerification, new ResendVerificationRequest(email), cancellationToken);
 
     public Task<ApiResult<SessionResponse>> LoginAsync(string email, string password, CancellationToken cancellationToken) =>
         SendAsync<SessionResponse>(HttpMethod.Post, ApiRoutes.Login, new LoginRequest(email, password), cancellationToken);

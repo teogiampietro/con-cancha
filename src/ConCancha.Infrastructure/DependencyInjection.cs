@@ -98,6 +98,7 @@ public static class DependencyInjection
     private static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<SessionFactory>();
+        services.AddScoped<EmailVerifier>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IClubService, ClubService>();
         services.AddScoped<IClubAppearanceService, ClubAppearanceService>();

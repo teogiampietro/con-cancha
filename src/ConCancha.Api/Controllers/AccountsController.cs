@@ -12,19 +12,37 @@ namespace ConCancha.Api.Controllers;
 [EnableRateLimiting(RateLimitPolicies.Auth)]
 public class AccountsController(IAccountService accounts) : ApiControllerBase
 {
-    /// <summary>Step 1 of sign-up: creates the account. The club is created afterwards (<c>POST /api/clubs</c>).</summary>
+    /// <summary>
+    /// Step 1 of sign-up: creates the account and emails a verification code. The session comes from
+    /// <c>POST /api/auth/verify-email</c>; the club is created afterwards (<c>POST /api/clubs</c>).
+    /// </summary>
     [HttpPost("register")]
-    [ProducesResponseType<SessionResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Register(RegisterRequest request, CancellationToken cancellationToken) =>
-        ToActionResult(
-            await accounts.RegisterAccountAsync(request, cancellationToken),
-            session => StatusCode(StatusCodes.Status201Created, session));
+        ToActionResult(await accounts.RegisterAccountAsync(request, cancellationToken), () => Accepted());
+
+    [HttpPost("verify-email")]
+    [ProducesResponseType<SessionResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status423Locked)]
+    public async Task<IActionResult> VerifyEmail(VerifyEmailRequest request, CancellationToken cancellationToken) =>
+        ToActionResult(await accounts.VerifyEmailAsync(request, cancellationToken), Ok);
+
+    /// <summary>Always answers 202, whether or not the account exists, so it does not reveal which emails are registered.</summary>
+    [HttpPost("resend-verification")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> ResendVerification(ResendVerificationRequest request, CancellationToken cancellationToken)
+    {
+        await accounts.ResendVerificationCodeAsync(request, cancellationToken);
+        return Accepted();
+    }
 
     [HttpPost("login")]
     [ProducesResponseType<SessionResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status423Locked)]
     public async Task<IActionResult> Login(LoginRequest request, CancellationToken cancellationToken) =>
         ToActionResult(await accounts.LoginAsync(request, cancellationToken), Ok);

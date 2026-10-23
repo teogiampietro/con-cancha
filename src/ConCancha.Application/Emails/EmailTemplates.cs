@@ -6,6 +6,10 @@ public static class EmailTemplates
     private const string PasswordResetBodyTemplate =
         "Para elegir una contraseña nueva abrí este link (vale por un rato):\n{0}\n\nSi no lo pediste vos, ignorá este mensaje.";
 
+    private const string EmailVerificationSubject = "Tu código de ConCancha";
+    private const string EmailVerificationBodyTemplate =
+        "Tu código para confirmar el mail es: {0}\n\nVale por unos minutos. Si no creaste una cuenta en ConCancha, ignorá este mensaje.";
+
     private const string TeamInvitationSubjectTemplate = "Te invitaron a sumarte a {0} en ConCancha";
     private const string TeamInvitationBodyTemplate =
         "Te invitaron a ayudar en el mostrador de {0}. Para crear tu contraseña y entrar abrí este link (vale por {1} días):\n{2}\n\nSi no esperabas esta invitación, ignorá este mensaje.";
@@ -16,6 +20,9 @@ public static class EmailTemplates
 
     public static EmailContent PasswordReset(string resetLink) =>
         new(PasswordResetSubject, string.Format(PasswordResetBodyTemplate, resetLink));
+
+    public static EmailContent EmailVerification(string code) =>
+        new(EmailVerificationSubject, string.Format(EmailVerificationBodyTemplate, code));
 
     public static EmailContent TeamInvitation(string clubName, string acceptLink, int validDays) =>
         new(string.Format(TeamInvitationSubjectTemplate, clubName),

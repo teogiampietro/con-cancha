@@ -5,7 +5,11 @@ namespace ConCancha.Application.Abstractions;
 
 public interface IAccountService
 {
-    Task<Result<SessionResponse>> RegisterAccountAsync(RegisterRequest request, CancellationToken cancellationToken);
+    Task<Result> RegisterAccountAsync(RegisterRequest request, CancellationToken cancellationToken);
+
+    Task<Result<SessionResponse>> VerifyEmailAsync(VerifyEmailRequest request, CancellationToken cancellationToken);
+
+    Task ResendVerificationCodeAsync(ResendVerificationRequest request, CancellationToken cancellationToken);
 
     Task<Result<SessionResponse>> LoginAsync(LoginRequest request, CancellationToken cancellationToken);
 

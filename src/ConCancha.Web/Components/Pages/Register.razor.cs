@@ -11,6 +11,7 @@ public partial class Register : CancellableComponentBase
     private const int SlugTypingPauseMilliseconds = 1500;
     private const string SlugAvailableMessage = "✓ Disponible";
     private const string ClubNameRequiredMessage = "Poné el nombre del club.";
+    private const string CodeResentMessage = "Te mandamos un código nuevo.";
 
     private bool _isLoading = true;
     private bool _isPasswordVisible;
@@ -19,6 +20,7 @@ public partial class Register : CancellableComponentBase
     private RegistrationStep _step = RegistrationStep.Account;
     private string _email = string.Empty;
     private string _password = string.Empty;
+    private string _code = string.Empty;
     private string _name = string.Empty;
     private string _slug = string.Empty;
     private string _phone = string.Empty;
@@ -26,15 +28,19 @@ public partial class Register : CancellableComponentBase
     private string _slugInitialValue = string.Empty;
     private string? _errorMessage;
     private string? _slugMessage;
+    private string? _infoMessage;
     private bool? _isSlugAvailable;
     private CancellationTokenSource? _slugCheck;
 
     private enum RegistrationStep
     {
         Account = 1,
-        ClubName = 2,
-        Phone = 3,
+        VerifyEmail = 2,
+        ClubName = 3,
+        Phone = 4,
     }
+
+    [SupplyParameterFromQuery(Name = "mail")] private string? PendingEmail { get; set; }
 
     [Inject] private ApiClient Api { get; set; } = null!;
     [Inject] private CurrentSession Session { get; set; } = null!;
@@ -53,6 +59,7 @@ public partial class Register : CancellableComponentBase
 
         // Account created but no club yet: resume at the club name step.
         if (Session.Current is not null) ShowClubNameStep();
+        else if (!string.IsNullOrWhiteSpace(PendingEmail)) ShowVerifyEmailStep(PendingEmail);
         _isLoading = false;
         StateHasChanged();
     }
@@ -68,6 +75,22 @@ public partial class Register : CancellableComponentBase
     }
 
     private void GoBackToClubName() => ShowClubNameStep();
+
+    private void GoBackToAccount()
+    {
+        _errorMessage = null;
+        _infoMessage = null;
+        _step = RegistrationStep.Account;
+    }
+
+    private void ShowVerifyEmailStep(string email)
+    {
+        _email = email;
+        _code = string.Empty;
+        _errorMessage = null;
+        _infoMessage = null;
+        _step = RegistrationStep.VerifyEmail;
+    }
 
     /// <remarks>
     /// The inputs only take their value from the server when they are created. Typing never re-sends it: with the
@@ -93,9 +116,37 @@ public partial class Register : CancellableComponentBase
             return;
         }
 
-        await Session.SaveAsync(result.Value!, cancellationToken);
         _password = string.Empty;
+        ShowVerifyEmailStep(_email);
+    }
+
+    private async Task SubmitCodeAsync(CancellationToken cancellationToken)
+    {
+        _errorMessage = null;
+        _infoMessage = null;
+        _isBusy = true;
+        var result = await Api.VerifyEmailAsync(_email, _code, cancellationToken);
+        _isBusy = false;
+
+        if (!result.IsSuccess)
+        {
+            _errorMessage = result.GetFirstFieldError(ApiFieldNames.Code) ?? result.GeneralMessage;
+            return;
+        }
+
+        await Session.SaveAsync(result.Value!, cancellationToken);
         ShowClubNameStep();
+    }
+
+    private async Task ResendCodeAsync(CancellationToken cancellationToken)
+    {
+        _errorMessage = null;
+        _isBusy = true;
+        var result = await Api.ResendVerificationAsync(_email, cancellationToken);
+        _isBusy = false;
+
+        if (result.IsSuccess) _infoMessage = CodeResentMessage;
+        else _errorMessage = result.GeneralMessage;
     }
 
     private void OnNameInput(ChangeEventArgs args)
