@@ -36,6 +36,9 @@ services:
       Web__BaseUrl: http://localhost:5090
       # Log escribe el mail en la consola; para probar Resend: Email__Provider=Resend, Email__From y Email__ResendApiKey.
       Email__Provider: Log
+      # Cuenta de prueba del panel de plataforma: solo local. admin / clave-local-de-prueba-2026
+      Platform__AdminUser: admin
+      Platform__AdminPasswordHash: "AQAAAAIAAYagAAAAEKOiU9rgY4Ke4hhrDjeHSJhpBvdARVMxOwg28PtDWDJZbbAfbiO/yRB/QewK0/Ux1w=="
     ports:
       - "5089:8080"
 

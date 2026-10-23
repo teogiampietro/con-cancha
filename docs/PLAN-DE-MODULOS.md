@@ -38,6 +38,7 @@ Cada módulo se puede decidir por separado: **entra** o **no entra**. En cada un
 | **M19** | Notificaciones y push | Opcional | 5–7 d | M13 (push de jugador) | Baja |  |
 | **M20** | Planes y cobro | Opcional | 6–10 d | M10 | Baja |  |
 | **M21** | Exportes reales (xlsx y PDF) | Opcional | 2–3 d | — | Baja |  |
+| **M22** | Panel de plataforma (uso de clubes) | Interno | 7,5–9 d | M10 (cifras) | — | ✅ |
 
 ✅ = desarrollado en la aplicación (según el código y el estado de [PLAN-DE-ACCION.md](PLAN-DE-ACCION.md)). M7 está hecho en código pero falta verificar un mail entregado en una casilla real; M18 se entregó sin la parte de país (queda Argentina fija).
 
@@ -538,6 +539,16 @@ Piezas compartidas que conviene construir una sola vez, dentro del primer módul
 **Depende de:** M10 (cifras de "lo que se escapó").
 
 **Listo cuando:** la prueba de un club nuevo arranca con el primer turno y al vencer pasa a solo lectura.
+
+---
+
+### M22. Panel de plataforma (uso de clubes)
+
+Panel interno de ConCancha para su administrador: qué clubes existen, cuántas canchas tiene cada uno, cuántos turnos cargan en el período elegido (con comparación contra el período anterior) y la lista de clientes de cada club. Acceso con usuario y contraseña en variables de entorno.
+
+Detalle, decisiones y etapas en [PLAN-PANEL-PLATAFORMA.md](PLAN-PANEL-PLATAFORMA.md). Operación (alta de la contraseña, reinicio) en [OPERACION.md](OPERACION.md).
+
+**Listo cuando:** cumplido en código, con 536 tests del backend en verde y un recorrido en navegador de escritorio y celular (login, resumen, atajos y rangos personalizados, detalle del club, lista de clientes, cierre de sesión).
 
 ---
 

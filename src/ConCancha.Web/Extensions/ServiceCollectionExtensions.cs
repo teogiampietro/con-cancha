@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddAuthorizationCore();
         services.AddCascadingAuthenticationState();
         services.AddScoped<CurrentSession>();
+        services.AddScoped<PlatformSession>();
         services.AddScoped<AuthenticationStateProvider, SessionAuthenticationStateProvider>();
         services.AddScoped<ClientIpAccessor>();
         services.AddScoped<ClubClock>();

@@ -68,6 +68,23 @@ public class RolePermissionsTests(ApiFactory api) : ApiTestBase(api)
         { "GET", Routes.Reminders },
     };
 
+    public static TheoryData<string, string> PlatformAdminEndpoints => new()
+    {
+        { "GET", "api/platform/overview" },
+        { "GET", $"api/platform/clubs/{AnyId}" },
+        { "GET", $"api/platform/clubs/{AnyId}/customers" },
+    };
+
+    [Theory]
+    [MemberData(nameof(PlatformAdminEndpoints))]
+    public async Task PlatformAdminEndpoint_ClubOwnerIsForbidden_AnonymousIsUnauthorized(string method, string url)
+    {
+        var owner = await Http.RegisterWithClubAsync(Ct);
+
+        Assert.Equal(HttpStatusCode.Forbidden, await StatusAsync(method, url, owner.Token));
+        Assert.Equal(HttpStatusCode.Unauthorized, await StatusAsync(method, url, token: null));
+    }
+
     [Theory]
     [MemberData(nameof(OwnerOnlyEndpoints))]
     public async Task OwnerOnlyEndpoint_StaffIsForbidden_AnonymousIsUnauthorized(string method, string url)

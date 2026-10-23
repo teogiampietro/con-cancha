@@ -17,4 +17,6 @@ public sealed record ServiceError(
     public static ServiceError Locked(string message) => new(ErrorKind.Locked, message);
 
     public static ServiceError NotFound(string message) => new(ErrorKind.NotFound, message);
+
+    public static ServiceError TooManyRequests(string message) => new(ErrorKind.TooManyRequests, message);
 }

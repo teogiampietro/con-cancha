@@ -1,0 +1,21 @@
+<section class="card col plat-period">
+    <div class="seg plat-shortcuts">
+        @foreach (var option in Options)
+        {
+            <button class="@(IsActive(option.Shortcut) ? "on" : string.Empty)" @onclick="() => ChooseShortcut(option.Shortcut)">@option.Label</button>
+        }
+        <button class="@(_isCustom ? "on" : string.Empty)" @onclick="ShowCustom">Personalizado</button>
+    </div>
+
+    <p class="sm mut">@PlatformFormat.Range(Period.From, Period.To) · @PlatformFormat.Days(Period.To.DayNumber - Period.From.DayNumber + 1)</p>
+
+    @if (_isCustom)
+    {
+        <div class="plat-custom">
+            <label class="f">Desde <input type="date" value="@_from" @onchange="e => _from = e.Value?.ToString() ?? string.Empty" /></label>
+            <label class="f">Hasta <input type="date" value="@_to" @onchange="e => _to = e.Value?.ToString() ?? string.Empty" /></label>
+            <button class="btn sm" @onclick="ApplyCustom">Ver período</button>
+        </div>
+        <ErrorMessage Message="@_error" />
+    }
+</section>

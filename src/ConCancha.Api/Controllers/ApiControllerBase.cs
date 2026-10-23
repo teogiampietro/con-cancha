@@ -29,6 +29,7 @@ public abstract class ApiControllerBase : ControllerBase
         ErrorKind.Unauthorized => StatusCodes.Status401Unauthorized,
         ErrorKind.Forbidden => StatusCodes.Status403Forbidden,
         ErrorKind.Locked => StatusCodes.Status423Locked,
+        ErrorKind.TooManyRequests => StatusCodes.Status429TooManyRequests,
         ErrorKind.NotFound => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status500InternalServerError,
     };

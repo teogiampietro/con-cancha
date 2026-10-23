@@ -1,7 +1,9 @@
 using ConCancha.Application.Abstractions;
+using ConCancha.Infrastructure.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -11,12 +13,21 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     public const string JwtKey = "clave-de-pruebas-0123456789-0123456789-0123456789";
     public const string WebBaseUrl = "http://web.test";
+    public const string PlatformAdminUser = "admin-prueba";
+    public const string PlatformAdminPassword = "clave-admin-de-pruebas-larga";
     private const string UnlimitedRequests = "100000";
 
     private readonly TestDatabase _database = new();
     private readonly string _storageRoot = Path.Combine(Path.GetTempPath(), $"concancha-tests-{Guid.NewGuid():N}");
+    private readonly string _platformAdminPasswordHash = PlatformPasswords.Hash(PlatformAdminPassword);
 
     public CapturingEmailSender Emails { get; } = new();
+
+    public CapturedLogs Logs { get; } = new();
+
+    public ControllableClock Clock { get; } = new();
+
+    public string PlatformAdminPasswordHash => _platformAdminPasswordHash;
 
     public Task InitializeAsync() => _database.InitializeAsync();
 
@@ -31,7 +42,12 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         builder.UseEnvironment("Testing");
         builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(TestSettings()));
-        builder.ConfigureServices(services => services.Replace(ServiceDescriptor.Singleton<IEmailSender>(Emails)));
+        builder.ConfigureLogging(logging => logging.AddProvider(Logs));
+        builder.ConfigureServices(services =>
+        {
+            services.Replace(ServiceDescriptor.Singleton<IEmailSender>(Emails));
+            services.Replace(ServiceDescriptor.Singleton<TimeProvider>(Clock));
+        });
     }
 
     private Dictionary<string, string?> TestSettings() => new()
@@ -44,6 +60,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         ["RateLimit:QueryPerMinute"] = UnlimitedRequests,
         ["RateLimit:PublicBookingPerMinute"] = UnlimitedRequests,
         ["Web:BaseUrl"] = WebBaseUrl,
+        ["Platform:AdminUser"] = PlatformAdminUser,
+        ["Platform:AdminPasswordHash"] = _platformAdminPasswordHash,
         ["Storage:RootPath"] = _storageRoot,
         ["Email:Provider"] = "Log",
         ["RecurringBookings:RenewalEnabled"] = "false",

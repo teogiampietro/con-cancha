@@ -36,4 +36,7 @@ public static class ApiRoutes
     public const string Reminders = "api/reminders";
     public const string Bookings = "api/bookings";
     public const string Blocks = "api/bookings/blocks";
+    public const string PlatformLogin = "api/platform/auth/login";
+    public const string PlatformOverview = "api/platform/overview";
+    public const string PlatformClubs = "api/platform/clubs";
 }

@@ -1,0 +1,15 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+
+@if (_isReady)
+{
+    <header class="plat-top">
+        <a class="plat-brand" href="@PageRoutes.Platform"><b>ConCancha</b> <span class="mut">Plataforma</span></a>
+        <button class="btn sec sm" @onclick="SignOutAsync">Salir</button>
+    </header>
+    <main class="plat-main">@Body</main>
+}
+else
+{
+    <p class="loading">Cargando…</p>
+}

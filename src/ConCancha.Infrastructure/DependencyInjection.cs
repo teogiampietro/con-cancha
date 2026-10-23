@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<ITenantContext, TenantContext>();
         services.AddOptions<WebAppOptions>().BindConfiguration(WebAppOptions.SectionName);
         services.AddOptions<AuthOptions>().BindConfiguration(AuthOptions.SectionName);
+        services.AddOptions<PlatformOptions>().BindConfiguration(PlatformOptions.SectionName);
         services.AddOptions<FileStorageOptions>().BindConfiguration(FileStorageOptions.SectionName);
         services.AddOptions<RecurringBookingOptions>().BindConfiguration(RecurringBookingOptions.SectionName);
 
@@ -126,6 +127,13 @@ public static class DependencyInjection
         services.AddScoped<CustomerResolver>();
         services.AddScoped<VisitorBookings>();
         services.AddScoped<IPublicBookingService, PublicBookingService>();
+        services.AddSingleton<PlatformCredentials>();
+        services.AddSingleton<PlatformLoginThrottle>();
+        services.AddScoped<IPlatformSignInService, PlatformSignInService>();
+        services.AddScoped<ClubUsageReader>();
+        services.AddScoped<ClubBreakdownReader>();
+        services.AddScoped<ClubCustomerReader>();
+        services.AddScoped<IPlatformUsageService, PlatformUsageService>();
         return services;
     }
 

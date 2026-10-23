@@ -7,5 +7,6 @@ public enum ErrorKind
     Unauthorized,
     Forbidden,
     Locked,
+    TooManyRequests,
     NotFound,
 }

@@ -1,0 +1,116 @@
+@page "/plataforma/clubes/{ClubId:guid}"
+@layout PlatformLayout
+@inherits PlatformPageBase
+
+<PageTitle>Club · Plataforma</PageTitle>
+
+<a class="lnk" href="@($"{PageRoutes.Platform}?{PlatformPeriods.Query(_period)}")">← Todos los clubes</a>
+
+<ErrorMessage Message="@ErrorText" />
+
+@if (_detail is null)
+{
+    <p class="loading">Cargando…</p>
+}
+else
+{
+    <div class="col">
+        <div class="row sp wrap">
+            <h1 class="no-margin">@_detail.Usage.Name</h1>
+            <span class="chip @PlatformFormat.StatusTone(_detail.Usage.Activity)">@PlatformFormat.Status(_detail.Usage.Activity)</span>
+        </div>
+        <p class="mut sm">
+            @(_detail.Usage.OwnerEmail ?? "Sin dueño") · @(_detail.Usage.Phone ?? "sin teléfono") · alta el @PlatformFormat.Date(_detail.Usage.CreatedOn)
+            · <a href="@PageRoutes.PublicClub(_detail.Usage.Slug)" target="_blank" rel="noopener">Ver sitio</a>
+        </p>
+    </div>
+
+    <PeriodSelector Period="_period" Today="_today" BasePath="@PageRoutes.PlatformClub(ClubId)" />
+
+    <div class="stats plat-stats">
+        <Stat Label="Turnos del período" Value="@_detail.Usage.BookingsInPeriod.ToString()" />
+        <Stat Label="Vs. período anterior" Value="@PlatformFormat.Change(_detail.Usage.BookingsInPeriod, _detail.Usage.BookingsInPreviousPeriod)" />
+        <Stat Label="Por día" Value="@PlatformFormat.Average(_detail.Usage.AverageBookingsPerDay)" />
+        <Stat Label="Online" Value="@_detail.Usage.OnlineBookingsInPeriod.ToString()" />
+        <Stat Label="Clientes" Value="@_detail.Usage.Customers.ToString()" />
+        <Stat Label="Último turno" Value="@PlatformFormat.DateOrDash(_detail.Usage.LastBookingOn)" />
+    </div>
+
+    <section class="card col">
+        <h2 class="no-margin">Turnos por @(_detail.Granularity == UsageGranularity.Day ? "día" : "semana")</h2>
+        <div class="plat-bars">
+            @foreach (var bucket in _detail.Series)
+            {
+                <div title="@($"{PlatformFormat.Date(bucket.Start)}: {PlatformFormat.Turns(bucket.Bookings)}")">
+                    <i style="height: @(PlatformFormat.Share(bucket.Bookings, Peak))%"></i>
+                    <span>@PlatformFormat.ShortDate(bucket.Start)</span>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="card col">
+        <h2 class="no-margin">Canchas</h2>
+        <table class="tbl resp">
+            <thead><tr><th>Cancha</th><th>Estado</th><th class="num">Turnos</th></tr></thead>
+            <tbody>
+                @foreach (var court in _detail.Courts)
+                {
+                    <tr>
+                        <td data-label="Cancha"><b>@court.Name</b><div class="sm mut">@PlatformFormat.Sport(court.Sport)</div></td>
+                        <td data-label="Estado">
+                            @if (court.IsActive)
+                            {
+                                <span class="chip ok">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="chip">Inactiva</span>
+                            }
+                        </td>
+                        <td class="num" data-label="Turnos">@court.BookingsInPeriod</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card col">
+        <div class="row sp wrap">
+            <h2 class="no-margin">Clientes (@(_customers?.Total ?? 0))</h2>
+            <input type="search" placeholder="Buscar por nombre o teléfono" autocomplete="off" @bind="_search" @bind:event="oninput" @bind:after="ReloadCustomersAsync" />
+        </div>
+
+        @if (_customers is null)
+        {
+            <p class="loading">Cargando…</p>
+        }
+        else if (_customers.Items.Count == 0)
+        {
+            <p class="mut">No hay clientes para mostrar.</p>
+        }
+        else
+        {
+            <table class="tbl resp">
+                <thead><tr><th>Cliente</th><th>Mail</th><th class="num">Turnos</th><th class="num">Último turno</th><th class="num">Alta</th></tr></thead>
+                <tbody>
+                    @foreach (var customer in _customers.Items)
+                    {
+                        <tr>
+                            <td data-label="Cliente"><b>@customer.Name</b><div class="sm mut">@customer.Phone</div></td>
+                            <td data-label="Mail">@(customer.Email ?? "—")</td>
+                            <td class="num" data-label="Turnos">@customer.BookingsInPeriod</td>
+                            <td class="num" data-label="Último turno">@PlatformFormat.DateOrDash(customer.LastBookingOn)</td>
+                            <td class="num" data-label="Alta">@PlatformFormat.Date(customer.CreatedOn)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="row sp">
+                <button class="btn sec sm" disabled="@(_customers.Page <= 1)" @onclick="() => LoadCustomersAsync(_customers.Page - 1)">Anterior</button>
+                <span class="sm mut">Página @_customers.Page de @PageCount</span>
+                <button class="btn sec sm" disabled="@(_customers.Page >= PageCount)" @onclick="() => LoadCustomersAsync(_customers.Page + 1)">Siguiente</button>
+            </div>
+        }
+    </section>
+}

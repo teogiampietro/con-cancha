@@ -1,0 +1,73 @@
+@page "/plataforma"
+@layout PlatformLayout
+@inherits PlatformPageBase
+
+<PageTitle>Clubes · Plataforma</PageTitle>
+
+<h1 class="no-margin">Clubes</h1>
+<PeriodSelector Period="_period" Today="_today" BasePath="@PageRoutes.Platform" />
+
+<ErrorMessage Message="@ErrorText" />
+
+@if (_overview is null)
+{
+    <p class="loading">Cargando…</p>
+}
+else
+{
+    <div class="stats plat-stats">
+        <Stat Label="Clubes" Value="@_overview.Totals.Clubs.ToString()" />
+        <Stat Label="Activos" Value="@_overview.Totals.ActiveClubs.ToString()" />
+        <Stat Label="Canchas activas" Value="@_overview.Totals.ActiveCourts.ToString()" />
+        <Stat Label="Clientes" Value="@_overview.Totals.Customers.ToString()" />
+        <Stat Label="Turnos del período" Value="@_overview.Totals.BookingsInPeriod.ToString()" />
+        <Stat Label="Vs. período anterior" Value="@PlatformFormat.Change(_overview.Totals.BookingsInPeriod, _overview.Totals.BookingsInPreviousPeriod)" />
+        <Stat Label="Online" Value="@_overview.Totals.OnlineBookingsInPeriod.ToString()" />
+    </div>
+
+    <div class="row wrap sp">
+        <div class="pills">
+            @foreach (var filter in Filters)
+            {
+                <button class="pill @(filter == _filter ? "on" : string.Empty)" @onclick="() => _filter = filter">@FilterLabel(filter)</button>
+            }
+        </div>
+        <input type="search" placeholder="Buscar club o mail del dueño" autocomplete="off" @bind="_search" @bind:event="oninput" />
+    </div>
+
+    @if (VisibleClubs.Count == 0)
+    {
+        <div class="card center col"><b>No hay clubes para mostrar</b><span class="mut sm">Probá con otro período o filtro.</span></div>
+    }
+    else
+    {
+        <table class="tbl resp">
+            <thead>
+                <tr>
+                    <th>Club</th><th>Estado</th><th class="num">Canchas</th><th class="num">Turnos</th><th class="num">Anterior</th>
+                    <th class="num">Por día</th><th class="num">Online</th><th class="num">Clientes</th><th class="num">Último turno</th><th class="num">Alta</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var club in VisibleClubs)
+                {
+                    <tr>
+                        <td data-label="Club">
+                            <a href="@($"{PageRoutes.PlatformClub(club.Id)}?{PlatformPeriods.Query(_period)}")"><b>@club.Name</b></a>
+                            <div class="sm mut">@(club.OwnerEmail ?? "Sin dueño")</div>
+                        </td>
+                        <td data-label="Estado"><span class="chip @PlatformFormat.StatusTone(club.Activity)">@PlatformFormat.Status(club.Activity)</span></td>
+                        <td class="num" data-label="Canchas">@club.ActiveCourts</td>
+                        <td class="num" data-label="Turnos">@club.BookingsInPeriod</td>
+                        <td class="num" data-label="Anterior">@club.BookingsInPreviousPeriod</td>
+                        <td class="num" data-label="Por día">@PlatformFormat.Average(club.AverageBookingsPerDay)</td>
+                        <td class="num" data-label="Online">@club.OnlineBookingsInPeriod</td>
+                        <td class="num" data-label="Clientes">@club.Customers</td>
+                        <td class="num" data-label="Último turno">@PlatformFormat.DateOrDash(club.LastBookingOn)</td>
+                        <td class="num" data-label="Alta">@PlatformFormat.Date(club.CreatedOn)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

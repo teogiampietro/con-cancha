@@ -8,7 +8,7 @@ using ConCancha.Contracts.Public;
 namespace ConCancha.Web.Services;
 
 /// <summary>Talks to the API. Never throws for business errors: returns an <see cref="ApiResult{T}"/> with the message to show.</summary>
-public sealed partial class ApiClient(HttpClient http, CurrentSession session, ClientIpAccessor clientIp)
+public sealed partial class ApiClient(HttpClient http, CurrentSession session, PlatformSession platform, ClientIpAccessor clientIp)
 {
     private const string BearerScheme = "Bearer";
     private const string ForwardedForHeader = "X-Forwarded-For";
@@ -67,9 +67,10 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
             HttpMethod.Post, ApiRoutes.AcceptInvitation, new AcceptInvitationRequest(email, token, password), cancellationToken);
 
     private async Task<ApiResult<T>> SendAsync<T>(
-        HttpMethod method, string route, object? body, CancellationToken cancellationToken, string? visitorToken = null)
+        HttpMethod method, string route, object? body, CancellationToken cancellationToken,
+        string? visitorToken = null, ApiCredential credential = ApiCredential.Club)
     {
-        using var request = BuildRequest(method, route, body, visitorToken);
+        using var request = BuildRequest(method, route, body, visitorToken, credential);
         try
         {
             using var response = await http.SendAsync(request, cancellationToken);
@@ -87,11 +88,12 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
         }
     }
 
-    private HttpRequestMessage BuildRequest(HttpMethod method, string route, object? body, string? visitorToken = null)
+    private HttpRequestMessage BuildRequest(
+        HttpMethod method, string route, object? body, string? visitorToken = null, ApiCredential credential = ApiCredential.Club)
     {
         var request = new HttpRequestMessage(method, route);
         if (body is not null) request.Content = body as HttpContent ?? JsonContent.Create(body);
-        if (session.Current?.Token is { } token)
+        if (TokenFor(credential) is { } token)
             request.Headers.Authorization = new AuthenticationHeaderValue(BearerScheme, token);
         if (!string.IsNullOrEmpty(clientIp.Address))
             request.Headers.TryAddWithoutValidation(ForwardedForHeader, clientIp.Address);
@@ -99,6 +101,13 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
             request.Headers.TryAddWithoutValidation(VisitorToken.HeaderName, visitorToken);
         return request;
     }
+
+    private string? TokenFor(ApiCredential credential) => credential switch
+    {
+        ApiCredential.Club => session.Current?.Token,
+        ApiCredential.Platform => platform.Current?.Token,
+        _ => null,
+    };
 
     private static async Task<ApiResult<T>> ReadSuccessAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
     {
@@ -110,8 +119,6 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
     private static async Task<ApiResult<T>> ReadErrorAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         var statusCode = (int)response.StatusCode;
-        if (statusCode == StatusCodes.Status429TooManyRequests)
-            return ApiResult<T>.Failure(TooManyRequestsMessage, statusCode);
         if (statusCode == StatusCodes.Status403Forbidden)
             return ApiResult<T>.Failure(ForbiddenMessage, statusCode);
 
@@ -122,10 +129,11 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
         }
         catch (JsonException)
         {
-            return ApiResult<T>.Failure(UnknownErrorMessage, statusCode);
+            return ApiResult<T>.Failure(FallbackMessageFor(statusCode), statusCode);
         }
     }
 
+    /// <summary>The API's message whatever the status, so the platform's block can say how long to wait.</summary>
     private static ApiResult<T> ParseProblemDetails<T>(JsonElement root, int statusCode)
     {
         if (root.TryGetProperty("errors", out var errors) && errors.ValueKind == JsonValueKind.Object)
@@ -134,8 +142,11 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
         if (root.TryGetProperty("title", out var title) && title.GetString() is { Length: > 0 } message)
             return ApiResult<T>.Failure(message, statusCode);
 
-        return ApiResult<T>.Failure(UnknownErrorMessage, statusCode);
+        return ApiResult<T>.Failure(FallbackMessageFor(statusCode), statusCode);
     }
+
+    private static string FallbackMessageFor(int statusCode) =>
+        statusCode == StatusCodes.Status429TooManyRequests ? TooManyRequestsMessage : UnknownErrorMessage;
 
     private static Dictionary<string, string[]> ParseFieldErrors(JsonElement errors) =>
         errors.EnumerateObject().ToDictionary(

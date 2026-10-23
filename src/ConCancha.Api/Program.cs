@@ -1,7 +1,14 @@
+using ConCancha.Api.Commands;
 using ConCancha.Api.ErrorHandling;
 using ConCancha.Api.Extensions;
 using ConCancha.Api.Tenancy;
 using ConCancha.Infrastructure;
+
+if (HashPasswordCommand.IsRequested(args))
+{
+    HashPasswordCommand.Run();
+    return;
+}
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,5 +1,6 @@
 using ConCancha.Application.Abstractions;
 using ConCancha.Contracts.Accounts;
+using ConCancha.Contracts.Platform;
 using ConCancha.Domain.Clubs;
 using ConCancha.Infrastructure.Identity;
 
@@ -18,5 +19,11 @@ public sealed class SessionFactory(ISessionTokenIssuer tokenIssuer)
             new UserDto(user.Id, email),
             club is null ? null : ClubMapper.ToDto(club),
             role?.ToString());
+    }
+
+    public SessionResponse CreatePlatformAdmin(string user, string credentialFingerprint)
+    {
+        var token = tokenIssuer.IssuePlatformAdmin(credentialFingerprint);
+        return new SessionResponse(token.Value, token.ExpiresAt, new UserDto(PlatformRoles.Admin, user), Club: null, PlatformRoles.Admin);
     }
 }

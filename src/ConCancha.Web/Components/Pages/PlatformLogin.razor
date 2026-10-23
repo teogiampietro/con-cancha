@@ -1,0 +1,21 @@
+@page "/plataforma/ingresar"
+@inherits CancellableComponentBase
+
+<PageTitle>Plataforma · ConCancha</PageTitle>
+
+<div class="landing">
+    <form class="card col card-narrow" @onsubmit="() => SubmitAsync(ComponentToken)" @onsubmit:preventDefault>
+        <h1>Plataforma</h1>
+        <p class="mut">Panel de ConCancha para ver el uso que hacen los clubes.</p>
+        <div>
+            <label class="f" for="user">Usuario</label>
+            <input id="user" autocomplete="username" @bind="_user" @bind:event="oninput" required />
+        </div>
+        <div>
+            <label class="f" for="password">Contraseña</label>
+            <input id="password" type="password" autocomplete="current-password" @bind="_password" @bind:event="oninput" required />
+        </div>
+        <ErrorMessage Message="@_errorMessage" />
+        <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Entrando…" : "Entrar")</button>
+    </form>
+</div>
