@@ -13,8 +13,6 @@ public interface IClubService
 
     Task<Result<ClubDto>> GetCurrentClubAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<ClubMemberDto>> GetCurrentClubTeamAsync(CancellationToken cancellationToken);
-
     Task<Result<ClubDto>> UpdateHoursAsync(UpdateClubHoursRequest request, CancellationToken cancellationToken);
 
     Task<Result<ClubDto>> UpdateProfileAsync(UpdateClubProfileRequest request, CancellationToken cancellationToken);

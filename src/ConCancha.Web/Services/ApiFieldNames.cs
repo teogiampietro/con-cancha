@@ -13,4 +13,6 @@ public static class ApiFieldNames
     public const string WindowHours = "windowHours";
     public const string CurrentPassword = "currentPassword";
     public const string NewPassword = "newPassword";
+    public const string Password = "password";
+    public const string Email = "email";
 }

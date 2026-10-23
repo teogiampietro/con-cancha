@@ -46,6 +46,20 @@ public sealed partial class ApiClient(HttpClient http, CurrentSession session, C
     public Task<ApiResult<IReadOnlyList<ClubMemberDto>>> GetCurrentClubTeamAsync(CancellationToken cancellationToken) =>
         SendAsync<IReadOnlyList<ClubMemberDto>>(HttpMethod.Get, ApiRoutes.CurrentClubTeam, body: null, cancellationToken);
 
+    public Task<ApiResult<ClubMemberDto>> InviteTeamMemberAsync(string email, CancellationToken cancellationToken) =>
+        SendAsync<ClubMemberDto>(HttpMethod.Post, ApiRoutes.TeamInvitations, new InviteTeamMemberRequest(email), cancellationToken);
+
+    public Task<ApiResult<object>> RemoveTeamMemberAsync(Guid memberId, CancellationToken cancellationToken) =>
+        SendAsync<object>(HttpMethod.Delete, $"{ApiRoutes.CurrentClubTeam}/{memberId}", body: null, cancellationToken);
+
+    public Task<ApiResult<object>> RevokeTeamInvitationAsync(Guid invitationId, CancellationToken cancellationToken) =>
+        SendAsync<object>(HttpMethod.Delete, $"{ApiRoutes.TeamInvitations}/{invitationId}", body: null, cancellationToken);
+
+    public Task<ApiResult<SessionResponse>> AcceptInvitationAsync(
+        string email, string token, string password, CancellationToken cancellationToken) =>
+        SendAsync<SessionResponse>(
+            HttpMethod.Post, ApiRoutes.AcceptInvitation, new AcceptInvitationRequest(email, token, password), cancellationToken);
+
     private async Task<ApiResult<T>> SendAsync<T>(
         HttpMethod method, string route, object? body, CancellationToken cancellationToken, string? visitorToken = null)
     {

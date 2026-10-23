@@ -100,6 +100,10 @@ public static class DependencyInjection
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IClubService, ClubService>();
         services.AddScoped<IClubAppearanceService, ClubAppearanceService>();
+        services.AddScoped<ITeamService, TeamService>();
+        services.AddScoped<IInvitationAcceptor, InvitationAcceptor>();
+        services.AddScoped<IMembershipVerifier, MembershipVerifier>();
+        services.AddScoped<TeamLinks>();
         services.AddSingleton<IFileStore, LocalDiskFileStore>();
         services.AddScoped<CurrentClubProvider>();
         services.AddScoped<ICourtService, CourtService>();

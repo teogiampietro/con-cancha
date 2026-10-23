@@ -1,5 +1,4 @@
 using ConCancha.Contracts.Clubs;
-using ConCancha.Domain.Clubs;
 using ConCancha.Web.Services;
 
 namespace ConCancha.Web.Components.Pages;
@@ -7,19 +6,14 @@ namespace ConCancha.Web.Components.Pages;
 public partial class Dashboard : PanelPageBase
 {
     private ClubDto? _club;
-    private IReadOnlyList<ClubMemberDto>? _team;
 
     private string RoleLabel => IsOwner ? "dueño" : "encargado";
-
-    private static string RoleLabelOf(string role) => role == nameof(ClubRole.Owner) ? "Dueño" : "Encargado";
 
     protected override async Task OnInitializedAsync()
     {
         if (!await EnterPanelAsync(ComponentToken)) return;
         if (!await LoadClubAsync(ComponentToken)) return;
-        if (await RedirectToSetupIfPendingAsync(ComponentToken)) return;
-
-        await LoadTeamIfOwnerAsync(ComponentToken);
+        await RedirectToSetupIfPendingAsync(ComponentToken);
     }
 
     private async Task<bool> LoadClubAsync(CancellationToken cancellationToken)
@@ -40,13 +34,5 @@ public partial class Dashboard : PanelPageBase
 
         Navigation.NavigateTo(PageRoutes.Setup, replace: true);
         return true;
-    }
-
-    private async Task LoadTeamIfOwnerAsync(CancellationToken cancellationToken)
-    {
-        if (!IsOwner) return;
-
-        var result = await Api.GetCurrentClubTeamAsync(cancellationToken);
-        if (result.IsSuccess) _team = result.Value;
     }
 }

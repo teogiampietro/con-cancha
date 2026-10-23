@@ -192,3 +192,5 @@ h1:focus { outline: none; }
 .color-preview { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--bg);
                  border: 1px solid var(--line); border-left: 6px solid var(--club2); border-radius: 12px; }
 .color-preview-title { font-weight: 700; color: var(--acc); }
+
+.team-invite { align-items: flex-end; max-width: 560px; } .mt { margin-top: 16px; }

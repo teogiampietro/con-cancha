@@ -1,0 +1,54 @@
+@page "/panel/equipo"
+@layout PanelLayout
+@inherits PanelPageBase
+
+<PageTitle>Equipo · ConCancha</PageTitle>
+
+<main class="panel">
+    <h1>Tu equipo</h1>
+    <p class="mut">Sumá a quien te ayuda en el mostrador. Puede cargar turnos, cobrar, marcar quién jugó y ver clientes y caja. No puede cambiar la configuración, las canchas ni los precios, ni sumar o sacar gente.</p>
+
+    <form class="card row wrap team-invite" @onsubmit="() => InviteAsync(ComponentToken)" @onsubmit:preventDefault>
+        <div class="grow">
+            <label class="f no-margin" for="team-email">Mail de la persona</label>
+            <input id="team-email" type="email" autocomplete="off" placeholder="nombre@mail.com" @bind="_email" @bind:event="oninput" required />
+            <FieldError Message="@_emailError" />
+        </div>
+        <button class="btn" disabled="@_isBusy">@(_isBusy ? "Sumando…" : "Sumar encargado")</button>
+    </form>
+    <ErrorMessage Message="@_errorMessage" />
+    @if (_notice is not null) { <p class="sm success">@_notice</p> }
+
+    @if (_team is null)
+    {
+        <p class="loading">@(ErrorText ?? "Cargando…")</p>
+    }
+    else
+    {
+        <div class="col mt">
+            @foreach (var member in _team)
+            {
+                <div class="card row sp wrap">
+                    <span>
+                        <b>@member.Email</b>
+                        <div class="mut sm">@Describe(member)</div>
+                    </span>
+                    @if (!IsOwnerEntry(member))
+                    {
+                        @if (_confirmingId == member.Id)
+                        {
+                            <span class="row">
+                                <button class="btn danger sm" disabled="@_isBusy" @onclick="() => RemoveAsync(member, ComponentToken)">Sí, quitar</button>
+                                <button class="lnk" @onclick="CancelConfirmation">No</button>
+                            </span>
+                        }
+                        else
+                        {
+                            <button class="btn danger sm" @onclick="() => AskConfirmation(member)">@(IsInvited(member) ? "Cancelar invitación" : "Quitar")</button>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    }
+</main>

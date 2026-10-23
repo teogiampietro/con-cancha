@@ -1,5 +1,6 @@
 using System.Reflection;
 using ConCancha.Application.Abstractions;
+using ConCancha.Domain.Accounts;
 using ConCancha.Domain.Bookings;
 using ConCancha.Domain.Cash;
 using ConCancha.Domain.Clubs;
@@ -24,6 +25,7 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
 
     public DbSet<Club> Clubs => Set<Club>();
     public DbSet<ClubMember> ClubMembers => Set<ClubMember>();
+    public DbSet<ClubInvitation> ClubInvitations => Set<ClubInvitation>();
     public DbSet<Court> Courts => Set<Court>();
     public DbSet<PriceRule> PriceRules => Set<PriceRule>();
     public DbSet<Booking> Bookings => Set<Booking>();
@@ -43,6 +45,7 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
 
         ConfigureClub(modelBuilder);
         ConfigureClubMember(modelBuilder);
+        ConfigureClubInvitation(modelBuilder);
         ConfigureCourt(modelBuilder);
         ConfigurePriceRule(modelBuilder);
         ConfigureBooking(modelBuilder);
@@ -87,6 +90,18 @@ public class ConCanchaDbContext(DbContextOptions<ConCanchaDbContext> options, IT
             entity.HasOne<AppUser>().WithMany().HasForeignKey(member => member.UserId).OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(member => new { member.ClubId, member.UserId }).IsUnique();
             entity.HasIndex(member => member.UserId);
+        });
+
+    private static void ConfigureClubInvitation(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<ClubInvitation>(entity =>
+        {
+            entity.Property(invitation => invitation.Email).HasMaxLength(AccountLimits.EmailMaxLength).IsRequired();
+            entity.Property(invitation => invitation.TokenHash).HasMaxLength(ManagementTokenHashLength).IsRequired();
+            entity.Property(invitation => invitation.Role).HasConversion<int>();
+            entity.Property(invitation => invitation.Status).HasConversion<int>();
+            entity.HasOne<Club>().WithMany().HasForeignKey(invitation => invitation.ClubId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(invitation => invitation.TokenHash);
+            entity.HasIndex(invitation => new { invitation.ClubId, invitation.Email });
         });
 
     private static void ConfigureCourt(ModelBuilder modelBuilder) =>

@@ -18,6 +18,7 @@ public static class PanelNavItems
         new("Caja", PageRoutes.Cash, PanelIcons.Wallet, PanelNavGroup.Today, InBottomBar: true),
         new("Canchas", PageRoutes.Courts, PanelIcons.Grid, PanelNavGroup.Club, OwnerOnly: true),
         new("Clientes", PageRoutes.Customers, PanelIcons.Users, PanelNavGroup.Club),
+        new("Equipo", PageRoutes.Team, PanelIcons.UserPlus, PanelNavGroup.Club, OwnerOnly: true),
         new("Configuración", PageRoutes.Settings, PanelIcons.Gear, PanelNavGroup.Club, OwnerOnly: true)
     ];
 

@@ -1,0 +1,27 @@
+@page "/panel/invitacion"
+@inherits CancellableComponentBase
+
+<PageTitle>Aceptar invitación · ConCancha</PageTitle>
+
+<div class="landing">
+    <form class="card col card-narrow" @onsubmit="() => SubmitAsync(ComponentToken)" @onsubmit:preventDefault>
+        <h1>Sumate al equipo</h1>
+        @if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Token))
+        {
+            <p class="mut">Este link está incompleto. Pedile al dueño del club que te invite de nuevo.</p>
+            <a class="btn block" href="/panel/login">Entrar</a>
+        }
+        else
+        {
+            <p class="mut">Elegí una contraseña para la cuenta <b>@Email</b> y entrás como encargado.</p>
+            <div>
+                <label class="f" for="password">Contraseña</label>
+                <input id="password" type="password" autocomplete="new-password" @bind="_password" @bind:event="oninput" required />
+                <p class="hint">Mínimo @AccountLimits.PasswordMinLength letras o números.</p>
+                <FieldError Message="@_passwordError" />
+            </div>
+            <ErrorMessage Message="@_errorMessage" />
+            <button class="btn block" disabled="@_isBusy">@(_isBusy ? "Entrando…" : "Crear contraseña y entrar")</button>
+        }
+    </form>
+</div>

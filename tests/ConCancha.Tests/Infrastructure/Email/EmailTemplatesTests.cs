@@ -18,6 +18,25 @@ public class EmailTemplatesTests
     }
 
     [Fact]
+    public void TeamInvitation_NamesTheClubAndCarriesTheLinkOnItsOwnLine()
+    {
+        var email = EmailTemplates.TeamInvitation("Club Sur", SampleLink, validDays: 7);
+
+        Assert.Contains("Club Sur", email.Subject);
+        Assert.Equal(SampleLink, email.Body.Split('\n')[1]);
+        Assert.Contains("7 días", email.Body);
+    }
+
+    [Fact]
+    public void TeamMemberAdded_PointsToThePanel()
+    {
+        var email = EmailTemplates.TeamMemberAdded("Club Sur", "https://concancha.test/panel");
+
+        Assert.Contains("Club Sur", email.Subject);
+        Assert.Contains("https://concancha.test/panel", email.Body);
+    }
+
+    [Fact]
     public void HtmlLayout_MakesTheLinkClickableAndKeepsLineBreaks()
     {
         var email = EmailTemplates.PasswordReset(SampleLink);

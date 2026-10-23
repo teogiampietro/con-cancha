@@ -27,16 +27,5 @@
             <div class="row"><span class="chip ok">✓</span> Cargaste tus canchas y precios</div>
             <div class="row"><span class="chip">•</span> <a href="@PageRoutes.Agenda">Cargá tu primer turno en la agenda</a></div>
         </div>
-
-        @if (_team is not null)
-        {
-            <div class="card col">
-                <b>Equipo</b>
-                @foreach (var member in _team)
-                {
-                    <div class="row sp"><span>@member.Email</span><span class="chip">@RoleLabelOf(member.Role)</span></div>
-                }
-            </div>
-        }
     }
 </main>

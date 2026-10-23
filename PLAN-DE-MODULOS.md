@@ -15,29 +15,31 @@ Cada módulo se puede decidir por separado: **entra** o **no entra**. En cada un
 
 ## 1. Mapa de módulos
 
-| Id | Módulo | Grupo | Esfuerzo | Depende de | Prioridad sugerida |
-|---|---|---|---|---|---|
-| **M1** | Navegación y estructura del panel | Núcleo | 2–3 d | — | Alta |
-| **M2** | Agenda: mover, deshacer y atajos | Núcleo | 3–4 d | — | Alta |
-| **M3** | Configuración del club | Núcleo | 3–4 d | M1 | Alta |
-| **M4** | Equipo (encargados) | Núcleo | 2–3 d | M7 | Alta |
-| **M5** | Inicio guiado y Resumen | Núcleo | 3–4 d | M1 | Media |
-| **M6** | Sitio público: mejoras | Núcleo | 2–3 d | — | Media |
-| **M7** | Envío real de mails | Núcleo | 1–2 d | — | Alta (piloto) |
-| **M8** | Señas con comprobante | Opcional | 6–8 d | M3, M7 | Media (siguiente natural) |
-| **M9** | Lista de espera | Opcional | 4–5 d | M6 | Media |
-| **M10** | Métricas | Opcional | 3–4 d | — | Media |
-| **M11** | Turnos fijos | Opcional | 4–5 d | M2 | Media |
-| **M12** | Buffet | Opcional | 6–8 d | — | Baja |
-| **M13** | Cuenta de jugador | Opcional | 7–9 d | M7 | Baja |
-| **M14** | Puntos y premios | Opcional | 4–5 d | M13 | Baja |
-| **M15** | "Busco jugadores" | Opcional | 3–4 d | M13 | Baja |
-| **M16** | Torneos | Opcional | 5–7 d (básico) | — | Baja |
-| **M17** | Asistente con IA | Opcional | 6–8 d | M2 | Baja |
-| **M18** | Marca avanzada, país y secciones | Opcional | 3–4 d | M3 | Baja |
-| **M19** | Notificaciones y push | Opcional | 5–7 d | M13 (push de jugador) | Baja |
-| **M20** | Planes y cobro | Opcional | 6–10 d | M10 | Baja |
-| **M21** | Exportes reales (xlsx y PDF) | Opcional | 2–3 d | — | Baja |
+| Id | Módulo | Grupo | Esfuerzo | Depende de | Prioridad sugerida | Desarrollado |
+|---|---|---|---|---|---|---|
+| **M1** | Navegación y estructura del panel | Núcleo | 2–3 d | — | Alta | ✅ |
+| **M2** | Agenda: mover, deshacer y atajos | Núcleo | 3–4 d | — | Alta | ✅ |
+| **M3** | Configuración del club | Núcleo | 3–4 d | M1 | Alta | ✅ |
+| **M4** | Equipo (encargados) | Núcleo | 2–3 d | M7 | Alta |  |
+| **M5** | Inicio guiado y Resumen | Núcleo | 3–4 d | M1 | Media |  |
+| **M6** | Sitio público: mejoras | Núcleo | 2–3 d | — | Media | ✅ |
+| **M7** | Envío real de mails | Núcleo | 1–2 d | — | Alta (piloto) | ✅ |
+| **M8** | Señas con comprobante | Opcional | 6–8 d | M3, M7 | Media (siguiente natural) |  |
+| **M9** | Lista de espera | Opcional | 4–5 d | M6 | Media |  |
+| **M10** | Métricas | Opcional | 3–4 d | — | Media |  |
+| **M11** | Turnos fijos | Opcional | 4–5 d | M2 | Media |  |
+| **M12** | Buffet | Opcional | 6–8 d | — | Baja |  |
+| **M13** | Cuenta de jugador | Opcional | 7–9 d | M7 | Baja |  |
+| **M14** | Puntos y premios | Opcional | 4–5 d | M13 | Baja |  |
+| **M15** | "Busco jugadores" | Opcional | 3–4 d | M13 | Baja |  |
+| **M16** | Torneos | Opcional | 5–7 d (básico) | — | Baja |  |
+| **M17** | Asistente con IA | Opcional | 6–8 d | M2 | Baja |  |
+| **M18** | Marca avanzada, país y secciones | Opcional | 3–4 d | M3 | Baja | ✅ |
+| **M19** | Notificaciones y push | Opcional | 5–7 d | M13 (push de jugador) | Baja |  |
+| **M20** | Planes y cobro | Opcional | 6–10 d | M10 | Baja |  |
+| **M21** | Exportes reales (xlsx y PDF) | Opcional | 2–3 d | — | Baja |  |
+
+✅ = desarrollado en la aplicación (según el código y el estado de [PLAN-DE-ACCION.md](PLAN-DE-ACCION.md)). M7 está hecho en código pero falta verificar un mail entregado en una casilla real; M18 se entregó sin la parte de país (queda Argentina fija).
 
 Los módulos M1 a M7 completan lo que el plan original ya daba por MVP y la maqueta muestra; no agregan líneas de negocio nuevas. Del M8 en adelante cada uno es una decisión de producto.
 

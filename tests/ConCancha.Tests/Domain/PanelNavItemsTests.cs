@@ -20,6 +20,13 @@ public class PanelNavItemsTests
     }
 
     [Fact]
+    public void Owner_sees_team_in_the_menu_and_staff_does_not()
+    {
+        Assert.Contains(PageRoutes.Team, RoutesFor(Owner));
+        Assert.DoesNotContain(PageRoutes.Team, RoutesFor(Staff));
+    }
+
+    [Fact]
     public void Owner_sees_settings_in_the_menu()
     {
         Assert.Contains(PageRoutes.Settings, RoutesFor(Owner));

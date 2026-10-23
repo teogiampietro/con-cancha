@@ -105,20 +105,6 @@ public sealed class ClubService(
         return result;
     }
 
-    public async Task<IReadOnlyList<ClubMemberDto>> GetCurrentClubTeamAsync(CancellationToken cancellationToken)
-    {
-        var members = await db.ClubMembers
-            .Join(db.Users, member => member.UserId, user => user.Id,
-                (member, user) => new { member.UserId, user.Email, member.Role, member.CreatedAt })
-            .OrderBy(row => row.CreatedAt)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        return members
-            .Select(row => new ClubMemberDto(row.UserId, row.Email ?? string.Empty, row.Role.ToString(), row.CreatedAt))
-            .ToList();
-    }
-
     /// <summary>Also makes the club the request's current club, so later queries are scoped to it.</summary>
     public async Task<Result<PublicClubDto>> ResolvePublicClubBySlugAsync(string slug, CancellationToken cancellationToken)
     {

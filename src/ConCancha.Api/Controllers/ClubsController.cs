@@ -56,12 +56,6 @@ public class ClubsController(IClubService clubs) : ApiControllerBase
     public async Task<IActionResult> UpdateCancellation(UpdateCancellationRequest request, CancellationToken cancellationToken) =>
         ToActionResult(await clubs.UpdateCancellationAsync(request, cancellationToken), Ok);
 
-    /// <summary>Club team. Owner only. Queries are already filtered by the token's club.</summary>
-    [HttpGet("api/club/team")]
-    [Authorize(Roles = nameof(ClubRole.Owner))]
-    public async Task<ActionResult<IReadOnlyList<ClubMemberDto>>> GetCurrentClubTeam(CancellationToken cancellationToken) =>
-        Ok(await clubs.GetCurrentClubTeamAsync(cancellationToken));
-
     /// <summary>Public data of a club by its link: what a player without an account sees.</summary>
     [HttpGet("api/public/clubs/{slug}")]
     [AllowAnonymous]

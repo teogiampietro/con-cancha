@@ -10,6 +10,8 @@ public static class Routes
     public const string SlugAvailability = "/api/clubs/slug-availability";
     public const string CurrentClub = "/api/club";
     public const string CurrentClubTeam = "/api/club/team";
+    public const string TeamInvitations = "/api/club/team/invitations";
+    public const string AcceptInvitation = "/api/auth/accept-invitation";
     public const string PublicClubs = "/api/public/clubs";
     public const string ClubHours = "/api/club/hours";
     public const string ClubProfile = "/api/club/profile";

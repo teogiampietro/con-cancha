@@ -209,6 +209,46 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                     b.ToTable("Clubs");
                 });
 
+            modelBuilder.Entity("ConCancha.Domain.Clubs.ClubInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash");
+
+                    b.HasIndex("ClubId", "Email");
+
+                    b.ToTable("ClubInvitations");
+                });
+
             modelBuilder.Entity("ConCancha.Domain.Clubs.ClubMember", b =>
                 {
                     b.Property<Guid>("Id")
@@ -594,6 +634,15 @@ namespace ConCancha.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ConCancha.Domain.Cash.CashClosure", b =>
+                {
+                    b.HasOne("ConCancha.Domain.Clubs.Club", null)
+                        .WithMany()
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ConCancha.Domain.Clubs.ClubInvitation", b =>
                 {
                     b.HasOne("ConCancha.Domain.Clubs.Club", null)
                         .WithMany()

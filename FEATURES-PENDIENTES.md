@@ -21,7 +21,7 @@ Comparación entre [maqueta/index.html](maqueta/index.html) y el código actual 
 | Sitio público `/{slug}` y gestión por token | Sí | Sí | Faltan lista de espera, marca del club y seña |
 | Inicio / Resumen / Métricas | Sí | Parcial | El panel "Inicio" es mínimo; Resumen y Métricas no existen |
 | Configuración | Sí | Parcial | Hecho (M3): Marca básica, Cancelación y Tu cuenta; hecho (M18): logo, colores y Secciones; faltan Cobros, País y Notificaciones |
-| Equipo, Mi plan | Sí | No | No existen |
+| Equipo, Mi plan | Sí | Equipo sí (M4); Mi plan no | Mi plan no existe |
 | Lista de espera, Señas, Buffet, Torneos, Premios | Sí | No | No existen |
 | Cuenta de jugador, "Busco jugadores" | Sí | No | No existen |
 | Asistente (chat) y notificaciones | Simulados | No | No existen |
@@ -49,7 +49,7 @@ La maqueta muestra una guía de bienvenida; la app muestra datos del club y 3 pa
 - **Checklist de primeros pasos completo** con estado real y botón "Ir": cargar canchas, definir precios, cargar el primer turno, activar la seña, compartir el link (la app tiene 3 pasos fijos, de los cuales 2 están marcados siempre como hechos). `MVP`
 - **Guía por secciones** (Para arrancar, Hoy, El club, Crecer, Tu cuenta) con una tarjeta por módulo. `Post-MVP`
 - **Videos de ayuda** por sección ("Cómo funciona"). `Post-MVP` (el contenido no existe; en la maqueta es un toast simulado).
-- Gestión del **equipo** (ver §5.2): hoy el Inicio solo lista a los miembros.
+- Gestión del **equipo** (ver §5.2): hecho (M4), pendiente recorrerlo en navegador.
 
 ### 3.2 Agenda
 
@@ -176,8 +176,7 @@ Ya está: horario del club, alta y edición de canchas (con horario propio y act
 
 ### 5.2 Equipo (`/panel/equipo`)
 
-- Hoy: solo `GET api/club/team` y la lista en el Inicio.
-- Falta: **sumar encargado por mail** (crear la membresía o invitación), **quitar encargado**, y el texto de qué puede y qué no puede hacer el rol. El plan define el rol encargado y sus permisos; falta el alta. `MVP`
+- **Estado (M4 hecho en código, sin recorrer en navegador):** `/panel/equipo` suma encargado por mail (cuenta existente: directo; si no, invitación con link de 7 días), lo quita, cancela invitaciones y muestra qué puede hacer el rol. Límite de 3 encargados. La lista ya no está en el Inicio. `MVP`
 
 ### 5.3 Mi plan (`/panel/plan`)
 
