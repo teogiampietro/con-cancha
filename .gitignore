@@ -20,3 +20,6 @@ obj/
 
 backups/
 /storage/
+
+# Railway IaC SDK
+.railway/node_modules/
